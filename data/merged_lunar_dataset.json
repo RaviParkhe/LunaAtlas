@@ -1,0 +1,227 @@
+{
+  "grid_meta": {
+    "shape": [
+      400,
+      400
+    ],
+    "bounds": {
+      "left": -200000,
+      "right": 200000,
+      "bottom": -200000,
+      "top": 200000
+    },
+    "projection": "PROJCS[\"POLAR_STEREOGRAPHIC MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"unknown\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]"
+  },
+  "layer_names": [
+    "sunlight_score",
+    "ice_score",
+    "dust_risk_score",
+    "landing_suitability_score",
+    "radiation_safety_score",
+    "slope_deg",
+    "elevation_m",
+    "is_flat"
+  ],
+  "layer_stats": {
+    "sunlight_score": {
+      "min": 0.0,
+      "max": 53.33098220825195,
+      "mean": 24.07833480834961,
+      "shape": [
+        400,
+        400
+      ]
+    },
+    "ice_score": {
+      "min": 0.0,
+      "max": 100.0,
+      "mean": 56.6487922668457,
+      "shape": [
+        400,
+        400
+      ]
+    },
+    "dust_risk_score": {
+      "min": 0.0,
+      "max": 100.0,
+      "mean": 14.36801528930664,
+      "shape": [
+        400,
+        400
+      ]
+    },
+    "landing_suitability_score": {
+      "min": 0.0,
+      "max": 99.93480682373047,
+      "mean": 49.90641784667969,
+      "shape": [
+        400,
+        400
+      ]
+    },
+    "radiation_safety_score": {
+      "min": 56.6688346862793,
+      "max": 66.66853332519531,
+      "mean": 59.942710876464844,
+      "shape": [
+        400,
+        400
+      ]
+    },
+    "slope_deg": {
+      "min": 0.007124324329197407,
+      "max": 33.41822052001953,
+      "mean": 8.0667085647583,
+      "shape": [
+        400,
+        400
+      ]
+    },
+    "elevation_m": {
+      "min": -5445.1171875,
+      "max": 6980.2158203125,
+      "mean": -1317.5341796875,
+      "shape": [
+        400,
+        400
+      ]
+    },
+    "is_flat": {
+      "min": 0.0,
+      "max": 1.0,
+      "mean": 0.6844125,
+      "shape": [
+        400,
+        400
+      ]
+    }
+  },
+  "named_sites": {
+    "Shackleton Crater Rim": {
+      "name": "Shackleton Crater Rim",
+      "lat": -89.67,
+      "lon": 129.78,
+      "grid_row": 212,
+      "grid_col": 188,
+      "elevation_m": 1926.5,
+      "slope_deg": 0.75,
+      "is_flat": true,
+      "sunlight_score": 53.33,
+      "ice_score": 0.0,
+      "dust_risk_score": 18.67,
+      "landing_suitability_score": 85.97,
+      "best_nearby_landing_score": 94.44,
+      "best_nearby_offset_km": [
+        -1,
+        0
+      ],
+      "radiation_safety_score": 56.77,
+      "confidence": "high"
+    },
+    "de Gerlache Rim": {
+      "name": "de Gerlache Rim",
+      "lat": -88.5,
+      "lon": -87.1,
+      "grid_row": 185,
+      "grid_col": 162,
+      "elevation_m": 1740.4,
+      "slope_deg": 8.8,
+      "is_flat": true,
+      "sunlight_score": 49.96,
+      "ice_score": 6.57,
+      "dust_risk_score": 8.52,
+      "landing_suitability_score": 46.7,
+      "best_nearby_landing_score": 98.83,
+      "best_nearby_offset_km": [
+        4,
+        -5
+      ],
+      "radiation_safety_score": 57.94,
+      "confidence": "medium (crater center used as rim proxy)"
+    },
+    "Malapert Massif": {
+      "name": "Malapert Massif",
+      "lat": -85.964,
+      "lon": -2.319,
+      "grid_row": 77,
+      "grid_col": 195,
+      "elevation_m": 4910.9,
+      "slope_deg": 6.33,
+      "is_flat": true,
+      "sunlight_score": 46.69,
+      "ice_score": 12.93,
+      "dust_risk_score": 11.66,
+      "landing_suitability_score": 63.07,
+      "best_nearby_landing_score": 98.2,
+      "best_nearby_offset_km": [
+        -2,
+        -5
+      ],
+      "radiation_safety_score": 57.58,
+      "confidence": "low (crater center used as massif proxy \u2014 not the actual peak)"
+    },
+    "Faustini Rim": {
+      "name": "Faustini Rim",
+      "lat": -87.3,
+      "lon": 77.0,
+      "grid_row": 163,
+      "grid_col": 279,
+      "elevation_m": 577.9,
+      "slope_deg": 1.12,
+      "is_flat": true,
+      "sunlight_score": 41.81,
+      "ice_score": 22.44,
+      "dust_risk_score": 48.49,
+      "landing_suitability_score": 89.07,
+      "best_nearby_landing_score": 90.2,
+      "best_nearby_offset_km": [
+        5,
+        0
+      ],
+      "radiation_safety_score": 56.83,
+      "confidence": "medium (two published coordinate sets disagree by ~7\u00b0 lon)"
+    },
+    "Nobile Rim": {
+      "name": "Nobile Rim",
+      "lat": -85.28,
+      "lon": 53.27,
+      "grid_row": 127,
+      "grid_col": 317,
+      "elevation_m": 458.1,
+      "slope_deg": 4.16,
+      "is_flat": true,
+      "sunlight_score": 39.06,
+      "ice_score": 27.8,
+      "dust_risk_score": 13.73,
+      "landing_suitability_score": 75.66,
+      "best_nearby_landing_score": 91.59,
+      "best_nearby_offset_km": [
+        4,
+        2
+      ],
+      "radiation_safety_score": 57.27,
+      "confidence": "medium (crater center used as rim proxy)"
+    },
+    "Haworth Crater": {
+      "name": "Haworth Crater",
+      "lat": -86.9,
+      "lon": -4.0,
+      "grid_row": 106,
+      "grid_col": 193,
+      "elevation_m": -1620.8,
+      "slope_deg": 12.2,
+      "is_flat": false,
+      "sunlight_score": 0.0,
+      "ice_score": 100.0,
+      "dust_risk_score": 0.22,
+      "landing_suitability_score": 0.0,
+      "best_nearby_landing_score": 42.68,
+      "best_nearby_offset_km": [
+        1,
+        -5
+      ],
+      "radiation_safety_score": 59.52,
+      "confidence": "high"
+    }
+  }
+}
