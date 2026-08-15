@@ -4,6 +4,7 @@ import json
 from typing import Dict, Any, List, Optional
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 import numpy as np
 
@@ -51,7 +52,7 @@ class EvaluationRequest(BaseModel):
 class HeatmapRequest(BaseModel):
     layer: str = "overall_score"
     custom_weights: Optional[WeightConfig] = None
-    downsample_factor: int = Field(2, ge=1, le=4)  # 2 means 200x200 for fast transfer
+    downsample_factor: int = Field(2, ge=1, le=4)
 
 @app.get("/api/health")
 def get_health():
@@ -82,7 +83,6 @@ def get_mission_profiles():
 
 @app.post("/api/evaluate")
 def evaluate_sites(req: EvaluationRequest):
-    # Determine weights
     if req.custom_weights:
         weights = req.custom_weights.model_dump()
     elif req.profile and req.profile in PRESET_PROFILES:
@@ -97,7 +97,6 @@ def evaluate_sites(req: EvaluationRequest):
         min_distance_km=15
     )
 
-    # Compute high level summary stats
     grid_scores = scoring_engine.compute_grid_scores(
         weights=weights,
         apply_flatness_gate=req.apply_flatness_gate
@@ -158,7 +157,6 @@ def get_available_layers():
 
 @app.post("/api/grid/heatmap")
 def get_heatmap_layer(req: HeatmapRequest):
-    # Select layer array
     if req.layer == "overall_score":
         weights = req.custom_weights.model_dump() if req.custom_weights else PRESET_PROFILES["balanced"]["weights"]
         data_arr = scoring_engine.compute_grid_scores(weights=weights, apply_flatness_gate=False)
@@ -203,6 +201,11 @@ def get_heatmap_layer(req: HeatmapRequest):
 def get_solar_telemetry():
     telemetry = solar_monitor.get_solar_status_sync()
     return telemetry
+
+# Serve Frontend static bundle in desktop distribution mode
+frontend_dist = os.path.join(ROOT_DIR, "frontend", "dist")
+if os.path.exists(frontend_dist):
+    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
