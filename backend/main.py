@@ -442,6 +442,62 @@ def get_radiation_v1_site(site_name: str):
     return matched
 
 # ===========================================================================
+# Explainable AI (XAI) Google Gemini LLM Briefing API Route
+# ===========================================================================
+
+@app.get("/api/xai/briefing/{site_name}")
+def get_xai_briefing(site_name: str):
+    clean_name = site_name.strip().replace("_", " ").lower()
+    ranked_sites = scoring_engine.evaluate_named_sites()
+    matched = next((s for s in ranked_sites if s["name"].lower() == clean_name or clean_name in s["name"].lower()), ranked_sites[0])
+
+    # Check if Gemini key is available in environment (.env)
+    api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    is_live_gemini = False
+    briefing_text = matched.get("mission_briefing", "")
+
+    if api_key and "your_gemini" not in api_key:
+        try:
+            from google import genai
+            client = genai.Client(api_key=api_key)
+            model_name = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
+
+            prompt = f"""You are the LunaAstra Chief Planetary Intelligence Officer providing a 2-sentence mission intelligence briefing for Artemis lunar base site selection.
+Site Facts:
+- Name: {matched['name']} ({matched['lat']}°S, {matched['lon']}°E)
+- Overall Suitability Score: {matched['overall_score']}/100 (Rank #{matched['rank']})
+- Sunlight Score: {matched['raw_metrics']['sunlight_score']}%
+- Water Ice Proxy: {matched['raw_metrics']['water_ice_score']}/100 (Ice Confidence: {matched['ice_confidence']['confidence_pct']}%)
+- Terrain Slope: {matched['slope_deg']}° (Landing Suitability: {matched['raw_metrics']['landing_suitability_score']}/100)
+- Radiation Dose: {matched['radiation_v1'].get('radiation_dose_mSv_per_year', 270.0):.1f} mSv/year (SVF: {matched['radiation_v1'].get('svf', 0.95):.3f})
+- Dust Risk: {matched['raw_metrics']['dust_risk_score']}/100
+
+Write a clear, scientifically accurate 2-sentence mission intelligence briefing highlighting the primary physical advantage and key operational note for this site."""
+
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt
+            )
+            if response and response.text:
+                briefing_text = response.text.strip()
+                is_live_gemini = True
+        except Exception:
+            pass
+
+    return {
+        "site_name": matched["name"],
+        "unique_id": matched["unique_id"],
+        "rank": matched["rank"],
+        "overall_score": matched["overall_score"],
+        "briefing": briefing_text,
+        "is_llm_generated": is_live_gemini,
+        "model": os.getenv("GEMINI_MODEL", "gemini-3.6-flash") if is_live_gemini else "Physics-Rule-Engine",
+        "metrics": matched["raw_metrics"],
+        "radiation_v1": matched["radiation_v1"],
+        "ice_confidence": matched["ice_confidence"]
+    }
+
+# ===========================================================================
 # Blockchain Decision Verification & Passport API Routes
 # ===========================================================================
 

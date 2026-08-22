@@ -164,16 +164,88 @@ class LunarScoringEngine:
 
         return overall.astype(np.float32)
 
+    def apply_mission_spec_modifiers(
+        self,
+        base_weights: Dict[str, float],
+        mission_spec: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, float]:
+        """
+        Dynamically adjusts factor weights and penalties according to operational mission constraints:
+        - Power Strategy (Solar arrays vs nuclear fission)
+        - Mission Duration (Permanent base vs short-stay)
+        - Crew Capacity (Small crew vs 20+ astronauts)
+        - ISRU Volatile Harvesting (Water Ice access)
+        """
+        if not mission_spec:
+            return base_weights
+
+        weights = base_weights.copy()
+
+        # 1. Power Strategy Modifier
+        power = mission_spec.get("power_strategy", "")
+        if "Solar Dominant" in power or "Solar Arrays" in power:
+            weights["sunlight"] = weights.get("sunlight", 0.3) * 1.45
+            weights["radiation_safety"] = weights.get("radiation_safety", 0.15) * 0.85
+        elif "Nuclear" in power or "Fission" in power:
+            weights["sunlight"] = weights.get("sunlight", 0.3) * 0.70
+            weights["radiation_safety"] = weights.get("radiation_safety", 0.15) * 1.35
+            weights["landing_safety"] = weights.get("landing_safety", 0.25) * 1.20
+
+        # 2. Mission Duration Modifier
+        duration = mission_spec.get("duration", "")
+        if "Permanent" in duration:
+            weights["radiation_safety"] = weights.get("radiation_safety", 0.15) * 1.30
+            weights["landing_safety"] = weights.get("landing_safety", 0.25) * 1.15
+        elif "Short-Stay" in duration or "30 Days" in duration:
+            weights["landing_safety"] = weights.get("landing_safety", 0.25) * 1.40
+            weights["radiation_safety"] = weights.get("radiation_safety", 0.15) * 0.70
+
+        # 3. Crew Capacity Modifier
+        crew = mission_spec.get("crew_size", "") or mission_spec.get("crewSize", "")
+        if "20+" in str(crew):
+            weights["water_ice"] = weights.get("water_ice", 0.25) * 1.35
+            weights["landing_safety"] = weights.get("landing_safety", 0.25) * 1.25
+        elif "4-10" in str(crew):
+            weights["landing_safety"] = weights.get("landing_safety", 0.25) * 1.10
+
+        # 4. Resource Usage (ISRU) Modifier
+        isru = mission_spec.get("isru", "")
+        resources = mission_spec.get("isru_resources", []) or mission_spec.get("isruResources", [])
+        if "Yes" in str(isru) or "Use ISRU" in str(isru):
+            if "Water Ice" in resources:
+                weights["water_ice"] = weights.get("water_ice", 0.25) * 1.30
+
+        # Re-normalize to sum to exactly 1.0 (excluding dust_penalty)
+        total = (
+            weights.get("sunlight", 0) +
+            weights.get("landing_safety", 0) +
+            weights.get("water_ice", 0) +
+            weights.get("radiation_safety", 0)
+        )
+        if total > 0:
+            scale = (1.0 - weights.get("dust_penalty", 0.05)) / total
+            weights["sunlight"] = round(weights["sunlight"] * scale, 3)
+            weights["landing_safety"] = round(weights["landing_safety"] * scale, 3)
+            weights["water_ice"] = round(weights["water_ice"] * scale, 3)
+            weights["radiation_safety"] = round(weights["radiation_safety"] * scale, 3)
+
+        return weights
+
     def evaluate_named_sites(
         self,
         weights: Optional[Dict[str, float]] = None,
-        space_weather_alert: str = "NORMAL"
+        space_weather_alert: str = "NORMAL",
+        mission_spec: Optional[Dict[str, Any]] = None
     ) -> List[Dict[str, Any]]:
         """
-        Rank the 6 named candidate sites under the given mission weights with full XAI.
+        Rank the 6 named candidate sites under the given mission weights and operational specifications with full XAI.
         """
         if weights is None:
             weights = PRESET_PROFILES["balanced"]["weights"]
+
+        # Apply operational mission specification modifiers
+        if mission_spec:
+            weights = self.apply_mission_spec_modifiers(weights, mission_spec)
 
         grid_scores = self.compute_grid_scores(
             weights=weights,
