@@ -13,7 +13,8 @@ import {
   CheckCircle2,
   AlertTriangle,
   Scale,
-  Loader2
+  Loader2,
+  AlertOctagon
 } from 'lucide-react';
 
 const API_BASE = typeof window !== 'undefined' && window.location.origin.includes('5173')
@@ -56,6 +57,10 @@ export default function ExplainableAI({ site }) {
   const siteExplanation = fullReport?.site_selection_explanation;
   const riskMitigation = fullReport?.risk_mitigation;
   const counterfactual = fullReport?.counterfactual_analysis;
+
+  const isError = siteExplanation?._source === 'ERROR' || riskMitigation?._source === 'ERROR' || counterfactual?._source === 'ERROR';
+  const errorMessage = siteExplanation?.error || riskMitigation?.error || counterfactual?.error;
+  const errorType = siteExplanation?.error_type || riskMitigation?.error_type || counterfactual?.error_type || 'API_ERROR';
 
   const metrics = [
     {
@@ -108,11 +113,18 @@ export default function ExplainableAI({ site }) {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Live Google Gemini LLM Badge */}
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border bg-blue-500/10 text-[#0066cc] border-blue-500/20">
-            <Sparkles className="w-3 h-3 text-[#0066cc]" />
-            <span>Google Gemini LLM (gemini-3.6-flash)</span>
-          </span>
+          {/* Live Google Gemini LLM / Error Badge */}
+          {isError ? (
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20">
+              <AlertTriangle className="w-3 h-3 text-amber-500" />
+              <span>Gemini Rate/Credit Limit ({errorType})</span>
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border bg-blue-500/10 text-[#0066cc] border-blue-500/20">
+              <Sparkles className="w-3 h-3 text-[#0066cc]" />
+              <span>Google Gemini LLM (gemini-3.6-flash)</span>
+            </span>
+          )}
 
           {site?.unique_id && (
             <span className="text-xs font-mono font-medium text-[#0066cc] bg-[var(--apple-parchment)] border border-[var(--border-color)] px-2.5 py-0.5 rounded-full">
@@ -180,6 +192,29 @@ export default function ExplainableAI({ site }) {
           <p className="text-[11px] text-[var(--text-muted)] text-center max-w-sm">
             Generating multi-criteria site selection reasoning, risk mitigation protocols, and counterfactual sensitivity narratives.
           </p>
+        </div>
+      ) : isError ? (
+        /* Real API Error / Rate Limit / Credit Limit Display */
+        <div className="p-5 rounded-[16px] bg-amber-500/10 border border-amber-500/20 space-y-3">
+          <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-semibold text-xs">
+            <AlertOctagon className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            <span>GOOGLE GEMINI API: {errorType === 'RESOURCE_EXHAUSTED' ? '429 RESOURCE_EXHAUSTED (Rate / Quota Limit)' : 'API Error Occurred'}</span>
+          </div>
+          <p className="text-xs text-[var(--text-primary)] font-mono leading-relaxed bg-[var(--apple-parchment)] p-3 rounded-xl border border-[var(--border-color)] break-words">
+            {errorMessage || 'Google Gemini API request failed. Please check rate limit or account credits.'}
+          </p>
+          <div className="flex items-center justify-between pt-1">
+            <span className="text-[11px] text-[var(--text-muted)]">
+              The dashboard displays live API responses directly without placeholder text.
+            </span>
+            <button
+              onClick={() => fetchFullXaiReport(siteName)}
+              className="px-3.5 py-1.5 bg-[#0066cc] text-white text-xs font-semibold rounded-lg hover:bg-[#0055aa] transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Retry Query</span>
+            </button>
+          </div>
         </div>
       ) : (
         /* Mode Content Views */

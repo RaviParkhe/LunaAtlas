@@ -84,59 +84,55 @@ class _GeminiClient:
     def __init__(self):
         self._client = None
         self._api_key: Optional[str] = None
+        self.last_error: Optional[str] = None
+
+    def reset(self):
+        """Force re-initialization on key change."""
+        self._client = None
+        self._api_key = None
+        self.last_error = None
 
     def _initialize(self) -> bool:
         """
         Attempt to initialize the Gemini client from environment.
-        Returns True if successful, False if API key is missing.
+        Returns True if successful, False if API key is missing or placeholder.
         """
         if self._client is not None:
             return True
 
-        api_key = os.environ.get("GEMINI_API_KEY", "").strip()
-        if not api_key:
-            logger.warning(
-                "[gemini] GEMINI_API_KEY not set. "
-                "Gemini explanations disabled — deterministic fallback will be used."
+        api_key = os.environ.get("GEMINI_API_KEY", "").strip() or os.environ.get("GOOGLE_API_KEY", "").strip()
+        if not api_key or "your_gemini" in api_key:
+            self.last_error = "GEMINI_API_KEY not configured or placeholder detected."
+            logger.info(
+                "[gemini] GEMINI_API_KEY not configured or placeholder detected. "
+                "Deterministic fallback will be used."
             )
             return False
 
         try:
-            import google.genai as genai
+            from google import genai
             self._client = genai.Client(api_key=api_key)
-            # Store only the first 4 chars for log confirmation (not the full key)
             self._api_key = api_key[:4] + "****"
+            self.last_error = None
             logger.info("[gemini] Client initialized (key prefix: %s)", self._api_key)
             return True
         except ImportError:
-            logger.error(
-                "[gemini] google-genai package not found. "
-                "Install: pip install google-genai"
-            )
+            self.last_error = "google-genai package not found."
+            logger.error("[gemini] google-genai package not found.")
             return False
         except Exception as exc:
-            logger.error("[gemini] Failed to initialize client: %s", type(exc).__name__)
+            self.last_error = str(exc)
+            logger.error("[gemini] Failed to initialize client: %s", exc)
             return False
 
     def generate(self, contents: str, response_schema: dict | None = None) -> Optional[str]:
         """
         Send a generation request to Gemini.
-
-        Parameters
-        ----------
-        contents : str
-            The user-turn message (structured XAI payload as JSON).
-        response_schema : dict or None
-            Optional JSON schema for structured output.
-
-        Returns
-        -------
-        str or None
-            Raw text response, or None on failure.
         """
         if not self._initialize():
             return None
 
+        self.last_error = None
         try:
             import google.genai as genai
             from google.genai import types
@@ -165,10 +161,12 @@ class _GeminiClient:
             if response and response.text:
                 return response.text.strip()
 
+            self.last_error = "Empty response received from Gemini model."
             logger.warning("[gemini] Empty response received from model.")
             return None
 
         except Exception as exc:
+            self.last_error = str(exc)
             exc_type = type(exc).__name__
             logger.error("[gemini] Request failed: %s — %s", exc_type, str(exc)[:200])
             return None
@@ -467,6 +465,18 @@ def explain_site_selection(payload) -> dict:
     )
 
     raw = _client.generate(user_message, response_schema=_SITE_EXPLANATION_SCHEMA)
+    if not raw and _client.last_error and "not configured" not in _client.last_error:
+        err_msg = str(_client.last_error)
+        err_type = "RESOURCE_EXHAUSTED" if "429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg or "quota" in err_msg.lower() else "API_ERROR"
+        return {
+            "_source": "ERROR",
+            "error_type": err_type,
+            "error": err_msg,
+            "summary": f"Google Gemini API Error ({err_type}): {err_msg}",
+            "key_reasons": [f"API Error Details: {err_msg[:140]}"],
+            "limitations": [err_msg],
+            "ml_context": ""
+        }
     result, is_gemini = _parse_json_response(raw, fallback)
     result["_source"] = "GEMINI" if is_gemini else "FALLBACK"
     return result
@@ -475,17 +485,6 @@ def explain_site_selection(payload) -> dict:
 def explain_risk_mitigation(payload) -> dict:
     """
     Generate natural-language risk-mitigation recommendations via Gemini.
-
-    Parameters
-    ----------
-    payload : RiskMitigationInput
-        Pre-calculated DTO from payloads.py.
-
-    Returns
-    -------
-    dict
-        Keys: overview, mitigations (list), mission_note
-        Plus '_source': 'GEMINI' or 'FALLBACK'
     """
     payload_dict = payload.to_dict()
     logger.info(
@@ -509,6 +508,23 @@ def explain_risk_mitigation(payload) -> dict:
     )
 
     raw = _client.generate(user_message, response_schema=_RISK_MITIGATION_SCHEMA)
+    if not raw and _client.last_error and "not configured" not in _client.last_error:
+        err_msg = str(_client.last_error)
+        err_type = "RESOURCE_EXHAUSTED" if "429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg or "quota" in err_msg.lower() else "API_ERROR"
+        return {
+            "_source": "ERROR",
+            "error_type": err_type,
+            "error": err_msg,
+            "overview": f"Google Gemini API Error ({err_type}): {err_msg}",
+            "mitigations": [
+                {
+                    "factor": "LLM API Rate/Credit Limit",
+                    "risk_level": "HIGH",
+                    "recommendation": err_msg
+                }
+            ],
+            "mission_note": ""
+        }
     result, is_gemini = _parse_json_response(raw, fallback)
     result["_source"] = "GEMINI" if is_gemini else "FALLBACK"
     return result
@@ -517,17 +533,6 @@ def explain_risk_mitigation(payload) -> dict:
 def explain_counterfactual(payload) -> dict:
     """
     Generate natural-language counterfactual narratives via Gemini.
-
-    Parameters
-    ----------
-    payload : CounterfactualExplanationInput
-        Pre-calculated DTO from counterfactual.py.
-
-    Returns
-    -------
-    dict
-        Keys: summary, scenario_narratives (list), overall_robustness
-        Plus '_source': 'GEMINI' or 'FALLBACK'
     """
     payload_dict = payload.to_dict()
     logger.info(
@@ -554,6 +559,23 @@ def explain_counterfactual(payload) -> dict:
     )
 
     raw = _client.generate(user_message, response_schema=_COUNTERFACTUAL_SCHEMA)
+    if not raw and _client.last_error and "not configured" not in _client.last_error:
+        err_msg = str(_client.last_error)
+        err_type = "RESOURCE_EXHAUSTED" if "429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg or "quota" in err_msg.lower() else "API_ERROR"
+        return {
+            "_source": "ERROR",
+            "error_type": err_type,
+            "error": err_msg,
+            "summary": f"Google Gemini API Error ({err_type}): {err_msg}",
+            "scenario_narratives": [
+                {
+                    "factor": "LLM API Rate/Credit Limit",
+                    "classification": "SENSITIVE",
+                    "narrative": err_msg
+                }
+            ],
+            "overall_robustness": "SENSITIVE"
+        }
     result, is_gemini = _parse_json_response(raw, fallback)
     result["_source"] = "GEMINI" if is_gemini else "FALLBACK"
     return result
