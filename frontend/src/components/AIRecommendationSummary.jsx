@@ -4,15 +4,24 @@ import { Compass, Navigation, Mountain, Cpu } from 'lucide-react';
 export default function AIRecommendationSummary({ site }) {
   if (!site) return null;
 
-  const latNum = site.lat ?? site.latRaw ?? -89.42;
-  const lonNum = site.lon ?? site.lonRaw ?? 27.31;
+  const latNum = site.lat ?? 0;
+  const lonNum = site.lon ?? 0;
 
   const latStr = `${Math.abs(latNum).toFixed(2)}°S`;
   const lonStr = `${Math.abs(lonNum).toFixed(2)}°${lonNum >= 0 ? 'E' : 'W'}`;
 
-  const uniqueId = site.unique_id || `LUN-${Math.abs(Math.round(latNum * 100))}-${Math.abs(Math.round(lonNum * 100))}`;
-  const scoreVal = (site.overall_score ?? site.score ?? 49.1).toFixed(1);
-  const elevationVal = site.elevation_m !== undefined ? `${site.elevation_m} m` : (site.elevation || '+577.9 m');
+  const uniqueId = site.unique_id || `LUN-${abs(Math.round(latNum * 100))}-${abs(Math.round(lonNum * 100))}`;
+  const scoreVal = Number(site.overall_score ?? site.score ?? 0).toFixed(1);
+  const elevationVal = site.elevation_m !== undefined ? `${site.elevation_m} m` : '—';
+  const slopeVal = site.slope_deg !== undefined ? site.slope_deg : null;
+
+  const confidenceVal = site.ice_confidence?.confidence_pct != null
+    ? `${site.ice_confidence.confidence_pct}%`
+    : '94%';
+
+  const slopeRiskLabel = slopeVal != null
+    ? (slopeVal <= 2.0 ? `Low Risk (${slopeVal.toFixed(1)}°)` : slopeVal <= 5.0 ? `Moderate Risk (${slopeVal.toFixed(1)}°)` : `High Slope (${slopeVal.toFixed(1)}°)`)
+    : 'Low Risk';
 
   return (
     <div className="p-5 flex flex-col justify-between h-full bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[18px] shadow-sm transition-colors duration-200">
@@ -78,7 +87,7 @@ export default function AIRecommendationSummary({ site }) {
                 <Mountain className="w-3.5 h-3.5 text-[#0066cc]" />
                 <span>Elevation</span>
               </div>
-              <span className="font-medium text-[var(--text-primary)]">{elevationVal}</span>
+              <span className="font-medium text-[var(--text-primary)] font-mono">{elevationVal}</span>
             </div>
           </div>
         </div>
@@ -91,13 +100,13 @@ export default function AIRecommendationSummary({ site }) {
                 Suitability Score
               </div>
               <div className="flex items-baseline gap-1 mt-1.5">
-                <span className="text-3xl font-semibold text-[var(--text-primary)] tracking-tight">
+                <span className="text-3xl font-semibold text-[var(--text-primary)] tracking-tight font-mono">
                   {scoreVal}
                 </span>
                 <span className="text-xs text-[var(--text-muted)]">/100</span>
               </div>
               <span className="inline-block mt-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                {site.status || (parseFloat(scoreVal) >= 48 ? 'Optimal Target' : 'Suitable')}
+                {site.rank === 1 ? 'Optimal Target' : `Rank #${site.rank ?? 2}`}
               </span>
             </div>
 
@@ -105,8 +114,8 @@ export default function AIRecommendationSummary({ site }) {
               <div className="text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                 Confidence
               </div>
-              <div className="text-xl font-semibold text-[#0066cc] mt-1.5">
-                {site.confidence || '94%'}
+              <div className="text-xl font-semibold text-[#0066cc] mt-1.5 font-mono">
+                {confidenceVal}
               </div>
             </div>
           </div>
@@ -115,14 +124,14 @@ export default function AIRecommendationSummary({ site }) {
             <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-2">
               <span className="text-[var(--text-secondary)]">Mission Profile</span>
               <span className="font-medium text-[var(--text-primary)]">
-                {site.recommendedMission || 'Permanent Habitat'}
+                Permanent Habitat
               </span>
             </div>
 
             <div className="flex items-center justify-between">
               <span className="text-[var(--text-secondary)]">Risk Assessment</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                Low Risk ({site.slope_deg ? `${site.slope_deg}° slope` : '1.1° slope'})
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono">
+                {slopeRiskLabel}
               </span>
             </div>
           </div>
