@@ -1,5 +1,6 @@
 import React from 'react';
-import { Compass, Navigation, Mountain, Cpu, Sparkles, Shield, Sun, Droplet, Activity, Radio, Info } from 'lucide-react';
+import { Compass, Navigation, Mountain, Cpu, Sparkles, Shield, Sun, Droplet, Activity, Radio, Info, ShieldCheck } from 'lucide-react';
+import BlockchainPassportModal from './BlockchainPassportModal';
 
 export default function AIRecommendationSummary({ site }) {
   if (!site) return null;
@@ -30,11 +31,20 @@ export default function AIRecommendationSummary({ site }) {
   const briefingText = site.mission_briefing ||
     `${site.name} features an elevation of ${elevationVal} and a terrain slope of ${slopeVal != null ? slopeVal.toFixed(1) : '1.1'}°. Evaluated under Solar Minimum conditions with direct line-of-sight communications potential.`;
 
+  const [isPassportOpen, setIsPassportOpen] = React.useState(false);
+
   return (
     <div
       className="p-4 flex flex-col justify-between h-full rounded-[18px] shadow-sm transition-colors duration-200 overflow-hidden space-y-3"
       style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}
     >
+      {/* Blockchain Passport Modal */}
+      <BlockchainPassportModal
+        site={site}
+        isOpen={isPassportOpen}
+        onClose={() => setIsPassportOpen(false)}
+      />
+
       {/* Top Header */}
       <div
         className="flex items-center justify-between pb-2.5 shrink-0"
@@ -55,9 +65,20 @@ export default function AIRecommendationSummary({ site }) {
           </h2>
         </div>
 
-        <div className="flex items-center gap-1.5 text-[11px] font-mono" style={{ color: 'var(--text-muted)' }}>
-          <Sparkles className="w-3.5 h-3.5 text-[#0066cc]" />
-          <span>Optimal Habitat Evaluation</span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsPassportOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border shadow-xs transition-all cursor-pointer hover:scale-105 active:scale-95"
+            style={{
+              background: 'rgba(16, 185, 129, 0.1)',
+              borderColor: 'rgba(16, 185, 129, 0.3)',
+              color: '#059669'
+            }}
+            title="Display On-Chain Cryptographic Decision Passport"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+            <span>⛓️ Blockchain Passport</span>
+          </button>
         </div>
       </div>
 

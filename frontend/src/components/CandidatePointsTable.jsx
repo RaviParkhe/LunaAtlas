@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { ArrowUpDown, ArrowUp, ArrowDown, Trophy, MapPin, Search } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown, Trophy, MapPin, Search, ShieldCheck } from 'lucide-react';
+import BlockchainPassportModal from './BlockchainPassportModal';
 
 export default function CandidatePointsTable({ sites = [], selectedSite, onSelectSite }) {
+  const [passportSite, setPassportSite] = useState(null);
   const [sortKey, setSortKey] = useState('overall_score');
   const [sortAsc, setSortAsc] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -138,10 +140,13 @@ export default function CandidatePointsTable({ sites = [], selectedSite, onSelec
                 Landing Safety <SortIcon k="landing_suitability_score" />
               </th>
               <th className="py-2.5 px-3 cursor-pointer text-right" onClick={() => handleSort('radiation_safety_score')}>
-                Radiation Shield <SortIcon k="radiation_safety_score" />
+                Radiation <SortIcon k="radiation_safety_score" />
               </th>
-              <th className="py-2.5 px-3 cursor-pointer text-right" onClick={() => handleSort('elevation_m')}>
-                Elevation / Slope <SortIcon k="elevation_m" />
+              <th className="py-2.5 px-3 text-right">
+                Elevation · Slope
+              </th>
+              <th className="py-2.5 px-3 text-center">
+                Passport
               </th>
             </tr>
           </thead>
@@ -249,12 +254,38 @@ export default function CandidatePointsTable({ sites = [], selectedSite, onSelec
                     <span className="mx-1">·</span>
                     <span>{s.slope_deg != null ? `${s.slope_deg}°` : '—'}</span>
                   </td>
+
+                  {/* Blockchain Passport Action */}
+                  <td className="py-3 px-3 text-center">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPassportSite(s);
+                      }}
+                      className="px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all cursor-pointer hover:scale-105 active:scale-95"
+                      style={{
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        borderColor: 'rgba(16, 185, 129, 0.25)',
+                        color: '#059669'
+                      }}
+                      title="View Cryptographic Blockchain Passport"
+                    >
+                      ⛓️ Passport
+                    </button>
+                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
+
+      {/* Blockchain Passport Modal */}
+      <BlockchainPassportModal
+        site={passportSite}
+        isOpen={!!passportSite}
+        onClose={() => setPassportSite(null)}
+      />
     </div>
   );
 }
