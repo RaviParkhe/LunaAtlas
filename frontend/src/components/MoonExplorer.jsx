@@ -10,6 +10,7 @@ export default function MoonExplorer({
   onSelectLayer
 }) {
   const canvasRef = useRef(null);
+  const containerRef = useRef(null);
   const [showSatelliteBase, setShowSatelliteBase] = useState(true);
 
   // Zoom & Pan state for 2D mode
@@ -38,6 +39,18 @@ export default function MoonExplorer({
     img.src = '/textures/lroc_south_pole_mosaic.jpg';
     return img;
   }, []);
+
+  // Helper to format site labels cleanly without awkward truncation
+  const getShortSiteName = (name = '') => {
+    const lower = name.toLowerCase();
+    if (lower.includes('gerlache')) return 'de Gerlache';
+    if (lower.includes('shackleton')) return 'Shackleton';
+    if (lower.includes('malapert')) return 'Malapert';
+    if (lower.includes('faustini')) return 'Faustini';
+    if (lower.includes('haworth')) return 'Haworth';
+    if (lower.includes('nobile')) return 'Nobile';
+    return name.split(' ')[0];
+  };
 
   // Interpolate continuous float color
   const getRGB = (norm, layerId) => {
@@ -94,7 +107,7 @@ export default function MoonExplorer({
         data[pIdx] = red;
         data[pIdx + 1] = grn;
         data[pIdx + 2] = blu;
-        data[pIdx + 3] = 200;
+        data[pIdx + 3] = 195;
         pIdx += 4;
       }
     }
@@ -134,7 +147,7 @@ export default function MoonExplorer({
     }
 
     // 3. Polar Grid Overlay Lines (80°S - 90°S)
-    ctx.strokeStyle = 'rgba(0, 102, 204, 0.35)';
+    ctx.strokeStyle = 'rgba(0, 102, 204, 0.30)';
     ctx.lineWidth = 1 / zoomLevel;
     ctx.setLineDash([4 / zoomLevel, 6 / zoomLevel]);
 
@@ -163,6 +176,14 @@ export default function MoonExplorer({
       const px = ((site.lon + 180) / 360) * width;
       const py = ((site.lat + 90) / 10) * height;
 
+      // Glow Halo on Selection/Hover
+      if (isSelected || isHovered) {
+        ctx.beginPath();
+        ctx.arc(px, py, (isSelected ? 20 : 16) / zoomLevel, 0, 2 * Math.PI);
+        ctx.fillStyle = isSelected ? 'rgba(0, 102, 204, 0.25)' : 'rgba(0, 218, 243, 0.22)';
+        ctx.fill();
+      }
+
       // Outer Target Reticle
       ctx.beginPath();
       ctx.arc(px, py, (isSelected ? 13 : isHovered ? 11 : 9) / zoomLevel, 0, 2 * Math.PI);
@@ -171,7 +192,7 @@ export default function MoonExplorer({
       ctx.stroke();
 
       // Crosshairs
-      const armLen = (isSelected ? 17 : isHovered ? 15 : 12) / zoomLevel;
+      const armLen = (isSelected ? 18 : isHovered ? 15 : 12) / zoomLevel;
       ctx.beginPath();
       ctx.moveTo(px - armLen, py);
       ctx.lineTo(px + armLen, py);
@@ -181,12 +202,49 @@ export default function MoonExplorer({
       ctx.lineWidth = 1.2 / zoomLevel;
       ctx.stroke();
 
-      // Label Text
-      ctx.font = `600 ${Math.max(9.5, 11 / Math.sqrt(zoomLevel))}px -apple-system, sans-serif`;
+      // Center Core Dot
+      ctx.beginPath();
+      ctx.arc(px, py, 2.2 / zoomLevel, 0, 2 * Math.PI);
       ctx.fillStyle = isSelected ? '#0066cc' : isHovered ? '#00daf3' : '#ffffff';
+      ctx.fill();
+
+      // Site Label Badge
+      const shortName = getShortSiteName(site.name);
+      const labelText = `#${site.rank ?? 1} ${shortName}`;
+      const fontSize = Math.max(9, 10.5 / Math.sqrt(zoomLevel));
+      ctx.font = `600 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+
+      const textMetrics = ctx.measureText(labelText);
+      const textWidth = textMetrics.width;
+      const pillPadX = 5 / zoomLevel;
+      const pillPadY = 2.5 / zoomLevel;
+      const textY = py - (14 / zoomLevel);
+
+      // Pill Background Box for high contrast readability
+      ctx.fillStyle = isSelected
+        ? 'rgba(0, 102, 204, 0.95)'
+        : isHovered
+        ? 'rgba(0, 180, 240, 0.92)'
+        : 'rgba(15, 23, 42, 0.82)';
+      ctx.beginPath();
+      ctx.roundRect(
+        px - textWidth / 2 - pillPadX,
+        textY - fontSize - pillPadY / 2,
+        textWidth + pillPadX * 2,
+        fontSize + pillPadY * 2,
+        3.5 / zoomLevel
+      );
+      ctx.fill();
+
+      // Pill Border
+      ctx.strokeStyle = isSelected ? '#ffffff' : isHovered ? '#00daf3' : 'rgba(255, 255, 255, 0.35)';
+      ctx.lineWidth = 0.8 / zoomLevel;
+      ctx.stroke();
+
+      // Text String
+      ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'center';
-      const label = `#${site.rank ?? 1} ${site.name.split(' ')[0]}`;
-      ctx.fillText(label, px, py - (14 / zoomLevel));
+      ctx.fillText(labelText, px, textY);
     });
 
     ctx.restore();
@@ -226,16 +284,16 @@ export default function MoonExplorer({
 
     setHoveredPoint({ lat, lon, col, row });
 
-    // Check if hovering directly over any candidate site reticle
+    // Generous hit-testing radius for all candidate sites
     let match = null;
     if (sites && sites.length > 0) {
       for (const site of sites) {
         const px = ((site.lon + 180) / 360) * canvas.width;
         const py = ((site.lat + 90) / 10) * canvas.height;
         const dist = Math.hypot(transformedX - px, transformedY - py);
-        if (dist < 22 / zoomLevel) {
-          const gridC = Math.floor(((site.lon + 180) / 360) * 400);
-          const gridR = Math.floor(((site.lat + 90) / 10) * 400);
+        if (dist < 26 / zoomLevel) {
+          const gridC = site.grid_col ?? Math.floor(((site.lon + 180) / 360) * 400);
+          const gridR = site.grid_row ?? Math.floor(((site.lat + 90) / 10) * 400);
           match = {
             site,
             clientX,
@@ -274,7 +332,7 @@ export default function MoonExplorer({
       const px = ((site.lon + 180) / 360) * canvas.width;
       const py = ((site.lat + 90) / 10) * canvas.height;
       const dist = Math.hypot(transformedX - px, transformedY - py);
-      if (dist < 22 / zoomLevel) {
+      if (dist < 26 / zoomLevel) {
         onSelectSite && onSelectSite(site);
       }
     });
@@ -300,189 +358,162 @@ export default function MoonExplorer({
     }
     if (layerId === 'ice_score') {
       const val = raw.water_ice_score ?? site.ice_confidence?.confidence_pct ?? 0;
-      return `${Number(val).toFixed(1)}% confidence`;
+      return `${Number(val).toFixed(1)}%`;
     }
     if (layerId === 'slope_deg') {
-      const val = site.slope_deg ?? 1.1;
-      return `${Number(val).toFixed(1)}° slope`;
+      return `${Number(site.slope_deg ?? 1.1).toFixed(1)}°`;
     }
     if (layerId === 'elevation_m') {
-      const val = site.elevation_m ?? 578;
-      return `${Number(val).toFixed(0)} m`;
+      return `${Number(site.elevation_m ?? 578).toFixed(0)} m`;
     }
     if (layerId === 'radiation_safety_score') {
       const val = raw.radiation_safety_score ?? site.metrics?.radiation ?? 0;
       return `${Number(val).toFixed(1)} score`;
     }
-    return `${Number(site.overall_score || 0).toFixed(1)} score`;
-  };
-
-  // Continuous gradient style for the legend bar
-  const getLegendGradientStyle = (layerId) => {
-    if (layerId === 'sunlight_score') {
-      return 'linear-gradient(to right, #090e18, #f59e0b, #fef08a)';
-    }
-    if (layerId === 'ice_score') {
-      return 'linear-gradient(to right, #090e18, #06b6d4, #38bdf8)';
-    }
-    if (layerId === 'slope_deg') {
-      return 'linear-gradient(to right, #10b981, #eab308, #ef4444)';
-    }
-    if (layerId === 'elevation_m') {
-      return 'linear-gradient(to right, #0f1e64, #1e78b4, #c8b428, #f0dcc8)';
-    }
-    if (layerId === 'radiation_safety_score') {
-      return 'linear-gradient(to right, #0f172a, #8b5cf6, #c084fc)';
-    }
-    return 'linear-gradient(to right, #0f172a, #0e7490, #10b981, #f59e0b)';
+    return `${Number(site.overall_score ?? 0).toFixed(1)} score`;
   };
 
   return (
-    <div className="p-5 flex flex-col justify-between bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[18px] shadow-sm select-none transition-colors duration-200">
-      {/* Top Header Bar */}
-      <div className="flex items-center justify-between flex-wrap gap-2 pb-3 mb-3 border-b border-[var(--border-color)]">
+    <div
+      ref={containerRef}
+      className="p-5 flex flex-col justify-between bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[18px] shadow-sm relative select-none transition-colors duration-200"
+    >
+      {/* Top Header & Layer Selectors */}
+      <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3 mb-3 flex-wrap gap-2">
         <div className="flex items-center gap-2">
-          <div className="p-1 rounded-full bg-[var(--apple-parchment)] border border-[var(--border-color)] text-[#0066cc]">
-            <Layers className="w-3.5 h-3.5" />
-          </div>
-          <h3 className="text-xs font-semibold tracking-tight text-[var(--text-secondary)] uppercase">
-            NASA LROC South Pole 2D Heatmap (80°S - 90°S)
-          </h3>
+          <Layers className="w-4 h-4 text-[#0066cc]" />
+          <h2 className="text-xs font-semibold tracking-tight text-[var(--text-secondary)] uppercase">
+            2D Polar Heatmap & Decision Space
+          </h2>
         </div>
 
-        {/* Satellite Base Toggle + Layer Selector */}
+        {/* Layer Selection Pills */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <button
-            onClick={() => setShowSatelliteBase(!showSatelliteBase)}
-            className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer flex items-center gap-1 active:scale-95 ${
-              showSatelliteBase
-                ? 'bg-[#0066cc] text-white border-[#0066cc] shadow-sm'
-                : 'bg-[var(--apple-parchment)] text-[var(--text-secondary)] border-[var(--border-color)] hover:text-[var(--text-primary)]'
-            }`}
-            title="Toggle NASA Satellite Mosaic Base Layer"
-          >
-            <Eye className="w-3 h-3" />
-            <span>Satellite</span>
-          </button>
-
-          <div className="flex items-center gap-1 overflow-x-auto">
-            {layersConfig.map((l) => (
-              <button
-                key={l.id}
-                onClick={() => onSelectLayer && onSelectLayer(l.id)}
-                className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all cursor-pointer active:scale-95 ${
-                  activeLayerId === l.id
-                    ? 'bg-[#0066cc] text-white shadow-sm'
-                    : 'bg-[var(--apple-parchment)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-              >
-                {l.label}
-              </button>
-            ))}
-          </div>
+          {layersConfig.map((layer) => (
+            <button
+              key={layer.id}
+              onClick={() => onSelectLayer && onSelectLayer(layer.id)}
+              className={`px-2.5 py-1 text-[11px] font-medium rounded-full transition-all cursor-pointer ${
+                activeLayerId === layer.id
+                  ? 'bg-[#0066cc] text-white shadow-sm font-semibold'
+                  : 'bg-[var(--apple-parchment)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]'
+              }`}
+            >
+              {layer.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Main 2D Canvas Viewport */}
-      <div className="w-full h-[420px] bg-[#000000] rounded-[14px] relative overflow-hidden flex items-center justify-center border border-[var(--border-color)] shadow-inner">
-        <div
-          className={`w-full h-full relative flex items-center justify-center ${
-            hoveredSite ? 'cursor-pointer' : isDragging ? 'cursor-grabbing' : 'cursor-grab'
-          }`}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onWheel={handleWheel}
-          onClick={handleCanvasClick}
-        >
-          <canvas
-            ref={canvasRef}
-            width={420}
-            height={420}
-            className="w-full h-full block"
-          />
+      {/* Map Interactive Viewport */}
+      <div
+        className={`relative w-full aspect-square max-h-[420px] mx-auto rounded-[16px] overflow-hidden border border-[var(--border-color)] bg-[#0d1117] flex items-center justify-center ${
+          hoveredSite ? 'cursor-pointer' : isDragging ? 'cursor-grabbing' : 'cursor-grab'
+        }`}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onWheel={handleWheel}
+        onClick={handleCanvasClick}
+      >
+        <canvas
+          ref={canvasRef}
+          width={420}
+          height={420}
+          className="w-full h-full block"
+        />
 
-          {/* Interactive Site Hover Tooltip Card */}
-          {hoveredSite && (
-            <div
-              className="absolute z-20 pointer-events-none p-3 rounded-[14px] bg-[var(--bg-card)]/95 backdrop-blur-md border border-[#0066cc] shadow-2xl space-y-1 min-w-[190px] transition-all"
-              style={{
-                left: `${Math.min(210, Math.max(10, hoveredSite.clientX + 14))}px`,
-                top: `${Math.min(310, Math.max(10, hoveredSite.clientY - 45))}px`
-              }}
-            >
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-[#0066cc]">
-                <MapPin className="w-3.5 h-3.5" />
-                <span>{hoveredSite.site.name}</span>
-              </div>
-              <div className="text-[11px] text-[var(--text-secondary)] font-mono">
-                Grid: [{hoveredSite.gridCol}, {hoveredSite.gridRow}]
-              </div>
-              <div className="text-xs pt-1.5 border-t border-[var(--border-color)]">
-                <span className="text-[10px] uppercase font-medium text-[var(--text-muted)] block">
-                  {activeLayerObj.label}:
-                </span>
-                <span className="font-semibold text-[var(--text-primary)]">
-                  {getActiveLayerValue(hoveredSite.site, activeLayerId)}
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Hover Coordinate HUD (when not hovering on specific site) */}
-          {hoveredPoint && !hoveredSite && (
-            <div className="absolute top-3 left-3 pointer-events-none bg-[var(--bg-card)]/90 backdrop-blur-md border border-[var(--border-color)] px-3 py-1 rounded-full flex items-center gap-2 shadow-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0066cc] animate-pulse"></span>
-              <span className="text-xs font-medium text-[var(--text-primary)]">
-                {hoveredPoint.lat}°S, {hoveredPoint.lon}°E [{hoveredPoint.col}, {hoveredPoint.row}]
-              </span>
-            </div>
-          )}
-
-          {/* 2D Zoom Controls */}
-          <div className="absolute top-3 right-3 flex flex-col gap-1 pointer-events-auto">
-            <button
-              onClick={() => setZoomLevel((z) => Math.min(15.0, z * 1.25))}
-              className="w-7 h-7 bg-[var(--bg-card)]/90 hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] rounded-full flex items-center justify-center text-[var(--text-primary)] transition-colors cursor-pointer active:scale-95 shadow-sm"
-              title="Zoom In"
-            >
-              <Plus className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => setZoomLevel((z) => Math.max(0.6, z * 0.8))}
-              className="w-7 h-7 bg-[var(--bg-card)]/90 hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] rounded-full flex items-center justify-center text-[var(--text-primary)] transition-colors cursor-pointer active:scale-95 shadow-sm"
-              title="Zoom Out"
-            >
-              <Minus className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={resetView}
-              className="w-7 h-7 bg-[var(--bg-card)]/90 hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] rounded-full flex items-center justify-center text-[var(--text-primary)] transition-colors cursor-pointer active:scale-95 shadow-sm mt-1"
-              title="Reset View"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Color Gradient Legend Bar */}
-      <div className="flex items-center justify-between gap-4 mt-3 pt-3 border-t border-[var(--border-color)] text-xs">
-        <div className="flex items-center gap-2 flex-1 max-w-xs">
-          <span className="font-mono text-[11px] text-[var(--text-muted)]">0</span>
+        {/* Floating Tooltip Card on Site Hover (Exact Apple Card Design) */}
+        {hoveredSite && (
           <div
-            className="flex-1 h-2 rounded-full border border-[var(--border-color)]"
-            style={{ background: getLegendGradientStyle(activeLayerId) }}
-          />
-          <span className="font-mono text-[11px] text-[var(--text-muted)]">
-            {activeLayerId === 'elevation_m' ? '5000m' : activeLayerId === 'slope_deg' ? '30°' : '100'} {activeLayerObj.unit}
-          </span>
+            className="absolute z-30 pointer-events-none p-3.5 rounded-2xl bg-white/95 text-slate-900 border border-slate-200/90 shadow-2xl space-y-1 min-w-[200px] backdrop-blur-md transition-all duration-75"
+            style={{
+              left: `${Math.min(220, Math.max(10, hoveredSite.clientX - 60))}px`,
+              top: `${Math.max(10, hoveredSite.clientY - 110)}px`
+            }}
+          >
+            <div className="flex items-center gap-1.5 text-xs font-bold text-[#0066cc]">
+              <MapPin className="w-4 h-4 fill-[#0066cc]/10 text-[#0066cc]" />
+              <span>{hoveredSite.site.name}</span>
+            </div>
+            <div className="text-[11px] text-slate-500 font-mono">
+              Grid: [{hoveredSite.gridCol}, {hoveredSite.gridRow}]
+            </div>
+            <div className="border-t border-slate-200/80 my-1.5" />
+            <div className="space-y-0.5">
+              <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                {activeLayerObj.label}:
+              </div>
+              <div className="text-sm font-bold text-slate-950 font-mono">
+                {getActiveLayerValue(hoveredSite.site, activeLayerId)}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Coordinates HUD Indicator */}
+        {hoveredPoint && !hoveredSite && (
+          <div className="absolute top-3 left-3 pointer-events-none bg-[var(--bg-card)]/90 backdrop-blur-md border border-[var(--border-color)] px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm text-[10px] text-[var(--text-secondary)] font-mono">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#0066cc] animate-pulse"></span>
+            <span>{hoveredPoint.lat}°S, {hoveredPoint.lon}°E</span>
+          </div>
+        )}
+
+        {/* Zoom & View Controls */}
+        <div className="absolute top-3 right-3 flex flex-col gap-1.5 pointer-events-auto">
+          <button
+            onClick={() => setZoomLevel((z) => Math.min(18.0, z * 1.25))}
+            className="w-7 h-7 bg-white dark:bg-[#272729] hover:bg-slate-100 dark:hover:bg-[#323236] border border-[var(--border-color)] rounded-full flex items-center justify-center text-[var(--text-primary)] transition-all cursor-pointer shadow-sm active:scale-95"
+            title="Zoom In"
+          >
+            <Plus className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => setZoomLevel((z) => Math.max(0.6, z * 0.8))}
+            className="w-7 h-7 bg-white dark:bg-[#272729] hover:bg-slate-100 dark:hover:bg-[#323236] border border-[var(--border-color)] rounded-full flex items-center justify-center text-[var(--text-primary)] transition-all cursor-pointer shadow-sm active:scale-95"
+            title="Zoom Out"
+          >
+            <Minus className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={resetView}
+            className="w-7 h-7 bg-white dark:bg-[#272729] hover:bg-slate-100 dark:hover:bg-[#323236] border border-[var(--border-color)] rounded-full flex items-center justify-center text-[var(--text-primary)] transition-all cursor-pointer shadow-sm active:scale-95"
+            title="Reset View"
+          >
+            <RotateCcw className="w-3 h-3" />
+          </button>
+        </div>
+      </div>
+
+      {/* Continuous Gradient Colorbar Legend */}
+      <div className="mt-3 pt-2 border-t border-[var(--border-color)] flex items-center justify-between text-[11px] text-[var(--text-secondary)] font-medium">
+        <div className="flex items-center gap-1 text-[var(--text-muted)]">
+          <Eye className="w-3.5 h-3.5 text-[#0066cc]" />
+          <span>Layer: <strong className="text-[var(--text-primary)]">{activeLayerObj.label}</strong></span>
         </div>
 
-        <span className="text-[11px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
-          {activeLayerObj.label}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-mono text-[var(--text-muted)]">0</span>
+          <div
+            className="w-24 md:w-32 h-2 rounded-full border border-[var(--border-color)]"
+            style={{
+              background:
+                activeLayerId === 'sunlight_score'
+                  ? 'linear-gradient(to right, #0f172a, #ca8a04, #fef08a)'
+                  : activeLayerId === 'ice_score'
+                  ? 'linear-gradient(to right, #0f172a, #06b6d4, #a5f3fc)'
+                  : activeLayerId === 'slope_deg'
+                  ? 'linear-gradient(to right, #10b981, #eab308, #f97316, #ef4444)'
+                  : activeLayerId === 'elevation_m'
+                  ? 'linear-gradient(to right, #0f1e64, #1e78b4, #c8b428, #f0dcc8)'
+                  : activeLayerId === 'radiation_safety_score'
+                  ? 'linear-gradient(to right, #0f172a, #3b82f6, #93c5fd)'
+                  : 'linear-gradient(to right, #0f172a, #0e7490, #10b981, #f59e0b)'
+            }}
+          />
+          <span className="text-[10px] font-mono text-[var(--text-muted)]">100 {activeLayerObj.unit}</span>
+        </div>
       </div>
     </div>
   );

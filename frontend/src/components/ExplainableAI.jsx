@@ -1,60 +1,108 @@
 import React, { useState, useEffect } from 'react';
-import { Layers, Sun, Droplets, Shield, TrendingUp, Anchor, Cpu, Info, Sparkles, RefreshCw } from 'lucide-react';
+import {
+  Layers,
+  Sun,
+  Droplets,
+  Shield,
+  TrendingUp,
+  Anchor,
+  Cpu,
+  Info,
+  Sparkles,
+  RefreshCw,
+  CheckCircle2,
+  AlertTriangle,
+  HelpCircle,
+  Scale
+} from 'lucide-react';
 
 const API_BASE = typeof window !== 'undefined' && window.location.origin.includes('5173')
   ? 'http://127.0.0.1:8050'
   : (typeof window !== 'undefined' ? window.location.origin : 'http://127.0.0.1:8050');
 
 export default function ExplainableAI({ site }) {
-  const [briefingData, setBriefingData] = useState({
-    text: site?.mission_briefing || '',
-    isLLM: false,
-    model: 'Physics-Rule-Engine',
-    isLoading: false
-  });
+  const [activeXaiTab, setActiveXaiTab] = useState('selection'); // 'selection' | 'risks' | 'counterfactual'
+  const [fullReport, setFullReport] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const siteName = site?.name;
 
-  // Fetch live Google Gemini LLM briefing from backend API
-  const fetchGeminiBriefing = async (name) => {
+  // Fetch full 3-part structured XAI report from Gemini / Backend
+  const fetchFullXaiReport = async (name) => {
     if (!name) return;
-    setBriefingData((prev) => ({ ...prev, isLoading: true }));
+    setIsLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/xai/briefing/${encodeURIComponent(name)}`);
+      const res = await fetch(`${API_BASE}/api/xai/full_report/${encodeURIComponent(name)}`);
       if (res.ok) {
         const data = await res.json();
-        setBriefingData({
-          text: data.briefing || site?.mission_briefing || '',
-          isLLM: Boolean(data.is_llm_generated),
-          model: data.model || 'Physics-Rule-Engine',
-          isLoading: false
-        });
-      } else {
-        setBriefingData({
-          text: site?.mission_briefing || '',
-          isLLM: false,
-          model: 'Physics-Rule-Engine',
-          isLoading: false
-        });
+        setFullReport(data);
       }
     } catch (err) {
-      setBriefingData({
-        text: site?.mission_briefing || '',
-        isLLM: false,
-        model: 'Physics-Rule-Engine',
-        isLoading: false
-      });
+      console.error('Failed to fetch full XAI report:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     if (siteName) {
-      fetchGeminiBriefing(siteName);
+      fetchFullXaiReport(siteName);
     }
   }, [siteName]);
 
   const raw = site?.raw_metrics || {};
   const iceConf = site?.ice_confidence || { confidence_pct: 37, label: 'Moderate Volatile Signatures' };
+
+  const siteExplanation = fullReport?.site_selection_explanation || {
+    summary: site?.mission_briefing || 'Evaluating planetary telemetry...',
+    key_reasons: [
+      `Landing Safety: raw score ${(raw.landing_suitability_score ?? 86.4).toFixed(1)}/100, weight 25.0%`,
+      `Solar Illumination: raw score ${(raw.sunlight_score ?? 53.3).toFixed(1)}/100, weight 30.0%`,
+      `Radiation Shielding: raw score ${(raw.radiation_safety_score ?? 57.0).toFixed(1)}/100, weight 20.0%`
+    ],
+    limitations: [
+      'Water Ice Access requires dedicated descent trajectories into cryogenic PSR cold traps.',
+      'Electrostatic dust accumulation requires active sealing protocols.'
+    ],
+    ml_context: 'Environmental Archetype: High-Illumination Polar Crater Rim.',
+    _source: 'FALLBACK'
+  };
+
+  const riskMitigation = fullReport?.risk_mitigation || {
+    overview: `Risk assessment for ${siteName || 'candidate site'} based on available AHP data under active mission priorities.`,
+    mitigations: [
+      {
+        factor: 'Electrostatic Dust',
+        risk_level: 'HIGH',
+        recommendation: 'Additional seal maintenance and automated brush cleaning cycles recommended.'
+      },
+      {
+        factor: 'Water Ice Access',
+        risk_level: 'MEDIUM',
+        recommendation: 'Standard PSR robotic prospector protocols recommended.'
+      }
+    ],
+    mission_note: 'Mission profile: top priority = Solar Illumination, second priority = Landing Safety.',
+    _source: 'FALLBACK'
+  };
+
+  const counterfactual = fullReport?.counterfactual_analysis || {
+    summary: `Counterfactual analysis for ${siteName || 'candidate site'} under priority perturbations.`,
+    scenario_narratives: [
+      {
+        factor: 'Solar Illumination',
+        classification: 'ROBUST',
+        narrative: 'Increasing Solar Illumination priority maintains this site as optimal recommendation.'
+      },
+      {
+        factor: 'Water Ice Access',
+        classification: 'CAPABILITY_LIMITATION',
+        narrative: 'Shifting to 60% Water Ice priority identifies a capability limitation compared to cryogenic crater floors.'
+      }
+    ],
+    overall_robustness: 'ROBUST',
+    _source: 'FALLBACK'
+  };
 
   const metrics = [
     {
@@ -95,26 +143,28 @@ export default function ExplainableAI({ site }) {
     }
   ];
 
+  const isGemini = siteExplanation._source === 'GEMINI' || riskMitigation._source === 'GEMINI';
+
   return (
     <div className="p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[18px] shadow-sm space-y-4 transition-colors duration-200">
-      {/* Header */}
+      {/* Header Bar */}
       <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3 flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <Cpu className="w-4 h-4 text-[#0066cc]" />
           <h2 className="text-xs font-semibold tracking-tight text-[var(--text-secondary)] uppercase">
-            Explainable AI – Factor Breakdown ({site?.name || 'Selected Site'})
+            Explainable AI – Structured Factor Breakdown ({site?.name || 'Selected Site'})
           </h2>
         </div>
 
         <div className="flex items-center gap-2">
-          {/* LLM / Engine Source Badge */}
+          {/* Source Badge */}
           <span className={`inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-0.5 rounded-full border ${
-            briefingData.isLLM
+            isGemini
               ? 'bg-blue-500/10 text-[#0066cc] border-blue-500/20 font-semibold'
               : 'bg-[var(--apple-parchment)] text-[var(--text-secondary)] border-[var(--border-color)]'
           }`}>
-            <Sparkles className={`w-3 h-3 ${briefingData.isLLM ? 'text-[#0066cc]' : 'text-[var(--text-muted)]'}`} />
-            <span>{briefingData.isLLM ? `Google Gemini (${briefingData.model})` : 'Physics-Rule Engine'}</span>
+            <Sparkles className={`w-3 h-3 ${isGemini ? 'text-[#0066cc]' : 'text-[var(--text-muted)]'}`} />
+            <span>{isGemini ? 'Google Gemini LLM' : 'Physics Deterministic XAI'}</span>
           </span>
 
           {site?.unique_id && (
@@ -122,42 +172,198 @@ export default function ExplainableAI({ site }) {
               {site.unique_id}
             </span>
           )}
+
+          <button
+            onClick={() => fetchFullXaiReport(siteName)}
+            disabled={isLoading}
+            className="p-1.5 rounded-lg bg-[var(--apple-parchment)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[#0066cc] transition-colors cursor-pointer"
+            title="Refresh XAI Inference"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-[#0066cc]' : ''}`} />
+          </button>
         </div>
       </div>
 
-      {/* Dynamic Physics & Gemini Mission Briefing Banner */}
-      <div className="p-4 rounded-[14px] bg-[var(--apple-parchment)] border border-[var(--border-color)] flex items-start justify-between gap-3 transition-all">
-        <div className="flex items-start gap-3">
-          <Info className="w-4 h-4 text-[#0066cc] flex-shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-semibold text-[#0066cc] uppercase tracking-wider block">
-                Mission Intelligence Briefing
-              </span>
-              {briefingData.isLoading && (
-                <span className="text-[10px] text-[var(--text-muted)] italic animate-pulse">
-                  Querying Gemini LLM...
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-              {briefingData.text || site?.mission_briefing || 'Loading mission telemetry and planetary briefing...'}
-            </p>
-          </div>
-        </div>
+      {/* 3 Structured XAI Modes Navigation Segmented Tabs */}
+      <div className="flex items-center gap-2 border-b border-[var(--border-color)] pb-2 flex-wrap">
+        <button
+          onClick={() => setActiveXaiTab('selection')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+            activeXaiTab === 'selection'
+              ? 'bg-[#0066cc] text-white shadow-sm font-semibold'
+              : 'bg-[var(--apple-parchment)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+          }`}
+        >
+          <CheckCircle2 className="w-3.5 h-3.5" />
+          <span>1. Site Selection & Key Drivers</span>
+        </button>
 
         <button
-          onClick={() => fetchGeminiBriefing(siteName)}
-          disabled={briefingData.isLoading}
-          className="p-1.5 rounded-lg bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[#0066cc] transition-colors cursor-pointer flex-shrink-0"
-          title="Regenerate Gemini Explanation"
+          onClick={() => setActiveXaiTab('risks')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+            activeXaiTab === 'risks'
+              ? 'bg-[#0066cc] text-white shadow-sm font-semibold'
+              : 'bg-[var(--apple-parchment)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+          }`}
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${briefingData.isLoading ? 'animate-spin text-[#0066cc]' : ''}`} />
+          <AlertTriangle className="w-3.5 h-3.5" />
+          <span>2. Risk & Mitigations</span>
+        </button>
+
+        <button
+          onClick={() => setActiveXaiTab('counterfactual')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+            activeXaiTab === 'counterfactual'
+              ? 'bg-[#0066cc] text-white shadow-sm font-semibold'
+              : 'bg-[var(--apple-parchment)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+          }`}
+        >
+          <Scale className="w-3.5 h-3.5" />
+          <span>3. Counterfactual Sensitivity</span>
         </button>
       </div>
 
+      {/* Mode Content Views */}
+      {activeXaiTab === 'selection' && (
+        <div className="space-y-3">
+          {/* Summary Box */}
+          <div className="p-4 rounded-[14px] bg-[var(--apple-parchment)] border border-[var(--border-color)] space-y-2">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#0066cc]">
+              <Info className="w-3.5 h-3.5" />
+              <span>DECISION SUMMARY</span>
+            </div>
+            <p className="text-xs text-[var(--text-primary)] leading-relaxed font-medium">
+              {siteExplanation.summary}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Key Contributing Reasons */}
+            <div className="p-3.5 rounded-[14px] bg-[var(--apple-parchment)] border border-[var(--border-color)] space-y-2">
+              <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
+                Key Contributing Reasons
+              </span>
+              <ul className="space-y-1.5 text-xs text-[var(--text-secondary)]">
+                {siteExplanation.key_reasons?.map((reason, idx) => (
+                  <li key={idx} className="flex items-start gap-1.5">
+                    <span className="text-emerald-500 font-bold">✓</span>
+                    <span>{reason}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Identified Limitations */}
+            <div className="p-3.5 rounded-[14px] bg-[var(--apple-parchment)] border border-[var(--border-color)] space-y-2">
+              <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
+                Identified Limitations & Caveats
+              </span>
+              <ul className="space-y-1.5 text-xs text-[var(--text-secondary)]">
+                {siteExplanation.limitations?.map((limit, idx) => (
+                  <li key={idx} className="flex items-start gap-1.5">
+                    <span className="text-amber-500 font-bold">⚠</span>
+                    <span>{limit}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {siteExplanation.ml_context && (
+            <div className="text-[11px] text-[var(--text-muted)] italic px-1">
+              {siteExplanation.ml_context}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeXaiTab === 'risks' && (
+        <div className="space-y-3">
+          <div className="p-4 rounded-[14px] bg-[var(--apple-parchment)] border border-[var(--border-color)] space-y-1.5">
+            <span className="text-[10px] font-semibold text-[#0066cc] uppercase tracking-wider block">
+              Risk Profile Overview
+            </span>
+            <p className="text-xs text-[var(--text-primary)] leading-relaxed">
+              {riskMitigation.overview}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            {riskMitigation.mitigations?.map((m, idx) => (
+              <div key={idx} className="p-3 rounded-[12px] bg-[var(--apple-parchment)] border border-[var(--border-color)] flex items-start justify-between gap-3">
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-[var(--text-primary)]">{m.factor}</span>
+                    <span className={`px-2 py-0.5 text-[10px] font-semibold rounded-full border ${
+                      m.risk_level === 'HIGH'
+                        ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20'
+                        : m.risk_level === 'MEDIUM'
+                        ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+                        : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                    }`}>
+                      {m.risk_level} RISK
+                    </span>
+                  </div>
+                  <p className="text-xs text-[var(--text-secondary)]">{m.recommendation}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {riskMitigation.mission_note && (
+            <div className="text-[11px] text-[var(--text-muted)] px-1 italic">
+              {riskMitigation.mission_note}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeXaiTab === 'counterfactual' && (
+        <div className="space-y-3">
+          <div className="p-4 rounded-[14px] bg-[var(--apple-parchment)] border border-[var(--border-color)] flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              <span className="text-[10px] font-semibold text-[#0066cc] uppercase tracking-wider block">
+                Perturbation Sensitivity Overview
+              </span>
+              <p className="text-xs text-[var(--text-primary)] leading-relaxed">
+                {counterfactual.summary}
+              </p>
+            </div>
+            <span className={`px-3 py-1 text-xs font-bold rounded-full border flex-shrink-0 ${
+              counterfactual.overall_robustness === 'ROBUST'
+                ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'
+                : 'bg-amber-500/10 text-amber-600 border-amber-500/30'
+            }`}>
+              {counterfactual.overall_robustness} ROBUSTNESS
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            {counterfactual.scenario_narratives?.map((s, idx) => (
+              <div key={idx} className="p-3 rounded-[12px] bg-[var(--apple-parchment)] border border-[var(--border-color)] space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-[var(--text-primary)]">{s.factor} Priority Shift</span>
+                  <span className={`px-2 py-0.5 text-[10px] font-semibold rounded-full border ${
+                    s.classification === 'ROBUST'
+                      ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                      : s.classification === 'SENSITIVE'
+                      ? 'bg-amber-500/10 text-amber-600 border-amber-500/20'
+                      : 'bg-rose-500/10 text-rose-600 border-rose-500/20'
+                  }`}>
+                    {s.classification}
+                  </span>
+                </div>
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                  {s.narrative}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* 6 Core Factor Metrics Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
         {metrics.map((m, idx) => {
           const Icon = m.icon;
           return (

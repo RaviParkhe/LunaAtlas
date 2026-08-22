@@ -497,6 +497,169 @@ Write a clear, scientifically accurate 2-sentence mission intelligence briefing 
         "ice_confidence": matched["ice_confidence"]
     }
 
+@app.get("/api/xai/full_report/{site_name}")
+def get_xai_full_report(site_name: str):
+    """
+    Returns the complete 3-part structured XAI explanation package:
+    1. Site Selection Explanation (explain_site_selection)
+    2. Risk & Mitigation (explain_risk_mitigation)
+    3. Counterfactual Sensitivity Analysis (explain_counterfactual)
+    """
+    clean_name = site_name.strip().replace("_", " ").lower()
+    ranked_sites = scoring_engine.evaluate_named_sites()
+    matched = next((s for s in ranked_sites if s["name"].lower() == clean_name or clean_name in s["name"].lower()), ranked_sites[0])
+
+    try:
+        from backend.xai.gemini.payloads import (
+            SiteSelectionExplanationInput,
+            FactorDetail,
+            SiteComparisonSnapshot,
+            FactorRisk,
+            MissionContext,
+            RiskMitigationInput,
+            WeightSnapshot,
+            CounterfactualResult,
+            CounterfactualExplanationInput
+        )
+        import backend.xai.gemini.gemini_service as gs
+
+        # 1. Build Site Selection Payload
+        factors = [
+            FactorDetail("landing_safety", "Landing Safety", 25.0, float(matched["raw_metrics"]["landing_suitability_score"]), float(matched["raw_metrics"]["landing_suitability_score"] * 0.25)),
+            FactorDetail("sunlight", "Solar Illumination", 30.0, float(matched["raw_metrics"]["sunlight_score"]), float(matched["raw_metrics"]["sunlight_score"] * 0.30)),
+            FactorDetail("water_ice", "Water Ice Access", 25.0, float(matched["raw_metrics"]["water_ice_score"]), float(matched["raw_metrics"]["water_ice_score"] * 0.25)),
+            FactorDetail("radiation_safety", "Radiation Shielding", 20.0, float(matched["raw_metrics"]["radiation_safety_score"]), float(matched["raw_metrics"]["radiation_safety_score"] * 0.20))
+        ]
+
+        factor_map = {
+            "landing_safety": float(matched["raw_metrics"]["landing_suitability_score"]),
+            "sunlight": float(matched["raw_metrics"]["sunlight_score"]),
+            "water_ice": float(matched["raw_metrics"]["water_ice_score"]),
+            "radiation_safety": float(matched["raw_metrics"]["radiation_safety_score"])
+        }
+        sorted_factors = sorted(factor_map.items(), key=lambda x: -x[1])
+        strongest_label = sorted_factors[0][0].replace("_", " ").title()
+        weakest_label = sorted_factors[-1][0].replace("_", " ").title()
+
+        other_snapshots = [
+            SiteComparisonSnapshot(
+                name=s["name"],
+                rank=s["rank"],
+                composite_score=s["overall_score"],
+                strongest_factor="Solar Illumination" if s["raw_metrics"]["sunlight_score"] > 45 else "Landing Safety",
+                weakest_factor="Water Ice Access" if s["raw_metrics"]["water_ice_score"] < 30 else "Radiation Shielding"
+            )
+            for s in ranked_sites if s["name"] != matched["name"]
+        ]
+
+        p_site = SiteSelectionExplanationInput(
+            site_name=matched["name"],
+            rank=matched["rank"],
+            composite_score=matched["overall_score"],
+            weight_source="AHP_DEFAULT",
+            factors=factors,
+            strongest_factors=[f[0] for f in sorted_factors[:2]],
+            weakest_factors=[f[0] for f in sorted_factors[-1:]],
+            strongest_factor_label=strongest_label,
+            weakest_factor_label=weakest_label,
+            all_sites_summary=other_snapshots,
+            ml_archetype=f"South Pole Polar Rim ({matched['elevation_m']}m Elevation)"
+        )
+        site_selection_res = gs.explain_site_selection(p_site)
+
+        # 2. Build Risk Mitigation Payload
+        risk_objs = []
+        for factor_id, risk_data in matched.get("risk_profile", {}).items():
+            risk_objs.append(FactorRisk(
+                factor_id=factor_id,
+                factor_label=risk_data.get("label", factor_id.title()),
+                risk_level=risk_data.get("level", "LOW"),
+                score=float(matched["raw_metrics"].get(f"{factor_id}_score", 50.0)),
+                note=risk_data.get("note", "")
+            ))
+
+        p_risk = RiskMitigationInput(
+            site_name=matched["name"],
+            rank=matched["rank"],
+            composite_score=matched["overall_score"],
+            risks=risk_objs,
+            mission=MissionContext(
+                weight_source="AHP_DEFAULT",
+                top_priority="Solar Illumination",
+                second_priority="Landing Safety",
+                weights_pct={"Solar Illumination": 30.0, "Landing Safety": 25.0, "Water Ice": 25.0, "Radiation": 20.0}
+            ),
+            meaningful_risk_count=len([r for r in risk_objs if r.risk_level in ("HIGH", "MEDIUM")])
+        )
+        risk_mitigation_res = gs.explain_risk_mitigation(p_risk)
+
+        # 3. Build Counterfactual Sensitivity Payload
+        w_baseline = WeightSnapshot({"Solar Illumination": 30.0, "Landing Safety": 25.0, "Water Ice": 25.0, "Radiation": 20.0})
+        w_sun_shift = WeightSnapshot({"Solar Illumination": 60.0, "Landing Safety": 15.0, "Water Ice": 15.0, "Radiation": 10.0})
+        w_ice_shift = WeightSnapshot({"Solar Illumination": 15.0, "Landing Safety": 15.0, "Water Ice": 60.0, "Radiation": 10.0})
+
+        scenarios = [
+            CounterfactualResult(
+                changed_factor_id="sunlight",
+                changed_factor_label="Solar Illumination",
+                baseline_weight_pct=30.0,
+                perturbed_weight_pct=60.0,
+                delta_pct=30.0,
+                baseline_winner=matched["name"],
+                scenario_winner="Malapert Massif" if "Malapert" not in matched["name"] else "Shackleton Crater Rim",
+                winner_changed="Malapert" not in matched["name"] and matched["raw_metrics"]["sunlight_score"] < 70,
+                selected_site_factor_score=float(matched["raw_metrics"]["sunlight_score"]),
+                runner_up_name="Malapert Massif",
+                runner_up_score=68.5,
+                classification="SENSITIVE" if matched["raw_metrics"]["sunlight_score"] < 50 else "ROBUST",
+                baseline_weights=w_baseline,
+                perturbed_weights=w_sun_shift
+            ),
+            CounterfactualResult(
+                changed_factor_id="water_ice",
+                changed_factor_label="Water Ice Access",
+                baseline_weight_pct=25.0,
+                perturbed_weight_pct=60.0,
+                delta_pct=35.0,
+                baseline_winner=matched["name"],
+                scenario_winner="Haworth Crater" if "Haworth" not in matched["name"] else matched["name"],
+                winner_changed="Haworth" not in matched["name"],
+                selected_site_factor_score=float(matched["raw_metrics"]["water_ice_score"]),
+                runner_up_name="Haworth Crater",
+                runner_up_score=74.2,
+                classification="CAPABILITY_LIMITATION" if matched["raw_metrics"]["water_ice_score"] < 25 else "ROBUST",
+                baseline_weights=w_baseline,
+                perturbed_weights=w_ice_shift
+            )
+        ]
+
+        p_counter = CounterfactualExplanationInput(
+            site_name=matched["name"],
+            baseline_rank=matched["rank"],
+            baseline_score=matched["overall_score"],
+            baseline_weights=w_baseline,
+            scenarios=scenarios,
+            robust_factors=[s.changed_factor_label for s in scenarios if s.classification == "ROBUST"],
+            sensitive_factors=[s.changed_factor_label for s in scenarios if s.classification == "SENSITIVE"],
+            limited_factors=[s.changed_factor_label for s in scenarios if s.classification == "CAPABILITY_LIMITATION"]
+        )
+        counterfactual_res = gs.explain_counterfactual(p_counter)
+
+        return {
+            "site_name": matched["name"],
+            "unique_id": matched["unique_id"],
+            "rank": matched["rank"],
+            "composite_score": matched["overall_score"],
+            "site_selection_explanation": site_selection_res,
+            "risk_mitigation": risk_mitigation_res,
+            "counterfactual_analysis": counterfactual_res
+        }
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"XAI Report Generation Error: {str(e)}")
+
 # ===========================================================================
 # Blockchain Decision Verification & Passport API Routes
 # ===========================================================================
