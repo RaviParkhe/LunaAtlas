@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunar Habitat AI - XAI Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #8b5cf6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --card-radius: 20px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 25%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        /* Controls Area */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        select {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus { border-color: var(--accent-primary); }
+
+        .btn-generate {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(139, 92, 246, 0.7);
+        }
+
+        /* Loader */
+        .loader {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            margin: 3rem 0;
+        }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        /* Results Grid */
+        .results-container {
+            display: none;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .result-section {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: var(--card-radius);
+            padding: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .section-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            color: #e2e8f0;
+        }
+
+        .badge {
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            padding: 0.3rem 0.8rem;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Content Blocks */
+        h3 { font-family: 'Outfit', sans-serif; font-size: 1.1rem; color: #a78bfa; margin: 1.2rem 0 0.5rem; }
+        p { line-height: 1.6; color: #cbd5e1; margin-bottom: 1rem; }
+        
+        ul { list-style: none; margin-bottom: 1rem; }
+        ul li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+            color: #94a3b8;
+        }
+        ul.bullet-primary li::before { content: '→'; position: absolute; left: 0; color: #60a5fa; }
+        ul.bullet-warn li::before { content: '⚠'; position: absolute; left: 0; color: #f43f5e; }
+
+        .risk-item {
+            background: rgba(255,255,255,0.03);
+            border-left: 4px solid #60a5fa;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+        .risk-item.high { border-left-color: #ef4444; }
+        .risk-item.medium { border-left-color: #f59e0b; }
+
+        /* Animations */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Lunar Habitat AI</h1>
+            <p class="subtitle">Comprehensive XAI Reporting</p>
+        </header>
+
+        <div class="glass-card">
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label>Target Site</label>
+                    <select id="siteSelect">
+                        <option value="Malapert Massif">Malapert Massif</option>
+                        <option value="Shackleton Crater">Shackleton Crater</option>
+                        <option value="Cabeus Crater">Cabeus Crater</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Team Size</label>
+                    <select id="teamSelect">
+                        <option value="Small">Small (2-4 Crew)</option>
+                        <option value="Medium">Medium (5-10 Crew)</option>
+                        <option value="Large">Large (10+ Crew)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Mission Specification</label>
+                    <select id="missionSelect">
+                        <option value="Science-Focused">Science Focused</option>
+                        <option value="Resource-Extraction">Resource Extraction</option>
+                        <option value="Long-Term-Habitat">Long-Term Habitat</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn-generate" onclick="generateReport()">Generate Comprehensive Report</button>
+        </div>
+
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <p style="color: var(--text-muted);">Compiling XAI explanations from Gemini...</p>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+            
+            <!-- 1. Site Selection -->
+            <div class="result-section">
+                <div class="section-header">
+                    <h2>Site Selection Rationale</h2>
+                    <span class="badge" id="source1"></span>
+                </div>
+                <h3>Executive Summary</h3>
+                <p id="selSummary" style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; border-left: 3px solid #3b82f6;"></p>
+                
+                <h3>Key Drivers</h3>
+                <ul class="bullet-primary" id="selReasons"></ul>
+                
+                <h3>Identified Limitations</h3>
+                <ul class="bullet-warn" id="selLimits"></ul>
+                
+                <h3>ML Context</h3>
+                <p id="selMLContext" style="font-size: 0.9rem; color: #64748b;"></p>
+            </div>
+
+            <!-- 2. Risk & Mitigation -->
+            <div class="result-section">
+                <div class="section-header">
+                    <h2>Risk & Mitigation Analysis</h2>
+                    <span class="badge" id="source2"></span>
+                </div>
+                <h3>Overview</h3>
+                <p id="riskOverview"></p>
+                
+                <h3>Mission Context Note</h3>
+                <p id="riskMissionNote" style="font-style: italic; color: #94a3b8;"></p>
+
+                <h3>Specific Mitigations</h3>
+                <div id="riskMitigations"></div>
+            </div>
+
+            <!-- 3. Counterfactual Sensitivity -->
+            <div class="result-section">
+                <div class="section-header">
+                    <h2>Counterfactual Sensitivity</h2>
+                    <span class="badge" id="source3"></span>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+                    <h3>Overall Robustness:</h3>
+                    <span id="cfRobustness" style="background: #334155; padding: 0.3rem 0.8rem; border-radius: 4px; font-weight: bold; color: white;"></span>
+                </div>
+                
+                <h3>Summary</h3>
+                <p id="cfSummary"></p>
+                
+                <h3>Scenario Narratives</h3>
+                <div id="cfNarratives"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        async function generateReport() {
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('loader').style.display = 'flex';
+
+            const payload = {
+                site_name: document.getElementById('siteSelect').value,
+                team_size: document.getElementById('teamSelect').value,
+                mission_spec: document.getElementById('missionSelect').value
+            };
+
+            try {
+                const response = await fetch('/api/xai/full-report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error("Failed to fetch from backend");
+
+                const data = await response.json();
+                renderReport(data);
+            } catch (error) {
+                console.error("Error generating report:", error);
+                alert("Failed to connect to the backend API.");
+            } finally {
+                document.getElementById('loader').style.display = 'none';
+            }
+        }
+
+        function renderReport(data) {
+            document.getElementById('resultsContainer').style.display = 'grid';
+
+            // --- 1. Site Selection ---
+            const sel = data.site_selection;
+            document.getElementById('source1').innerText = sel._source;
+            document.getElementById('selSummary').innerText = sel.summary;
+            document.getElementById('selMLContext').innerText = sel.ml_context;
+            
+            document.getElementById('selReasons').innerHTML = sel.key_reasons.map(r => `<li>${r}</li>`).join('');
+            document.getElementById('selLimits').innerHTML = sel.limitations.map(r => `<li>${r}</li>`).join('');
+
+            // --- 2. Risk & Mitigation ---
+            const risk = data.risk_mitigation;
+            document.getElementById('source2').innerText = risk._source;
+            document.getElementById('riskOverview').innerText = risk.overview;
+            document.getElementById('riskMissionNote').innerText = risk.mission_note;
+            
+            const mitigationsHtml = risk.mitigations.map(m => `
+                <div class="risk-item ${m.risk_level.toLowerCase()}">
+                    <strong style="color: white;">${m.factor}</strong> 
+                    <span style="font-size: 0.8rem; padding: 0.1rem 0.5rem; background: rgba(0,0,0,0.5); border-radius: 4px; margin-left: 0.5rem;">${m.risk_level}</span>
+                    <p style="margin-top: 0.5rem; margin-bottom: 0;">${m.recommendation}</p>
+                </div>
+            `).join('');
+            document.getElementById('riskMitigations').innerHTML = mitigationsHtml;
+
+            // --- 3. Counterfactual ---
+            const cf = data.counterfactual;
+            document.getElementById('source3').innerText = cf._source;
+            document.getElementById('cfSummary').innerText = cf.summary;
+            document.getElementById('cfRobustness').innerText = cf.overall_robustness;
+            
+            const narrativesHtml = cf.scenario_narratives.map(n => `
+                <div class="risk-item">
+                    <strong style="color: white;">If we change: ${n.factor}</strong>
+                    <span style="font-size: 0.8rem; padding: 0.1rem 0.5rem; background: rgba(0,0,0,0.5); border-radius: 4px; margin-left: 0.5rem;">${n.classification}</span>
+                    <p style="margin-top: 0.5rem; margin-bottom: 0;">${n.narrative}</p>
+                </div>
+            `).join('');
+            document.getElementById('cfNarratives').innerHTML = narrativesHtml;
+        }
+    </script>
+</body>
+</html>
