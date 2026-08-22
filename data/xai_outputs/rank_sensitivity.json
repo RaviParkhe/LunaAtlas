@@ -1,0 +1,43 @@
+{
+  "rank_flip_messages": [
+    "When 'safety' weight sweeps 0->100%: 'Nobile Rim' rank changes from 2 to between #2 and #4.",
+    "When 'safety' weight sweeps 0->100%: 'Malapert Massif' rank changes from 3 to between #3 and #4.",
+    "When 'safety' weight sweeps 0->100%: 'de Gerlache Rim' rank changes from 4 to between #2 and #5.",
+    "When 'safety' weight sweeps 0->100%: 'Shackleton Crater Rim' rank changes from 5 to between #5 and #6.",
+    "When 'safety' weight sweeps 0->100%: 'Faustini Rim' rank changes from 6 to between #3 and #6.",
+    "When 'water_ice' weight sweeps 0->100%: 'Nobile Rim' rank changes from 2 to between #2 and #4.",
+    "When 'water_ice' weight sweeps 0->100%: 'Malapert Massif' rank changes from 3 to between #3 and #4.",
+    "When 'water_ice' weight sweeps 0->100%: 'de Gerlache Rim' rank changes from 4 to between #2 and #5.",
+    "When 'water_ice' weight sweeps 0->100%: 'Shackleton Crater Rim' rank changes from 5 to between #5 and #6.",
+    "When 'water_ice' weight sweeps 0->100%: 'Faustini Rim' rank changes from 6 to between #3 and #6.",
+    "When 'sunlight' weight sweeps 0->100%: 'Haworth Crater' rank changes from 1 to between #1 and #6.",
+    "When 'sunlight' weight sweeps 0->100%: 'Nobile Rim' rank changes from 2 to between #2 and #5.",
+    "When 'sunlight' weight sweeps 0->100%: 'Malapert Massif' rank changes from 3 to between #2 and #4.",
+    "When 'sunlight' weight sweeps 0->100%: 'de Gerlache Rim' rank changes from 4 to between #1 and #4.",
+    "When 'sunlight' weight sweeps 0->100%: 'Shackleton Crater Rim' rank changes from 5 to between #1 and #5.",
+    "When 'sunlight' weight sweeps 0->100%: 'Faustini Rim' rank changes from 6 to between #4 and #6.",
+    "When 'resources' weight sweeps 0->100%: 'Malapert Massif' rank changes from 3 to between #3 and #4.",
+    "When 'resources' weight sweeps 0->100%: 'de Gerlache Rim' rank changes from 4 to between #4 and #5.",
+    "When 'resources' weight sweeps 0->100%: 'Shackleton Crater Rim' rank changes from 5 to between #5 and #6.",
+    "When 'resources' weight sweeps 0->100%: 'Faustini Rim' rank changes from 6 to between #3 and #6.",
+    "When 'expansion' weight sweeps 0->100%: 'Haworth Crater' rank changes from 1 to between #1 and #6.",
+    "When 'expansion' weight sweeps 0->100%: 'Nobile Rim' rank changes from 2 to between #2 and #5.",
+    "When 'expansion' weight sweeps 0->100%: 'de Gerlache Rim' rank changes from 4 to between #2 and #4.",
+    "When 'expansion' weight sweeps 0->100%: 'Shackleton Crater Rim' rank changes from 5 to between #1 and #5.",
+    "When 'expansion' weight sweeps 0->100%: 'Faustini Rim' rank changes from 6 to between #4 and #6.",
+    "When 'scientific_value' weight sweeps 0->100%: 'Haworth Crater' rank changes from 1 to between #1 and #2.",
+    "When 'scientific_value' weight sweeps 0->100%: 'Nobile Rim' rank changes from 2 to between #2 and #3.",
+    "When 'scientific_value' weight sweeps 0->100%: 'Malapert Massif' rank changes from 3 to between #3 and #5.",
+    "When 'scientific_value' weight sweeps 0->100%: 'de Gerlache Rim' rank changes from 4 to between #4 and #6.",
+    "When 'scientific_value' weight sweeps 0->100%: 'Shackleton Crater Rim' rank changes from 5 to between #4 and #6.",
+    "When 'scientific_value' weight sweeps 0->100%: 'Faustini Rim' rank changes from 6 to between #1 and #6."
+  ],
+  "base_ranks": {
+    "Haworth Crater": 1,
+    "Nobile Rim": 2,
+    "Malapert Massif": 3,
+    "de Gerlache Rim": 4,
+    "Shackleton Crater Rim": 5,
+    "Faustini Rim": 6
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "version": "1.0",
+  "generated": "2026-08-18",
+  "method": "Analytic Hierarchy Process (AHP) — Saaty 1–9 pairwise comparison scale",
+  "display_note": "Weights derived via Analytic Hierarchy Process (AHP). Consistency Ratio: 0.03 ✓  (threshold < 0.10)",
+  "ahp_consistency": {
+    "lambda_max": 6.1625,
+    "consistency_index": 0.0325,
+    "random_index": 1.24,
+    "consistency_ratio": 0.0262,
+    "n_factors": 6,
+    "is_consistent": true,
+    "threshold": 0.10
+  },
+  "factors": [
+    {
+      "id": "safety",
+      "label": "Safety",
+      "ahp_weight": 0.3966,
+      "ahp_weight_pct": 39.66,
+      "data_source": "dust_risk_score",
+      "transform": "inverse",
+      "transform_note": "score = (100 - dust_risk_score), so higher dust risk -> lower safety score"
+    },
+    {
+      "id": "water_ice",
+      "label": "Water Ice",
+      "ahp_weight": 0.2685,
+      "ahp_weight_pct": 26.85,
+      "data_source": "ice_score",
+      "transform": "direct",
+      "transform_note": "Used directly from ice_score layer"
+    },
+    {
+      "id": "sunlight",
+      "label": "Sunlight",
+      "ahp_weight": 0.1214,
+      "ahp_weight_pct": 12.14,
+      "data_source": "sunlight_score",
+      "transform": "direct",
+      "transform_note": "Used directly from sunlight_score layer"
+    },
+    {
+      "id": "resources",
+      "label": "Resources",
+      "ahp_weight": 0.1214,
+      "ahp_weight_pct": 12.14,
+      "data_source": "proxy",
+      "transform": "avg_ice_sunlight",
+      "transform_note": "Proxy: average of ice_score and sunlight_score (no standalone resource layer yet)"
+    },
+    {
+      "id": "expansion",
+      "label": "Expansion",
+      "ahp_weight": 0.0548,
+      "ahp_weight_pct": 5.48,
+      "data_source": "proxy",
+      "transform": "neutral",
+      "transform_note": "Proxy: neutral 50.0 for all sites (no terrain-flatness layer available yet)"
+    },
+    {
+      "id": "scientific_value",
+      "label": "Scientific Value",
+      "ahp_weight": 0.0373,
+      "ahp_weight_pct": 3.73,
+      "data_source": "proxy",
+      "transform": "avg_all",
+      "transform_note": "Proxy: average of all three raw score layers (sunlight, ice, dust_risk)"
+    }
+  ],
+  "pairwise_matrix": {
+    "order": [
+      "Safety",
+      "Water Ice",
+      "Sunlight",
+      "Resources",
+      "Expansion",
+      "Scientific Value"
+    ],
+    "values": [
+      [
+        1.0000,
+        2.0000,
+        4.0000,
+        4.0000,
+        6.0000,
+        7.0000
+      ],
+      [
+        0.5000,
+        1.0000,
+        3.0000,
+        3.0000,
+        5.0000,
+        6.0000
+      ],
+      [
+        0.2500,
+        0.3333,
+        1.0000,
+        1.0000,
+        3.0000,
+        4.0000
+      ],
+      [
+        0.2500,
+        0.3333,
+        1.0000,
+        1.0000,
+        3.0000,
+        4.0000
+      ],
+      [
+        0.1667,
+        0.2000,
+        0.3333,
+        0.3333,
+        1.0000,
+        2.0000
+      ],
+      [
+        0.1429,
+        0.1667,
+        0.2500,
+        0.2500,
+        0.5000,
+        1.0000
+      ]
+    ],
+    "scale": "Saaty 1-9: 1=equally important, 3=moderately, 5=strongly, 7=very strongly, 9=extremely"
+  },
+  "rationale": {
+    "safety_first": "Crew survival is non-negotiable — ranked highest.",
+    "water_ice_second": "On-site water is critical for life support and propellant (ISRU).",
+    "sunlight_resources_tied": "Solar power generation and in-situ resources are equally important operational factors.",
+    "expansion_lower": "Future-growth capacity matters but is secondary to immediate mission survival.",
+    "scientific_value_last": "Site selection prioritizes mission viability over science return."
+  }
+}

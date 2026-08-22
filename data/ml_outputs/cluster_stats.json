@@ -1,0 +1,155 @@
+{
+  "0": {
+    "cluster_id": 0,
+    "archetype_label": "High-Elevation / High-Slope Environment",
+    "n_cells": 30845,
+    "pct_of_region": 19.28,
+    "mean": {
+      "elevation_m": 1217.404,
+      "slope_deg": 14.701,
+      "sunlight_score": 30.822
+    },
+    "median": {
+      "elevation_m": 809.267,
+      "slope_deg": 14.486,
+      "sunlight_score": 32.746
+    },
+    "std": {
+      "elevation_m": 2050.887,
+      "slope_deg": 6.005,
+      "sunlight_score": 11.567
+    },
+    "min": {
+      "elevation_m": -3669.723,
+      "slope_deg": 0.106,
+      "sunlight_score": 0.0
+    },
+    "max": {
+      "elevation_m": 6980.216,
+      "slope_deg": 33.418,
+      "sunlight_score": 52.935
+    },
+    "z_vs_global_mean": {
+      "elevation_m": 1.336,
+      "slope_deg": 1.112,
+      "sunlight_score": 0.473
+    },
+    "strengths": [
+      "Higher elevation may improve comms/sightlines (1217 m)"
+    ],
+    "limitations": [
+      "Elevated slope (14.7deg) may affect construction"
+    ],
+    "dominant_features": [
+      [
+        "elevation_m",
+        1.3357439041137695
+      ],
+      [
+        "slope_deg",
+        1.1122335195541382
+      ]
+    ]
+  },
+  "1": {
+    "cluster_id": 1,
+    "archetype_label": "Shadow-Dominated Environment",
+    "n_cells": 53850,
+    "pct_of_region": 33.66,
+    "mean": {
+      "elevation_m": -1830.911,
+      "slope_deg": 8.486,
+      "sunlight_score": 7.751
+    },
+    "median": {
+      "elevation_m": -1804.26,
+      "slope_deg": 7.717,
+      "sunlight_score": 6.781
+    },
+    "std": {
+      "elevation_m": 1328.488,
+      "slope_deg": 5.496,
+      "sunlight_score": 6.753
+    },
+    "min": {
+      "elevation_m": -5445.117,
+      "slope_deg": 0.011,
+      "sunlight_score": 0.0
+    },
+    "max": {
+      "elevation_m": 3487.617,
+      "slope_deg": 30.977,
+      "sunlight_score": 29.834
+    },
+    "z_vs_global_mean": {
+      "elevation_m": -0.271,
+      "slope_deg": 0.07,
+      "sunlight_score": -1.144
+    },
+    "strengths": [],
+    "limitations": [
+      "Comparatively low solar illumination (7.8)"
+    ],
+    "dominant_features": [
+      [
+        "sunlight_score",
+        -1.1442762613296509
+      ],
+      [
+        "elevation_m",
+        -0.2705153226852417
+      ]
+    ]
+  },
+  "2": {
+    "cluster_id": 2,
+    "archetype_label": "Solar-Exposed Environment",
+    "n_cells": 75305,
+    "pct_of_region": 47.07,
+    "mean": {
+      "elevation_m": -1988.736,
+      "slope_deg": 5.05,
+      "sunlight_score": 32.992
+    },
+    "median": {
+      "elevation_m": -2137.065,
+      "slope_deg": 4.448,
+      "sunlight_score": 33.262
+    },
+    "std": {
+      "elevation_m": 1181.648,
+      "slope_deg": 3.46,
+      "sunlight_score": 7.514
+    },
+    "min": {
+      "elevation_m": -5324.375,
+      "slope_deg": 0.007,
+      "sunlight_score": 14.584
+    },
+    "max": {
+      "elevation_m": 2396.794,
+      "slope_deg": 19.807,
+      "sunlight_score": 53.331
+    },
+    "z_vs_global_mean": {
+      "elevation_m": -0.354,
+      "slope_deg": -0.506,
+      "sunlight_score": 0.625
+    },
+    "strengths": [
+      "Comparatively gentle slope (5.0deg)",
+      "Comparatively high solar illumination (33.0)"
+    ],
+    "limitations": [],
+    "dominant_features": [
+      [
+        "sunlight_score",
+        0.6246817708015442
+      ],
+      [
+        "slope_deg",
+        -0.5057867169380188
+      ]
+    ]
+  }
+}

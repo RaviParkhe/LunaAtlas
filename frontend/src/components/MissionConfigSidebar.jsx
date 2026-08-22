@@ -6,13 +6,14 @@ import {
   Droplet, 
   ShieldCheck, 
   Zap, 
-  Flame, 
   Layers, 
   Compass, 
   Users, 
   Clock, 
-  Sparkles,
-  RefreshCw
+  Flame,
+  RefreshCw,
+  Target,
+  Globe
 } from 'lucide-react';
 
 export default function MissionConfigSidebar({
@@ -25,101 +26,104 @@ export default function MissionConfigSidebar({
   onResetWeights
 }) {
   return (
-    <aside className="w-80 bg-[#080d1a] border-l border-[#1a2744] flex flex-col h-full overflow-y-auto p-4 space-y-5 select-none text-xs">
+    <aside className="w-[320px] bg-[#060b18] border-l border-[#15223c] flex flex-col h-full overflow-y-auto p-4 space-y-4 select-none text-xs flex-shrink-0">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#1a2744]">
+      <div className="flex items-center justify-between pb-2.5 border-b border-[#15223c]">
         <div className="flex items-center space-x-2">
           <Settings2 className="w-4 h-4 text-cyan-400" />
-          <h2 className="font-bold text-slate-100 uppercase tracking-wider text-xs">
+          <h2 className="font-extrabold text-white uppercase tracking-wider text-xs font-mono">
             MISSION CONFIGURATION
           </h2>
         </div>
         <button
           onClick={onResetWeights}
-          className="p-1 text-slate-400 hover:text-cyan-400 rounded hover:bg-[#121c33] transition"
+          className="px-2 py-1 text-[10px] text-slate-400 hover:text-cyan-300 rounded bg-[#0b1329] border border-[#1a2744] hover:border-cyan-500/50 transition flex items-center gap-1 font-mono"
           title="Reset to Balanced Defaults"
         >
-          <RefreshCw className="w-3.5 h-3.5" />
+          <RefreshCw className="w-3 h-3" />
+          <span>Reset</span>
         </button>
       </div>
 
-      {/* Preset Mission Profiles */}
-      <div className="space-y-2">
-        <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-          <Compass className="w-3 h-3 text-blue-400" />
-          <span>Mission Profile Presets</span>
-        </label>
-        <div className="grid grid-cols-2 gap-1.5">
-          {[
-            { id: 'balanced', label: 'Balanced Artemis', color: 'blue' },
-            { id: 'power_first', label: 'Solar Power First', color: 'amber' },
-            { id: 'isru_mining', label: 'ISRU Ice Extraction', color: 'cyan' },
-            { id: 'max_safety', label: 'Maximum Safety', color: 'emerald' },
-          ].map((p) => (
-            <button
-              key={p.id}
-              onClick={() => onSelectProfile(p.id)}
-              className={`p-2 rounded-lg border text-left transition ${
-                activeProfile === p.id
-                  ? 'bg-blue-950/80 border-blue-500 text-blue-200 shadow-sm'
-                  : 'bg-[#0d1527] border-[#1a2744] text-slate-400 hover:border-slate-600 hover:text-slate-200'
-              }`}
-            >
-              <div className="font-semibold text-[11px] leading-tight">{p.label}</div>
-            </button>
-          ))}
+      {/* 1. Mission Parameters Card */}
+      <div className="hud-panel-sub p-3 space-y-2">
+        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+          <Target className="w-3 h-3 text-blue-400" />
+          <span>Mission Parameters</span>
         </div>
-      </div>
-
-      {/* Mission Parameters Card */}
-      <div className="bg-[#0d1527] border border-[#1a2744] rounded-lg p-3 space-y-2.5">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between text-[11px]">
           <span className="text-slate-400 flex items-center gap-1.5">
-            <Users className="w-3.5 h-3.5 text-slate-400" />
-            Crew Size
+            <Users className="w-3 h-3 text-slate-400" /> Crew Size
           </span>
           <span className="font-semibold text-slate-200 font-mono">11 – 20 Astronauts</span>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between text-[11px]">
           <span className="text-slate-400 flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-slate-400" />
-            Mission Duration
+            <Clock className="w-3 h-3 text-slate-400" /> Duration
           </span>
-          <span className="font-semibold text-slate-200 font-mono">Permanent Settlement</span>
+          <span className="font-semibold text-slate-200 font-mono">Permanent Base</span>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between text-[11px]">
           <span className="text-slate-400 flex items-center gap-1.5">
-            <Zap className="w-3.5 h-3.5 text-amber-400" />
-            Power Strategy
+            <Zap className="w-3 h-3 text-amber-400" /> Power Strategy
           </span>
           <span className="font-semibold text-amber-300 font-mono">Solar + Surface FSP</span>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between text-[11px]">
           <span className="text-slate-400 flex items-center gap-1.5">
-            <Droplet className="w-3.5 h-3.5 text-cyan-400" />
-            Resource Usage (ISRU)
+            <Droplet className="w-3 h-3 text-cyan-400" /> Local ISRU
           </span>
           <span className="font-semibold text-cyan-300 font-mono">Yes (Water / O2 / H2)</span>
         </div>
       </div>
 
-      {/* Dynamic Weight Sliders */}
-      <div className="space-y-4 pt-1">
+      {/* 2. Preset Profiles */}
+      <div className="space-y-2">
+        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+          <Compass className="w-3 h-3 text-cyan-400" />
+          <span>Mission Profiles</span>
+        </label>
+        <div className="grid grid-cols-2 gap-1.5">
+          {[
+            { id: 'balanced', label: 'Balanced Artemis' },
+            { id: 'power_first', label: 'Solar Power' },
+            { id: 'isru_mining', label: 'ISRU Ice Mining' },
+            { id: 'max_safety', label: 'Max Safety' },
+          ].map((p) => (
+            <button
+              key={p.id}
+              onClick={() => onSelectProfile(p.id)}
+              className={`p-2 rounded-lg border text-left text-[11px] font-semibold transition ${
+                activeProfile === p.id
+                  ? 'bg-blue-600/30 border-blue-500 text-cyan-200 shadow-sm'
+                  : 'bg-[#0b1329] border-[#1a2744] text-slate-400 hover:border-slate-600 hover:text-slate-200'
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. Mission Priority Sliders */}
+      <div className="hud-panel-sub p-3 space-y-3.5">
         <div className="flex items-center justify-between">
-          <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+          <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1">
             <Sliders className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Mission Priority Weights</span>
+            <span>Mission Priorities</span>
           </label>
-          <span className="text-[10px] text-cyan-400 font-mono">Dynamic MCDA</span>
+          <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-950 text-cyan-300 border border-blue-800 font-mono">
+            MCDA Weights
+          </span>
         </div>
 
-        {/* 1. Sunlight */}
+        {/* Sunlight */}
         <div className="space-y-1">
-          <div className="flex justify-between text-slate-300">
-            <span className="flex items-center gap-1 text-amber-400 font-medium">
-              <Sun className="w-3 h-3" /> Sunlight Illumination
+          <div className="flex justify-between text-[11px]">
+            <span className="flex items-center gap-1.5 text-amber-400 font-medium">
+              <Sun className="w-3 h-3" /> Sunlight
             </span>
-            <span className="font-mono text-amber-300">
+            <span className="font-mono font-bold text-amber-300">
               {Math.round(weights.sunlight * 100)}%
             </span>
           </div>
@@ -134,13 +138,13 @@ export default function MissionConfigSidebar({
           />
         </div>
 
-        {/* 2. Terrain & Landing Safety */}
+        {/* Safety */}
         <div className="space-y-1">
-          <div className="flex justify-between text-slate-300">
-            <span className="flex items-center gap-1 text-emerald-400 font-medium">
-              <ShieldCheck className="w-3 h-3" /> Terrain & Landing Safety
+          <div className="flex justify-between text-[11px]">
+            <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+              <ShieldCheck className="w-3 h-3" /> Safety & Landing
             </span>
-            <span className="font-mono text-emerald-300">
+            <span className="font-mono font-bold text-emerald-300">
               {Math.round(weights.landing_safety * 100)}%
             </span>
           </div>
@@ -155,13 +159,13 @@ export default function MissionConfigSidebar({
           />
         </div>
 
-        {/* 3. Water Ice */}
+        {/* Water Ice */}
         <div className="space-y-1">
-          <div className="flex justify-between text-slate-300">
-            <span className="flex items-center gap-1 text-cyan-400 font-medium">
-              <Droplet className="w-3 h-3" /> Water Ice Extraction
+          <div className="flex justify-between text-[11px]">
+            <span className="flex items-center gap-1.5 text-cyan-400 font-medium">
+              <Droplet className="w-3 h-3" /> Water Ice
             </span>
-            <span className="font-mono text-cyan-300">
+            <span className="font-mono font-bold text-cyan-300">
               {Math.round(weights.water_ice * 100)}%
             </span>
           </div>
@@ -176,13 +180,13 @@ export default function MissionConfigSidebar({
           />
         </div>
 
-        {/* 4. Radiation Protection */}
+        {/* Radiation */}
         <div className="space-y-1">
-          <div className="flex justify-between text-slate-300">
-            <span className="flex items-center gap-1 text-purple-400 font-medium">
+          <div className="flex justify-between text-[11px]">
+            <span className="flex items-center gap-1.5 text-purple-400 font-medium">
               <Layers className="w-3 h-3" /> Radiation Shielding
             </span>
-            <span className="font-mono text-purple-300">
+            <span className="font-mono font-bold text-purple-300">
               {Math.round(weights.radiation_safety * 100)}%
             </span>
           </div>
@@ -197,13 +201,13 @@ export default function MissionConfigSidebar({
           />
         </div>
 
-        {/* 5. Dust Penalty */}
+        {/* Dust Penalty */}
         <div className="space-y-1">
-          <div className="flex justify-between text-slate-300">
-            <span className="flex items-center gap-1 text-rose-400 font-medium">
-              <Flame className="w-3 h-3" /> Dust Levitation Penalty
+          <div className="flex justify-between text-[11px]">
+            <span className="flex items-center gap-1.5 text-rose-400 font-medium">
+              <Flame className="w-3 h-3" /> Dust Penalty
             </span>
-            <span className="font-mono text-rose-300">
+            <span className="font-mono font-bold text-rose-300">
               {Math.round(weights.dust_penalty * 100)}%
             </span>
           </div>
@@ -219,10 +223,10 @@ export default function MissionConfigSidebar({
         </div>
       </div>
 
-      {/* Flatness Gate Switch */}
-      <div className="pt-2 border-t border-[#1a2744]">
-        <label className="flex items-center justify-between cursor-pointer p-2 rounded-lg bg-[#0d1527] border border-[#1a2744] hover:border-slate-600 transition">
-          <span className="text-slate-300 font-medium">Enforce Flatness Gate</span>
+      {/* 4. Enforce Flatness Gate */}
+      <div className="hud-panel-sub p-3 space-y-1.5">
+        <label className="flex items-center justify-between cursor-pointer">
+          <span className="text-slate-200 font-semibold text-[11px]">Enforce Flatness Gate</span>
           <input
             type="checkbox"
             checked={applyFlatnessGate}
@@ -230,8 +234,8 @@ export default function MissionConfigSidebar({
             className="w-4 h-4 accent-cyan-500 rounded cursor-pointer"
           />
         </label>
-        <p className="text-[10px] text-slate-500 mt-1">
-          Filters out unbuildable steep cliff slopes from global peak scoring.
+        <p className="text-[10px] text-slate-400 leading-tight">
+          Penalizes steep crater walls to enforce level habitat placement.
         </p>
       </div>
     </aside>

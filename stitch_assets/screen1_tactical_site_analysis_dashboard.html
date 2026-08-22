@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Analysis Dashboard - Lunar Ops</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#252a35",
+                      "primary-fixed-dim": "#00daf3",
+                      "tertiary-fixed": "#dae2f9",
+                      "tertiary": "#e5ecff",
+                      "on-secondary": "#2c3134",
+                      "surface": "#0e131d",
+                      "on-surface-variant": "#bac9cc",
+                      "surface-tint": "#00daf3",
+                      "on-secondary-fixed": "#171c1f",
+                      "outline": "#849396",
+                      "inverse-primary": "#006875",
+                      "outline-variant": "#3b494c",
+                      "secondary-container": "#454a4d",
+                      "primary": "#c3f5ff",
+                      "surface-dim": "#0e131d",
+                      "surface-bright": "#343945",
+                      "error": "#ffb4ab",
+                      "inverse-surface": "#dee2f1",
+                      "surface-container-lowest": "#090e18",
+                      "on-error-container": "#ffdad6",
+                      "background": "#0e131d",
+                      "tertiary-fixed-dim": "#bec7dc",
+                      "inverse-on-surface": "#2c303b",
+                      "on-primary": "#00363d",
+                      "error-container": "#93000a",
+                      "on-tertiary-container": "#50596b",
+                      "surface-variant": "#303540",
+                      "secondary-fixed": "#dfe3e7",
+                      "secondary-fixed-dim": "#c3c7cb",
+                      "surface-container-highest": "#303540",
+                      "on-primary-fixed-variant": "#004f58",
+                      "on-secondary-container": "#b4b9bd",
+                      "tertiary-container": "#c7d0e6",
+                      "primary-container": "#00e5ff",
+                      "on-tertiary-fixed": "#131c2b",
+                      "on-secondary-fixed-variant": "#43474b",
+                      "on-background": "#dee2f1",
+                      "on-error": "#690005",
+                      "on-surface": "#dee2f1",
+                      "on-primary-container": "#00626e",
+                      "on-primary-fixed": "#001f24",
+                      "secondary": "#c3c7cb",
+                      "on-tertiary": "#283141",
+                      "primary-fixed": "#9cf0ff",
+                      "on-tertiary-fixed-variant": "#3e4758",
+                      "surface-container-low": "#171c26",
+                      "surface-container": "#1b202a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "16px",
+                      "unit": "4px",
+                      "container-max": "1440px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "32px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "data-mono": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "data-mono": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-color: #0e131d; /* Fallback */
+            background-image: radial-gradient(circle at 50% 0%, #1a2333 0%, #0e131d 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-panel {
+            background-color: rgba(26, 35, 51, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .ghost-border {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .chart-grid {
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .data-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        /* Custom scrollbar for mission control feel */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0e131d; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b494c; 
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00daf3; 
+        }
+        
+        .map-grid {
+            background-image: 
+                linear-gradient(rgba(0, 218, 243, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 218, 243, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
+</head>
+<body class="text-on-surface antialiased overflow-hidden flex flex-col h-screen">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-margin-desktop w-full h-16 z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30 docked full-width top-0 flat no shadows flex-shrink-0">
+<div class="flex items-center gap-8">
+<h1 class="font-display-lg text-headline-sm tracking-tighter text-primary-fixed-dim">LUNAR OPS: SITE SELECTION</h1>
+<nav class="hidden md:flex gap-6">
+<a class="text-on-surface-variant hover:text-primary-fixed-dim transition-colors font-headline-sm text-headline-sm text-sm" href="#">PARAMETERS</a>
+<a class="text-primary-fixed-dim border-b-2 border-primary-fixed-dim pb-1 font-headline-sm text-headline-sm text-sm opacity-80 scale-95 transition-all" href="#">ANALYSIS</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<button class="hidden md:flex items-center gap-2 bg-primary text-on-primary px-4 py-2 rounded font-label-caps text-label-caps hover:bg-primary-fixed transition-colors">
+                INITIATE ANALYSIS
+            </button>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary-fixed-dim transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden border border-outline-variant">
+<img alt="Mission Commander Profile" class="w-full h-full object-cover" data-alt="A highly detailed, professional headshot of an aerospace mission commander in a dark, high-tech control room setting. Cinematic lighting highlights precise features. The overall color palette is dominated by deep blacks, cool grays, and subtle electric blue rim lighting, creating a modern, authoritative, and sophisticated aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDOmHOAnhJsk8PsBeXtMR1AJtz1Jho8bA3Ia3g0HqrFCFpuI8Q7hm-nb5yxarEFuuNJPzSl6hjVL0SMZ7ifAAxkN_d7ujc9hInZ5ot7UANDcT_LNbUzwF6SjFbZG3OpIa8NzIgLWRaRu5BeBt585iiJaNCKpavgv-uf0xc8s76lbCtL7mgrKvou9Q8NM-8Yi8yvNOsgKV_Y7KY6UIMbmliuAD0BlYVL2kXhyaryJPHFyXKW0oL0LwV"/>
+</div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Panel: Ranked Candidates -->
+<aside class="w-[320px] h-full flex flex-col z-40 bg-surface-container-lowest/60 backdrop-blur-xl border-r border-outline-variant/30 flex-shrink-0">
+<div class="p-4 border-b border-outline-variant/30 flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-fixed-dim text-[18px]">list</span>
+<h2 class="font-label-caps text-label-caps text-on-surface-variant">RANKED CANDIDATES</h2>
+<span class="ml-auto text-[10px] font-data-mono text-on-surface-variant">Top 6 NASA Sites</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto">
+<div class="flex flex-col">
+<!-- Candidate 1 -->
+<div class="p-3 border-b border-primary-fixed-dim/30 bg-primary-fixed-dim/10 cursor-pointer group flex gap-3 items-center relative">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary-fixed-dim"></div>
+<div class="w-6 h-6 rounded-full bg-primary-fixed-dim flex items-center justify-center font-data-mono text-[10px] text-on-primary-fixed font-bold">#1</div>
+<div class="flex-1 flex flex-col">
+<div class="flex justify-between items-center">
+<h5 class="font-headline-sm text-[13px] text-on-surface">Faustini Rim</h5>
+<div class="font-data-mono text-xs text-primary-fixed-dim font-bold">49.1 <span class="text-[10px] text-on-surface-variant font-normal">/100</span></div>
+</div>
+<div class="flex justify-between items-center mt-1">
+<span class="font-data-mono text-[10px] text-on-surface-variant">87.3°S, 77.0°E</span>
+<div class="flex gap-2 font-data-mono text-[10px]">
+<span class="text-warning">Sun 42%</span>
+<span class="text-primary-fixed-dim">Ice 22%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Candidate 2 -->
+<div class="p-3 border-b border-outline-variant/30 hover:bg-surface-variant/30 transition-colors cursor-pointer group flex gap-3 items-center">
+<div class="w-6 h-6 rounded-full bg-surface-variant flex items-center justify-center font-data-mono text-[10px] text-on-surface-variant">#2</div>
+<div class="flex-1 flex flex-col">
+<div class="flex justify-between items-center">
+<h5 class="font-headline-sm text-[13px] text-on-surface group-hover:text-primary-fixed-dim transition-colors">Nobile Rim</h5>
+<div class="font-data-mono text-xs text-on-surface-variant font-bold">47.9 <span class="text-[10px] opacity-70 font-normal">/100</span></div>
+</div>
+<div class="flex justify-between items-center mt-1">
+<span class="font-data-mono text-[10px] text-on-surface-variant">85.3°S, 53.3°E</span>
+<div class="flex gap-2 font-data-mono text-[10px]">
+<span class="text-warning">Sun 39%</span>
+<span class="text-primary-fixed-dim">Ice 28%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Candidate 3 -->
+<div class="p-3 border-b border-outline-variant/30 hover:bg-surface-variant/30 transition-colors cursor-pointer group flex gap-3 items-center">
+<div class="w-6 h-6 rounded-full bg-surface-variant flex items-center justify-center font-data-mono text-[10px] text-on-surface-variant">#3</div>
+<div class="flex-1 flex flex-col">
+<div class="flex justify-between items-center">
+<h5 class="font-headline-sm text-[13px] text-on-surface group-hover:text-primary-fixed-dim transition-colors">Shackleton Crater Rim</h5>
+<div class="font-data-mono text-xs text-on-surface-variant font-bold">47.5 <span class="text-[10px] opacity-70 font-normal">/100</span></div>
+</div>
+<div class="flex justify-between items-center mt-1">
+<span class="font-data-mono text-[10px] text-on-surface-variant">89.7°S, 129.8°E</span>
+<div class="flex gap-2 font-data-mono text-[10px]">
+<span class="text-warning">Sun 53%</span>
+<span class="text-primary-fixed-dim">Ice 0%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Candidate 4 -->
+<div class="p-3 border-b border-outline-variant/30 hover:bg-surface-variant/30 transition-colors cursor-pointer group flex gap-3 items-center">
+<div class="w-6 h-6 rounded-full bg-surface-variant flex items-center justify-center font-data-mono text-[10px] text-on-surface-variant">#4</div>
+<div class="flex-1 flex flex-col">
+<div class="flex justify-between items-center">
+<h5 class="font-headline-sm text-[13px] text-on-surface group-hover:text-primary-fixed-dim transition-colors">Malapert Massif</h5>
+<div class="font-data-mono text-xs text-on-surface-variant font-bold">43.3 <span class="text-[10px] opacity-70 font-normal">/100</span></div>
+</div>
+<div class="flex justify-between items-center mt-1">
+<span class="font-data-mono text-[10px] text-on-surface-variant">86.0°S, -2.3°E</span>
+<div class="flex gap-2 font-data-mono text-[10px]">
+<span class="text-warning">Sun 47%</span>
+<span class="text-primary-fixed-dim">Ice 13%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Candidate 5 -->
+<div class="p-3 border-b border-outline-variant/30 hover:bg-surface-variant/30 transition-colors cursor-pointer group flex gap-3 items-center">
+<div class="w-6 h-6 rounded-full bg-surface-variant flex items-center justify-center font-data-mono text-[10px] text-on-surface-variant">#5</div>
+<div class="flex-1 flex flex-col">
+<div class="flex justify-between items-center">
+<h5 class="font-headline-sm text-[13px] text-on-surface group-hover:text-primary-fixed-dim transition-colors">de Gerlache Rim</h5>
+<div class="font-data-mono text-xs text-on-surface-variant font-bold">38.5 <span class="text-[10px] opacity-70 font-normal">/100</span></div>
+</div>
+<div class="flex justify-between items-center mt-1">
+<span class="font-data-mono text-[10px] text-on-surface-variant">88.5°S, -87.1°E</span>
+<div class="flex gap-2 font-data-mono text-[10px]">
+<span class="text-warning">Sun 50%</span>
+<span class="text-primary-fixed-dim">Ice 7%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Candidate 6 -->
+<div class="p-3 border-b border-outline-variant/30 hover:bg-surface-variant/30 transition-colors cursor-pointer group flex gap-3 items-center">
+<div class="w-6 h-6 rounded-full bg-surface-variant flex items-center justify-center font-data-mono text-[10px] text-on-surface-variant">#6</div>
+<div class="flex-1 flex flex-col">
+<div class="flex justify-between items-center">
+<h5 class="font-headline-sm text-[13px] text-on-surface group-hover:text-primary-fixed-dim transition-colors">Haworth Crater</h5>
+<div class="font-data-mono text-xs text-on-surface-variant font-bold">35.7 <span class="text-[10px] opacity-70 font-normal">/100</span></div>
+</div>
+<div class="flex justify-between items-center mt-1">
+<span class="font-data-mono text-[10px] text-on-surface-variant">86.9°S, -4.0°E</span>
+<div class="flex gap-2 font-data-mono text-[10px]">
+<span class="text-warning">Sun 0%</span>
+<span class="text-primary-fixed-dim">Ice 100%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 p-gutter h-full overflow-hidden flex gap-gutter">
+<!-- Central Map Area -->
+<section class="flex-1 h-full rounded-xl border border-outline-variant/30 bg-surface-container-lowest relative overflow-hidden flex flex-col map-grid">
+<!-- Top Controls Overlay -->
+<div class="absolute top-4 left-4 right-4 z-10 flex justify-between items-start pointer-events-none">
+<div class="bg-surface-container-high/90 backdrop-blur border border-outline-variant/50 px-3 py-2 rounded flex flex-col gap-1 pointer-events-auto">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px] text-primary-fixed-dim">location_searching</span>
+<span class="font-data-mono text-xs text-on-surface">LAT: -83.76°S LON: -86.67°E [11, 211]</span>
+</div>
+</div>
+</div>
+<!-- Map Image/Canvas Placeholder -->
+<div class="flex-1 w-full relative h-full">
+<div class="w-full h-full bg-cover bg-center absolute inset-0 opacity-80" data-alt="A highly detailed, color-coded heat map of the lunar south pole terrain. The colors range from deep blues to bright cyans and greens, indicating varied terrain features or scores. Tactical markers with labels like '#1 Faustini', '#2 Nobile', and '#3 Shackleton' are overlaid on the map." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDN9X2I6Dw1WQECrCB0i9BT2_7ekYeySC8FnDx1idlszf0getlLo5KAxEO_nUH8kURwZTCbYfs7TxIs25HU8sz4nAjUravsefz45dC2UeuXSyoDbiS5hLwieZjKwO1fepbtaWUOjVwiciPzKJYQW7EmqHC2Y8cmWvB_8RqOqWvA9qhHSH_RArRVmTS2kC8ifi3ionaS7glGstx-SwGDy2UteP97NvvcF4A97ITKfeEBETctOaFLQH2p')"></div>
+<!-- Tactical Markers -->
+<div class="absolute inset-0 pointer-events-none">
+<!-- #1 Faustini -->
+<div class="absolute top-[50%] left-[65%] transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1">
+<div class="bg-surface-container-highest border border-primary-fixed-dim px-2 py-0.5 rounded flex items-center gap-1">
+<span class="font-data-mono text-[10px] text-primary-fixed-dim">#1</span>
+<span class="font-headline-sm text-[12px] text-on-surface">Faustini</span>
+</div>
+<div class="w-4 h-4 rounded-full border-2 border-primary-fixed-dim bg-transparent shadow-[0_0_10px_rgba(0,218,243,0.5)]"></div>
+</div>
+<!-- #2 Nobile -->
+<div class="absolute top-[35%] left-[70%] transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1">
+<div class="bg-surface-container-highest border border-outline-variant px-2 py-0.5 rounded flex items-center gap-1">
+<span class="font-data-mono text-[10px] text-on-surface-variant">#2</span>
+<span class="font-headline-sm text-[12px] text-on-surface">Nobile</span>
+</div>
+<div class="w-4 h-4 rounded-full border-2 border-[#f59e0b] bg-transparent shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
+</div>
+<!-- #3 Shackleton -->
+<div class="absolute top-[55%] left-[45%] transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1">
+<div class="bg-surface-container-highest border border-outline-variant px-2 py-0.5 rounded flex items-center gap-1">
+<span class="font-data-mono text-[10px] text-on-surface-variant">#3</span>
+<span class="font-headline-sm text-[12px] text-on-surface">Shackleton</span>
+</div>
+<div class="w-4 h-4 rounded-full border-2 border-[#f59e0b] bg-transparent shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
+</div>
+</div>
+</div>
+<!-- Bottom Controls Overlay -->
+<div class="absolute bottom-4 left-4 right-4 z-10 flex justify-between items-end pointer-events-none">
+<!-- Legend -->
+<div class="bg-surface-container-high/90 backdrop-blur border border-outline-variant/50 px-3 py-2 rounded flex flex-col gap-2 pointer-events-auto w-48">
+<span class="font-label-caps text-[10px] text-on-surface-variant">OVERALL_SCORE COLOR GRADIENT</span>
+<div class="h-2 w-full rounded bg-gradient-to-r from-surface-container-lowest via-[#006875] to-primary-fixed-dim"></div>
+<div class="flex justify-between font-data-mono text-[9px] text-on-surface-variant">
+<span>0 (Low)</span>
+<span>50</span>
+<span>100 (Max)</span>
+</div>
+</div>
+<!-- Zoom Controls -->
+<div class="flex flex-col gap-1 pointer-events-auto">
+<button class="w-8 h-8 bg-surface-container-high/90 backdrop-blur border border-outline-variant/50 rounded flex items-center justify-center text-on-surface hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+<button class="w-8 h-8 bg-surface-container-high/90 backdrop-blur border border-outline-variant/50 rounded flex items-center justify-center text-on-surface hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined text-[18px]">remove</span>
+</button>
+<button class="w-8 h-8 bg-surface-container-high/90 backdrop-blur border border-outline-variant/50 rounded flex items-center justify-center text-on-surface hover:text-primary-fixed-dim transition-colors mt-1">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Right Panel: Detailed Analysis -->
+<section class="w-[420px] h-full flex flex-col gap-4 overflow-y-auto pr-2">
+<!-- Selected Candidate Profile -->
+<div class="glass-panel rounded-xl flex flex-col shrink-0 border border-primary-fixed-dim/30">
+<div class="p-4 border-b border-outline-variant/30 flex justify-between items-start">
+<div class="flex flex-col gap-1">
+<span class="font-label-caps text-[10px] text-primary-fixed-dim">SELECTED CANDIDATE #1</span>
+<h3 class="font-headline-lg text-2xl text-on-surface">Faustini Rim</h3>
+</div>
+<div class="px-2 py-0.5 bg-primary-fixed-dim/20 border border-primary-fixed-dim/50 rounded text-[10px] font-label-caps text-primary-fixed-dim">
+                        SUITABLE
+                    </div>
+</div>
+<div class="p-4 flex gap-4">
+<div class="flex-1 flex flex-col gap-4">
+<div class="flex justify-between">
+<div class="flex flex-col">
+<span class="font-data-mono text-[10px] text-on-surface-variant">Coordinates</span>
+<span class="font-data-mono text-sm text-on-surface">87.30°S, 77.00°E</span>
+</div>
+<div class="flex flex-col text-right">
+<span class="font-data-mono text-[10px] text-on-surface-variant">Elevation / Slope</span>
+<span class="font-data-mono text-sm text-on-surface"><span class="text-primary-fixed-dim">577.9m</span> • <span class="text-primary-fixed-dim">1.12°</span></span>
+</div>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-label-caps text-xs text-on-surface">SUITABILITY SCORE</span>
+<span class="font-body-md text-xs text-on-surface-variant">Multi-objective score normalized across 160,000 cells.</span>
+</div>
+</div>
+<!-- Score Gauge -->
+<div class="w-20 h-20 relative flex items-center justify-center shrink-0">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="rgba(255,255,255,0.1)" stroke-width="8"></circle>
+<circle cx="50" cy="50" fill="none" r="45" stroke="#00daf3" stroke-dasharray="282.7" stroke-dashoffset="144" stroke-width="8"></circle>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="font-display-lg text-2xl text-on-surface leading-none">49</span>
+<span class="font-data-mono text-[10px] text-on-surface-variant">/100</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Factor Scorecard -->
+<div class="glass-panel rounded-xl flex flex-col shrink-0">
+<div class="p-3 border-b border-outline-variant/30 flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">bar_chart</span>
+<h4 class="font-label-caps text-label-caps text-on-surface">FACTOR SCORECARD</h4>
+</div>
+<span class="font-data-mono text-[10px] text-on-surface-variant">Real Sensor Metrics</span>
+</div>
+<div class="p-4 flex flex-col gap-4">
+<!-- Sunlight -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-1 text-[#f59e0b]">
+<span class="material-symbols-outlined text-[14px]">light_mode</span>
+<span class="font-data-mono text-xs">Sunlight Availability</span>
+</div>
+<span class="font-data-mono text-sm text-on-surface">41.8%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-variant rounded overflow-hidden">
+<div class="h-full bg-[#f59e0b] w-[41.8%]"></div>
+</div>
+</div>
+<!-- Landing Safety -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-1 text-[#10b981]">
+<span class="material-symbols-outlined text-[14px]">shield</span>
+<span class="font-data-mono text-xs">Landing Safety</span>
+</div>
+<span class="font-data-mono text-sm text-on-surface">89.1</span>
+</div>
+<div class="h-1.5 w-full bg-surface-variant rounded overflow-hidden">
+<div class="h-full bg-[#10b981] w-[89.1%]"></div>
+</div>
+</div>
+<!-- Water Ice -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-1 text-primary-fixed-dim">
+<span class="material-symbols-outlined text-[14px]">water_drop</span>
+<span class="font-data-mono text-xs">Water Ice Potential</span>
+</div>
+<span class="font-data-mono text-sm text-on-surface">22.4</span>
+</div>
+<div class="h-1.5 w-full bg-surface-variant rounded overflow-hidden">
+<div class="h-full bg-primary-fixed-dim w-[22.4%]"></div>
+</div>
+</div>
+<!-- Radiation -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-1 text-[#8b5cf6]">
+<span class="material-symbols-outlined text-[14px]">waves</span>
+<span class="font-data-mono text-xs">Radiation Shielding</span>
+</div>
+<span class="font-data-mono text-sm text-on-surface">56.8</span>
+</div>
+<div class="h-1.5 w-full bg-surface-variant rounded overflow-hidden">
+<div class="h-full bg-[#8b5cf6] w-[56.8%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- AI Mission Rationale -->
+<div class="glass-panel rounded-xl flex flex-col shrink-0">
+<div class="p-3 border-b border-outline-variant/30 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary-fixed-dim">psychology</span>
+<h4 class="font-label-caps text-label-caps text-primary-fixed-dim">AI MISSION RATIONALE</h4>
+</div>
+<div class="p-4 flex flex-col gap-4">
+<p class="font-body-md text-sm text-on-surface-variant italic">
+                        "Safe terrain flatness with high landing suitability (89.1/100)."
+                    </p>
+<div class="flex gap-2">
+<button class="flex-1 py-2 bg-surface-variant/50 border border-outline-variant hover:border-primary-fixed-dim transition-colors rounded flex items-center justify-center gap-2 text-primary-fixed-dim font-data-mono text-xs">
+<span class="material-symbols-outlined text-[14px]">public</span>
+                            View in 3D
+                        </button>
+<button class="flex-1 py-2 bg-surface-variant/50 border border-outline-variant hover:border-primary-fixed-dim transition-colors rounded flex items-center justify-center gap-2 text-primary-fixed-dim font-data-mono text-xs">
+<span class="material-symbols-outlined text-[14px]">terrain</span>
+                            Terrain Detail
+                        </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+</body></html>

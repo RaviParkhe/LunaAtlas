@@ -1,0 +1,134 @@
+{
+  "ModelA_full": {
+    "2": {
+      "k": 2,
+      "silhouette": 0.313551,
+      "davies_bouldin": 1.309557,
+      "calinski_harabasz": 72208.88,
+      "cluster_sizes": {
+        "0": 94053,
+        "1": 65947
+      },
+      "min_cluster_size": 65947,
+      "max_cluster_size": 94053,
+      "n_cells": 160000
+    },
+    "3": {
+      "k": 3,
+      "silhouette": 0.307771,
+      "davies_bouldin": 1.117608,
+      "calinski_harabasz": 78099.53,
+      "cluster_sizes": {
+        "0": 42455,
+        "1": 55012,
+        "2": 62533
+      },
+      "min_cluster_size": 42455,
+      "max_cluster_size": 62533,
+      "n_cells": 160000
+    },
+    "4": {
+      "k": 4,
+      "silhouette": 0.276111,
+      "davies_bouldin": 1.142325,
+      "calinski_harabasz": 72767.68,
+      "cluster_sizes": {
+        "0": 56277,
+        "1": 31842,
+        "2": 35572,
+        "3": 36309
+      },
+      "min_cluster_size": 31842,
+      "max_cluster_size": 56277,
+      "n_cells": 160000
+    }
+  },
+  "ModelB_terrain_only": {
+    "2": {
+      "k": 2,
+      "silhouette": 0.384296,
+      "davies_bouldin": 0.980538,
+      "calinski_harabasz": 124381.36,
+      "cluster_sizes": {
+        "0": 87784,
+        "1": 72216
+      },
+      "min_cluster_size": 72216,
+      "max_cluster_size": 87784,
+      "n_cells": 160000
+    },
+    "3": {
+      "k": 3,
+      "silhouette": 0.33247,
+      "davies_bouldin": 1.048281,
+      "calinski_harabasz": 108604.05,
+      "cluster_sizes": {
+        "0": 36711,
+        "1": 43912,
+        "2": 79377
+      },
+      "min_cluster_size": 36711,
+      "max_cluster_size": 79377,
+      "n_cells": 160000
+    },
+    "4": {
+      "k": 4,
+      "silhouette": 0.342057,
+      "davies_bouldin": 0.953029,
+      "calinski_harabasz": 111078.46,
+      "cluster_sizes": {
+        "0": 15705,
+        "1": 73126,
+        "2": 37976,
+        "3": 33193
+      },
+      "min_cluster_size": 15705,
+      "max_cluster_size": 73126,
+      "n_cells": 160000
+    }
+  },
+  "ModelC_no_ice": {
+    "2": {
+      "k": 2,
+      "silhouette": 0.290262,
+      "davies_bouldin": 1.312938,
+      "calinski_harabasz": 78667.54,
+      "cluster_sizes": {
+        "0": 72309,
+        "1": 87691
+      },
+      "min_cluster_size": 72309,
+      "max_cluster_size": 87691,
+      "n_cells": 160000
+    },
+    "3": {
+      "k": 3,
+      "silhouette": 0.283493,
+      "davies_bouldin": 1.236903,
+      "calinski_harabasz": 69129.19,
+      "cluster_sizes": {
+        "0": 41701,
+        "1": 71533,
+        "2": 46766
+      },
+      "min_cluster_size": 41701,
+      "max_cluster_size": 71533,
+      "n_cells": 160000
+    },
+    "4": {
+      "k": 4,
+      "silhouette": 0.26918,
+      "davies_bouldin": 1.167032,
+      "calinski_harabasz": 67210.23,
+      "cluster_sizes": {
+        "0": 42552,
+        "1": 35284,
+        "2": 25139,
+        "3": 57025
+      },
+      "min_cluster_size": 25139,
+      "max_cluster_size": 57025,
+      "n_cells": 160000
+    }
+  }
+}

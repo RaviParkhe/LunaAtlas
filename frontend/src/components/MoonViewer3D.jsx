@@ -1,279 +1,661 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { Rotate3d, Compass, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { RotateCw, Sun, Play, Square, Mountain, Crosshair, Plus, Minus, MapPin } from 'lucide-react';
 
 export default function MoonViewer3D({
-  namedSites,
+  namedSites = [],
   selectedSite,
-  onSelectSite,
-  activeLayer
+  onSelectSite
 }) {
   const mountRef = useRef(null);
   const sceneRef = useRef(null);
-  const rendererRef = useRef(null);
   const cameraRef = useRef(null);
+  const rendererRef = useRef(null);
   const moonMeshRef = useRef(null);
+  const glowMeshRef = useRef(null);
   const markersGroupRef = useRef(null);
-  const targetLookAt = useRef(new THREE.Vector3(0, -1.8, 0));
-  const targetCamPos = useRef(new THREE.Vector3(0, -3.2, 2.2));
+  const reqIdRef = useRef(null);
+  const dirLightRef = useRef(null);
+  const ambientLightRef = useRef(null);
 
-  const [isRotating, setIsRotating] = useState(true);
+  const [isRotating, setIsRotating] = useState(false);
+  const isRotatingRef = useRef(false);
+  isRotatingRef.current = isRotating;
 
-  // Convert Lunar Lat/Lon to 3D Sphere Coordinates (R = 2.0)
-  const latLonToVector3 = (latDeg, lonDeg, radius = 2.0) => {
+  const [isSolarGrazingActive, setIsSolarGrazingActive] = useState(true);
+  const [isSunAnimating, setIsSunAnimating] = useState(false);
+  const [sunAngle, setSunAngle] = useState(60);
+  const [bumpIntensity, setBumpIntensity] = useState(0.12);
+  const [currentAltitudeKm, setCurrentAltitudeKm] = useState(1737);
+
+  const targetCamPos = useRef(new THREE.Vector3(0, -6.2, 3.4));
+  const targetLookAt = useRef(new THREE.Vector3(0, 0, 0));
+
+  const latLonToVector3 = (latDeg, lonDeg, radius) => {
     const phi = (90 - latDeg) * (Math.PI / 180);
     const theta = (lonDeg + 180) * (Math.PI / 180);
-
     const x = -(radius * Math.sin(phi) * Math.cos(theta));
     const z = radius * Math.sin(phi) * Math.sin(theta);
     const y = radius * Math.cos(phi);
-
     return new THREE.Vector3(x, y, z);
   };
 
-  useEffect(() => {
-    const container = mountRef.current;
-    if (!container) return;
+  // Sleek, compact Apple-style 3D Billboard Badge for Active Site
+  const createCompactBadge = (siteName, rank, lat, lon) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 380;
+    canvas.height = 110;
+    const ctx = canvas.getContext('2d');
 
-    const width = container.clientWidth || 400;
-    const height = container.clientHeight || 400;
+    // Apple Frosted Glass Capsule
+    ctx.fillStyle = 'rgba(29, 29, 31, 0.92)';
+    ctx.strokeStyle = '#0066cc';
+    ctx.lineWidth = 4;
 
-    // 1. Scene & Camera
-    const scene = new THREE.Scene();
-    sceneRef.current = scene;
+    const r = 24;
+    ctx.beginPath();
+    ctx.moveTo(r, 0);
+    ctx.lineTo(380 - r, 0);
+    ctx.quadraticCurveTo(380, 0, 380, r);
+    ctx.lineTo(380, 110 - r);
+    ctx.quadraticCurveTo(380, 110, 380 - r, 110);
+    ctx.lineTo(r, 110);
+    ctx.quadraticCurveTo(0, 110, 0, 110 - r);
+    ctx.lineTo(0, r);
+    ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
 
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.set(0, -3.2, 2.2); // Positioned looking directly at Lunar South Pole
-    camera.lookAt(0, -1.8, 0);
-    cameraRef.current = camera;
+    // Site Title
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '600 32px -apple-system, sans-serif';
+    ctx.textAlign = 'left';
+    const rankPrefix = rank ? `#${rank} ` : '';
+    ctx.fillText(`${rankPrefix}${siteName}`, 24, 46);
 
-    // 2. Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    container.innerHTML = '';
-    container.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
+    // Coordinates
+    const latStr = `${Math.abs(lat).toFixed(1)}°S`;
+    const lonStr = `${Math.abs(lon).toFixed(1)}°${lon >= 0 ? 'E' : 'W'}`;
+    ctx.fillStyle = '#2997ff';
+    ctx.font = '500 24px -apple-system, sans-serif';
+    ctx.fillText(`${latStr}, ${lonStr}`, 24, 86);
 
-    // 3. Lighting (Sunlight + Ambient space light)
-    const ambientLight = new THREE.AmbientLight(0x223355, 1.2);
-    scene.add(ambientLight);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.minFilter = THREE.LinearFilter;
 
-    const sunLight = new THREE.DirectionalLight(0xffffff, 2.5);
-    sunLight.position.set(5, 3, 5);
-    scene.add(sunLight);
-
-    // 4. Procedural Lunar Surface Texture Generation
-    const textureCanvas = document.createElement('canvas');
-    textureCanvas.width = 1024;
-    textureCanvas.height = 512;
-    const ctx = textureCanvas.getContext('2d');
-    
-    // Base lunar basalt gray
-    ctx.fillStyle = '#475569';
-    ctx.fillRect(0, 0, 1024, 512);
-
-    // Generate craters
-    for (let i = 0; i < 300; i++) {
-      const cx = Math.random() * 1024;
-      const cy = Math.random() * 512;
-      const cr = Math.random() * 18 + 2;
-      
-      const grad = ctx.createRadialGradient(cx, cy, cr * 0.2, cx, cy, cr);
-      grad.addColorStop(0, '#1e293b');
-      grad.addColorStop(0.7, '#334155');
-      grad.addColorStop(1, '#64748b');
-      
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(cx, cy, cr, 0, 2 * Math.PI);
-      ctx.fill();
-    }
-
-    // South Pole Highlight Overlay (bottom band of texture)
-    const southPoleGrad = ctx.createLinearGradient(0, 420, 0, 512);
-    southPoleGrad.addColorStop(0, 'rgba(6, 182, 212, 0.0)');
-    southPoleGrad.addColorStop(1, 'rgba(6, 182, 212, 0.45)');
-    ctx.fillStyle = southPoleGrad;
-    ctx.fillRect(0, 420, 1024, 92);
-
-    const moonTexture = new THREE.CanvasTexture(textureCanvas);
-    const moonGeo = new THREE.SphereGeometry(2.0, 64, 64);
-    const moonMat = new THREE.MeshStandardMaterial({
-      map: moonTexture,
-      roughness: 0.85,
-      metalness: 0.1
+    const spriteMat = new THREE.SpriteMaterial({
+      map: texture,
+      transparent: true,
+      depthTest: true,
+      depthWrite: false
     });
 
-    const moonMesh = new THREE.Mesh(moonGeo, moonMat);
+    const sprite = new THREE.Sprite(spriteMat);
+    sprite.scale.set(0.32, 0.09, 1.0);
+    return sprite;
+  };
+
+  // Mini Number Pin Dot (#1, #2, #3...)
+  const createMiniRankDot = (rank, isRank1) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 96;
+    canvas.height = 96;
+    const ctx = canvas.getContext('2d');
+
+    // Luminous Circular Tag
+    ctx.fillStyle = isRank1 ? '#0066cc' : 'rgba(29, 29, 31, 0.9)';
+    ctx.strokeStyle = isRank1 ? '#ffffff' : '#0066cc';
+    ctx.lineWidth = 6;
+
+    ctx.beginPath();
+    ctx.arc(48, 48, 42, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Number
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 44px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${rank || 1}`, 48, 48);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+
+    const spriteMat = new THREE.SpriteMaterial({
+      map: texture,
+      transparent: true,
+      depthTest: true,
+      depthWrite: false
+    });
+
+    const sprite = new THREE.Sprite(spriteMat);
+    sprite.scale.set(0.07, 0.07, 1.0);
+    return sprite;
+  };
+
+  useEffect(() => {
+    if (!mountRef.current) return;
+    const width = mountRef.current.clientWidth;
+    const height = mountRef.current.clientHeight;
+
+    const scene = new THREE.Scene();
+    sceneRef.current = scene;
+    scene.background = new THREE.Color(0x000000);
+
+    const camera = new THREE.PerspectiveCamera(40, width / height, 0.05, 1000);
+    camera.position.set(0, -6.2, 3.4);
+    camera.lookAt(0, 0, 0);
+    cameraRef.current = camera;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.35;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    mountRef.current.replaceChildren(renderer.domElement);
+    rendererRef.current = renderer;
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0x2a394a, 0.85);
+    scene.add(ambientLight);
+    ambientLightRef.current = ambientLight;
+
+    const dirLight = new THREE.DirectionalLight(0xfffcf2, 2.8);
+    const initialSunRad = (60 * Math.PI) / 180;
+    dirLight.position.set(Math.cos(initialSunRad) * 14, -2.5, Math.sin(initialSunRad) * 14);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.width = 2048;
+    dirLight.shadow.mapSize.height = 2048;
+    scene.add(dirLight);
+    dirLightRef.current = dirLight;
+
+    const earthshine = new THREE.DirectionalLight(0x2997ff, 0.35);
+    earthshine.position.set(-10, 4, -10);
+    scene.add(earthshine);
+
+    // Deep Space Starfield
+    const starGeo = new THREE.BufferGeometry();
+    const starCount = 2500;
+    const starCoords = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount * 3; i += 3) {
+      starCoords[i] = (Math.random() - 0.5) * 400;
+      starCoords[i + 1] = (Math.random() - 0.5) * 400;
+      starCoords[i + 2] = (Math.random() - 0.5) * 400;
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starCoords, 3));
+    const starMat = new THREE.PointsMaterial({ color: 0xe2e8f0, size: 0.75, transparent: true, opacity: 0.85 });
+    const starField = new THREE.Points(starGeo, starMat);
+    scene.add(starField);
+
+    // NASA LROC 4K Seamless Moon Globe
+    const MOON_RADIUS = 2.5;
+    const sphereGeo = new THREE.SphereGeometry(MOON_RADIUS, 128, 128);
+
+    const textureLoader = new THREE.TextureLoader();
+    const colorTexture4K = textureLoader.load('/textures/moon_nasa_lroc_4k.jpg');
+    const bumpTexture4K = textureLoader.load('/textures/moon_nasa_bump_4k.jpg');
+
+    colorTexture4K.colorSpace = THREE.SRGBColorSpace;
+    colorTexture4K.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    bumpTexture4K.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+    const moonMat = new THREE.MeshStandardMaterial({
+      map: colorTexture4K,
+      bumpMap: bumpTexture4K,
+      bumpScale: bumpIntensity,
+      roughness: 0.88,
+      metalness: 0.02
+    });
+
+    const moonMesh = new THREE.Mesh(sphereGeo, moonMat);
     scene.add(moonMesh);
     moonMeshRef.current = moonMesh;
 
-    // 5. Markers Group for Candidate Sites
+    // Atmospheric Glow Shell
+    const glowGeo = new THREE.SphereGeometry(MOON_RADIUS * 1.012, 64, 64);
+    const glowMat = new THREE.ShaderMaterial({
+      vertexShader: `
+        varying vec3 vNormal;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vNormal;
+        void main() {
+          float intensity = pow(0.68 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.5);
+          gl_FragColor = vec4(0.0, 0.4, 0.8, 1.0) * intensity * 0.45;
+        }
+      `,
+      blending: THREE.AdditiveBlending,
+      side: THREE.BackSide,
+      transparent: true
+    });
+    const glowMesh = new THREE.Mesh(glowGeo, glowMat);
+    scene.add(glowMesh);
+    glowMeshRef.current = glowMesh;
+
+    // Tactical Markers Group
     const markersGroup = new THREE.Group();
     scene.add(markersGroup);
     markersGroupRef.current = markersGroup;
 
-    // 6. Stars background particles
-    const starGeo = new THREE.BufferGeometry();
-    const starCount = 400;
-    const starPos = new Float32Array(starCount * 3);
-    for (let i = 0; i < starCount * 3; i += 3) {
-      starPos[i] = (Math.random() - 0.5) * 50;
-      starPos[i + 1] = (Math.random() - 0.5) * 50;
-      starPos[i + 2] = (Math.random() - 0.5) * 50;
-    }
-    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-    const starMat = new THREE.PointsMaterial({ color: 0x94a3b8, size: 0.15 });
-    const stars = new THREE.Points(starGeo, starMat);
-    scene.add(stars);
-
-    // 7. Mouse drag rotation interaction
+    // Mouse Drag & Click Raycaster Setup
+    const raycaster = new THREE.Raycaster();
+    const mouseVec = new THREE.Vector2();
     let isDragging = false;
+    let mouseDownPos = { x: 0, y: 0 };
     let prevMousePos = { x: 0, y: 0 };
+    const domEl = renderer.domElement;
 
     const onMouseDown = (e) => {
       isDragging = true;
+      mouseDownPos = { x: e.clientX, y: e.clientY };
       prevMousePos = { x: e.clientX, y: e.clientY };
     };
 
     const onMouseMove = (e) => {
+      const rect = domEl.getBoundingClientRect();
+      mouseVec.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouseVec.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      // Hover Pointer Cursor Effect
+      if (cameraRef.current && markersGroupRef.current) {
+        raycaster.setFromCamera(mouseVec, cameraRef.current);
+        const intersects = raycaster.intersectObjects(markersGroupRef.current.children, true);
+        if (intersects.length > 0 && intersects.some(hit => hit.object.userData && hit.object.userData.site)) {
+          domEl.style.cursor = 'pointer';
+        } else {
+          domEl.style.cursor = isDragging ? 'grabbing' : 'grab';
+        }
+      }
+
       if (!isDragging) return;
       const deltaX = e.clientX - prevMousePos.x;
       const deltaY = e.clientY - prevMousePos.y;
 
       if (moonMeshRef.current) {
         moonMeshRef.current.rotation.y += deltaX * 0.005;
-        moonMeshRef.current.rotation.x += deltaY * 0.005;
+        moonMeshRef.current.rotation.x -= deltaY * 0.005;
+
         if (markersGroupRef.current) {
-          markersGroupRef.current.rotation.y += deltaX * 0.005;
-          markersGroupRef.current.rotation.x += deltaY * 0.005;
+          markersGroupRef.current.rotation.y = moonMeshRef.current.rotation.y;
+          markersGroupRef.current.rotation.x = moonMeshRef.current.rotation.x;
         }
       }
 
       prevMousePos = { x: e.clientX, y: e.clientY };
     };
 
-    const onMouseUp = () => { isDragging = false; };
+    const onMouseUp = (e) => {
+      isDragging = false;
+      const distMoved = Math.hypot(e.clientX - mouseDownPos.x, e.clientY - mouseDownPos.y);
 
-    container.addEventListener('mousedown', onMouseDown);
+      // If mouse didn't drag extensively (pure click / slight click jitter < 8px), perform hit selection
+      if (distMoved < 8) {
+        const rect = domEl.getBoundingClientRect();
+        mouseVec.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        mouseVec.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+        if (cameraRef.current && markersGroupRef.current) {
+          raycaster.setFromCamera(mouseVec, cameraRef.current);
+          const intersects = raycaster.intersectObjects(markersGroupRef.current.children, true);
+          if (intersects.length > 0) {
+            const hit = intersects.find(item => item.object.userData && item.object.userData.site);
+            if (hit && hit.object.userData.site) {
+              onSelectSite && onSelectSite(hit.object.userData.site);
+            }
+          }
+        }
+      }
+    };
+
+    // Deep Surface Zooming
+    const onWheel = (e) => {
+      e.preventDefault();
+      const currentDist = camera.position.length();
+      const speed = Math.max(0.0006, (currentDist - 2.5) * 0.0012);
+      const newDist = THREE.MathUtils.clamp(currentDist + e.deltaY * speed, 2.55, 14.0);
+      
+      const dir = camera.position.clone().normalize();
+      camera.position.copy(dir.multiplyScalar(newDist));
+      targetCamPos.current.copy(camera.position);
+
+      const altKm = Math.round(((newDist - 2.5) / 2.5) * 1737.4);
+      setCurrentAltitudeKm(Math.max(25, altKm));
+    };
+
+    domEl.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
+    domEl.addEventListener('wheel', onWheel, { passive: false });
 
-    // 8. Animation Loop with smooth camera interpolation
-    let animationFrameId;
+    // Animation Loop
     const animate = () => {
-      animationFrameId = requestAnimationFrame(animate);
+      reqIdRef.current = requestAnimationFrame(animate);
 
-      // Smooth camera interpolation towards target
-      if (cameraRef.current) {
-        cameraRef.current.position.lerp(targetCamPos.current, 0.05);
-        cameraRef.current.lookAt(targetLookAt.current);
+      if (isRotatingRef.current && moonMeshRef.current) {
+        moonMeshRef.current.rotation.y += 0.003;
+        if (markersGroupRef.current) markersGroupRef.current.rotation.y = moonMeshRef.current.rotation.y;
       }
+
+      camera.position.lerp(targetCamPos.current, 0.05);
+      camera.lookAt(targetLookAt.current);
 
       renderer.render(scene, camera);
     };
     animate();
 
     const handleResize = () => {
-      if (!container) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
+      if (!mountRef.current || !rendererRef.current || !cameraRef.current) return;
+      const w = mountRef.current.clientWidth;
+      const h = mountRef.current.clientHeight;
+      cameraRef.current.aspect = w / h;
+      cameraRef.current.updateProjectionMatrix();
+      rendererRef.current.setSize(w, h);
     };
     window.addEventListener('resize', handleResize);
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
-      container.removeEventListener('mousedown', onMouseDown);
+      domEl.removeEventListener('mousedown', onMouseDown);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
-      if (rendererRef.current && rendererRef.current.domElement) {
-        container.innerHTML = '';
-      }
+      domEl.removeEventListener('wheel', onWheel);
+      if (reqIdRef.current) cancelAnimationFrame(reqIdRef.current);
+      renderer.dispose();
     };
   }, []);
 
-  // Update Markers when Named Sites change
+  // Solar Grazing Animation cycle
   useEffect(() => {
+    let animTimer;
+    if (isSunAnimating && isSolarGrazingActive) {
+      animTimer = setInterval(() => {
+        setSunAngle((prev) => {
+          const next = (prev + 0.8) % 360;
+          if (dirLightRef.current) {
+            const rad = (next * Math.PI) / 180;
+            dirLightRef.current.position.set(Math.cos(rad) * 14, -2.5, Math.sin(rad) * 14);
+          }
+          return next;
+        });
+      }, 50);
+    }
+    return () => clearInterval(animTimer);
+  }, [isSunAnimating, isSolarGrazingActive]);
+
+  // Clean, 100% Selectable Tactical Markers with Invisible Generous Hitbox Spheres
+  useEffect(() => {
+    if (!markersGroupRef.current) return;
     const group = markersGroupRef.current;
-    if (!group) return;
+    group.clear();
 
-    // Clear old markers
-    while (group.children.length > 0) {
-      group.remove(group.children[0]);
-    }
+    const MOON_RADIUS = 2.5;
 
-    if (namedSites && namedSites.length > 0) {
-      namedSites.forEach((site) => {
-        const pos = latLonToVector3(site.lat || -89.0, site.lon || 0.0, 2.02);
-        const isSelected = selectedSite && selectedSite.name === site.name;
-        const isRank1 = site.rank === 1;
+    namedSites && namedSites.forEach((site) => {
+      const pos = latLonToVector3(site.lat, site.lon, MOON_RADIUS);
+      const isSelected = selectedSite && selectedSite.name === site.name;
+      const isRank1 = site.rank === 1;
 
-        // Pin Geometry
-        const pinGeo = new THREE.SphereGeometry(isSelected ? 0.06 : 0.04, 16, 16);
-        const pinColor = isRank1 ? 0x3b82f6 : isSelected ? 0x10b981 : 0xf59e0b;
-        const pinMat = new THREE.MeshBasicMaterial({ color: pinColor });
-        const pinMesh = new THREE.Mesh(pinGeo, pinMat);
-        pinMesh.position.copy(pos);
-        group.add(pinMesh);
-
-        // Halo Ring for Selected or Rank 1
-        if (isSelected || isRank1) {
-          const ringGeo = new THREE.RingGeometry(0.06, 0.08, 32);
-          const ringMat = new THREE.MeshBasicMaterial({
-            color: pinColor,
-            side: THREE.DoubleSide,
-            transparent: true,
-            opacity: 0.8
-          });
-          const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-          ringMesh.position.copy(pos);
-          ringMesh.lookAt(pos.clone().multiplyScalar(2));
-          group.add(ringMesh);
-        }
+      // Base Pinpoint Ring
+      const ringGeo = new THREE.RingGeometry(0.015, 0.04, 32);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: isSelected ? 0x2997ff : isRank1 ? 0x0066cc : 0xd2d2d7,
+        side: THREE.DoubleSide
       });
-    }
+      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      ringMesh.position.copy(pos);
+      ringMesh.lookAt(new THREE.Vector3(0, 0, 0));
+      ringMesh.userData = { site };
+      group.add(ringMesh);
+
+      // Slender Beacon Pin Line
+      const beaconHeight = isSelected ? 0.28 : 0.18;
+      const normal = pos.clone().normalize();
+      const topPos = pos.clone().add(normal.clone().multiplyScalar(beaconHeight));
+
+      const lineGeo = new THREE.BufferGeometry().setFromPoints([pos, topPos]);
+      const lineMat = new THREE.LineBasicMaterial({
+        color: isSelected ? 0x0066cc : 0x86868b,
+        linewidth: isSelected ? 2 : 1
+      });
+      const line = new THREE.Line(lineGeo, lineMat);
+      line.userData = { site };
+      group.add(line);
+
+      // Generous Invisible Hit-Test Sphere (guarantees 100% click hit precision)
+      const hitGeo = new THREE.SphereGeometry(0.12, 12, 12);
+      const hitMat = new THREE.MeshBasicMaterial({ visible: false });
+      const hitMesh = new THREE.Mesh(hitGeo, hitMat);
+      hitMesh.position.copy(topPos);
+      hitMesh.userData = { site };
+      group.add(hitMesh);
+
+      if (isSelected) {
+        // Selected site displays the prominent Apple HUD Badge
+        const textSprite = createCompactBadge(site.name, site.rank, site.lat, site.lon);
+        const spritePos = topPos.clone().add(normal.clone().multiplyScalar(0.07));
+        textSprite.position.copy(spritePos);
+        textSprite.userData = { site };
+        group.add(textSprite);
+      } else {
+        // Non-active sites display a mini rank dot (#2, #3, etc.)
+        const miniDot = createMiniRankDot(site.rank, isRank1);
+        miniDot.position.copy(topPos);
+        miniDot.userData = { site };
+        group.add(miniDot);
+      }
+    });
   }, [namedSites, selectedSite]);
 
-  // Cinematic Camera Navigation (flyTo) when selected site changes
+  // Smooth FlyTo camera animation upon selecting candidate site
   useEffect(() => {
-    if (selectedSite && cameraRef.current) {
-      const sitePos = latLonToVector3(selectedSite.lat || -89.0, selectedSite.lon || 0.0, 2.0);
-      targetLookAt.current.copy(sitePos);
-      
-      // Position camera slightly offset from the site normal for a cinematic 3D perspective
-      const camOffset = sitePos.clone().normalize().multiplyScalar(3.0);
-      targetCamPos.current.copy(camOffset);
-    }
+    if (!selectedSite || !cameraRef.current) return;
+    const MOON_RADIUS = 2.5;
+    const sitePos = latLonToVector3(selectedSite.lat, selectedSite.lon, MOON_RADIUS);
+
+    const normal = sitePos.clone().normalize();
+    const camOffset = normal.clone().multiplyScalar(2.72);
+    targetCamPos.current.copy(camOffset);
+    targetLookAt.current.copy(sitePos.clone().multiplyScalar(0.8));
+    setCurrentAltitudeKm(150);
   }, [selectedSite]);
 
+  const handleToggleSolarGrazing = (enabled) => {
+    setIsSolarGrazingActive(enabled);
+    setIsSunAnimating(false);
+    if (dirLightRef.current && ambientLightRef.current) {
+      if (enabled) {
+        const rad = (sunAngle * Math.PI) / 180;
+        dirLightRef.current.position.set(Math.cos(rad) * 14, -2.5, Math.sin(rad) * 14);
+        dirLightRef.current.intensity = 2.8;
+        ambientLightRef.current.intensity = 0.85;
+      } else {
+        dirLightRef.current.position.set(0, -10, 10);
+        dirLightRef.current.intensity = 2.4;
+        ambientLightRef.current.intensity = 1.4;
+      }
+    }
+  };
+
+  const handleSunAngle = (deg) => {
+    setSunAngle(deg);
+    if (dirLightRef.current && isSolarGrazingActive) {
+      const rad = (deg * Math.PI) / 180;
+      dirLightRef.current.position.set(Math.cos(rad) * 14, -2.5, Math.sin(rad) * 14);
+    }
+  };
+
+  const handleBumpChange = (scale) => {
+    setBumpIntensity(scale);
+    if (moonMeshRef.current && moonMeshRef.current.material) {
+      moonMeshRef.current.material.bumpScale = scale;
+      moonMeshRef.current.material.needsUpdate = true;
+    }
+  };
+
+  const handleZoom = (direction) => {
+    if (!cameraRef.current) return;
+    const currentDist = cameraRef.current.position.length();
+    const factor = direction === 'in' ? 0.78 : 1.28;
+    const newDist = THREE.MathUtils.clamp(currentDist * factor, 2.55, 14.0);
+    const dir = cameraRef.current.position.clone().normalize();
+    targetCamPos.current.copy(dir.multiplyScalar(newDist));
+    const altKm = Math.round(((newDist - 2.5) / 2.5) * 1737.4);
+    setCurrentAltitudeKm(Math.max(25, altKm));
+  };
+
   return (
-    <div className="relative w-full h-full min-h-[380px] bg-[#050811] rounded-lg overflow-hidden border border-[#1a2744] select-none">
-      {/* 3D WebGL Mount */}
+    <div className="relative w-full h-full bg-[#000000] overflow-hidden select-none font-sans">
       <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
-      {/* 3D Mode HUD Badge */}
-      <div className="absolute top-2 left-2 px-2.5 py-1 rounded bg-[#0d1527]/90 border border-blue-500/50 text-[10px] text-blue-300 font-mono flex items-center space-x-1.5 shadow-md">
-        <Rotate3d className="w-3.5 h-3.5 text-blue-400" />
-        <span>3D LUNAR GLOBE (R=1,737.4 km)</span>
+      {/* Top Floating Control Bar (Apple Frosted Glass) */}
+      <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-10">
+        <div className="flex items-center gap-2 pointer-events-auto">
+          <div className="px-3.5 py-1.5 rounded-full bg-[var(--bg-card)]/85 border border-[var(--border-color)] backdrop-blur-md flex items-center gap-2 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-[#0066cc] animate-pulse"></span>
+            <span className="text-xs font-medium text-[var(--text-primary)]">
+              NASA LROC 4K SEAMLESS MOON (ALT: ~{currentAltitudeKm} km)
+            </span>
+          </div>
+
+          {selectedSite && (
+            <div className="px-3.5 py-1.5 rounded-full bg-[var(--apple-parchment)]/95 border border-[var(--border-color)] backdrop-blur-md flex items-center gap-1.5 shadow-sm">
+              <Crosshair className="w-3.5 h-3.5 text-[#0066cc]" />
+              <span className="text-xs font-medium text-[#0066cc]">
+                TARGET: {selectedSite.name.toUpperCase()} ({Math.abs(selectedSite.lat).toFixed(1)}°S, {selectedSite.lon.toFixed(1)}°E)
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Rotate Button */}
+        <div className="flex items-center gap-2 pointer-events-auto">
+          <button
+            onClick={() => setIsRotating(!isRotating)}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all flex items-center gap-1.5 shadow-sm cursor-pointer active:scale-95 ${
+              isRotating
+                ? 'bg-[#0066cc] border-[#0066cc] text-white'
+                : 'bg-[var(--bg-card)]/85 border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] backdrop-blur-md'
+            }`}
+            title="Toggle smooth lunar polar axis rotation"
+          >
+            <RotateCw className={`w-3.5 h-3.5 ${isRotating ? 'animate-spin' : ''}`} />
+            <span>{isRotating ? 'Rotating' : 'Rotate'}</span>
+          </button>
+        </div>
       </div>
 
-      {/* Camera Reset Controls */}
-      <div className="absolute right-3 bottom-3 flex flex-col space-y-1.5 z-10">
+      {/* Floating Candidate Site Quick-Selector Bar */}
+      <div className="absolute top-16 left-4 right-4 flex items-center gap-1.5 overflow-x-auto py-1 pointer-events-auto z-10 no-scrollbar">
+        {namedSites && namedSites.map((site) => {
+          const isSelected = selectedSite && selectedSite.name === site.name;
+          return (
+            <button
+              key={site.name}
+              onClick={() => onSelectSite && onSelectSite(site)}
+              className={`px-3 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 active:scale-95 shadow-sm backdrop-blur-md ${
+                isSelected
+                  ? 'bg-[#0066cc] border-[#0066cc] text-white shadow-md'
+                  : 'bg-[var(--bg-card)]/85 border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]'
+              }`}
+            >
+              <MapPin className={`w-3 h-3 ${isSelected ? 'text-white' : 'text-[#0066cc]'}`} />
+              <span>#{site.rank ?? 1} {site.name}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Floating Zoom Controls */}
+      <div className="absolute right-4 top-28 flex flex-col gap-1.5 pointer-events-auto z-10">
         <button
-          onClick={() => {
-            targetCamPos.current.set(0, -3.2, 2.2);
-            targetLookAt.current.set(0, -1.8, 0);
-          }}
-          className="px-2.5 py-1 bg-[#0d1527]/90 hover:bg-[#1a2744] text-slate-300 rounded border border-[#1a2744] text-[10px] font-mono flex items-center space-x-1 shadow-md transition"
+          onClick={() => handleZoom('in')}
+          className="w-8 h-8 rounded-full bg-[var(--bg-card)]/85 hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] text-[var(--text-primary)] flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95 backdrop-blur-md"
+          title="Zoom In"
         >
-          <Compass className="w-3 h-3 text-cyan-400" />
-          <span>Reset South Pole</span>
+          <Plus className="w-3.5 h-3.5" />
         </button>
+        <button
+          onClick={() => handleZoom('out')}
+          className="w-8 h-8 rounded-full bg-[var(--bg-card)]/85 hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] text-[var(--text-primary)] flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95 backdrop-blur-md"
+          title="Zoom Out"
+        >
+          <Minus className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      {/* Bottom Floating Toolbar */}
+      <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between pointer-events-none z-10">
+        <div className="flex items-center gap-3 p-2 px-4 rounded-full bg-[var(--bg-card)]/90 border border-[var(--border-color)] backdrop-blur-md pointer-events-auto shadow-md">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="solarGrazing"
+              checked={isSolarGrazingActive}
+              onChange={(e) => handleToggleSolarGrazing(e.target.checked)}
+              className="accent-[#0066cc] cursor-pointer"
+            />
+            <label htmlFor="solarGrazing" className="flex items-center gap-1 text-xs font-medium text-amber-500 cursor-pointer">
+              <Sun className="w-3.5 h-3.5" />
+              <span>Solar Grazing</span>
+            </label>
+          </div>
+
+          <input
+            type="range"
+            min="0"
+            max="360"
+            value={sunAngle}
+            disabled={!isSolarGrazingActive}
+            onChange={(e) => handleSunAngle(Number(e.target.value))}
+            className="w-28 cursor-pointer disabled:opacity-40"
+          />
+          <span className="text-xs font-mono text-[var(--text-secondary)] w-8 text-right">
+            {sunAngle}°
+          </span>
+
+          <button
+            onClick={() => setIsSunAnimating(!isSunAnimating)}
+            disabled={!isSolarGrazingActive}
+            className="p-1 rounded-full hover:bg-[var(--apple-parchment)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer disabled:opacity-40 active:scale-95"
+            title={isSunAnimating ? 'Pause Solar Rotation' : 'Simulate Solar Angle Cycle'}
+          >
+            {isSunAnimating ? <Square className="w-3 h-3 text-amber-500" /> : <Play className="w-3 h-3" />}
+          </button>
+
+          <div className="h-4 w-px bg-[var(--border-color)] mx-1"></div>
+
+          <div className="flex items-center gap-1.5 text-xs font-medium text-[#0066cc]">
+            <Mountain className="w-3.5 h-3.5" />
+            <span>Crater Relief</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="0.25"
+            step="0.01"
+            value={bumpIntensity}
+            onChange={(e) => handleBumpChange(Number(e.target.value))}
+            className="w-20 cursor-pointer"
+          />
+          <span className="text-xs font-mono text-[var(--text-secondary)] w-7 text-right">
+            {Math.round(bumpIntensity * 100)}%
+          </span>
+        </div>
+
+        <div className="p-2 px-3.5 rounded-full bg-[var(--bg-card)]/90 border border-[var(--border-color)] backdrop-blur-md pointer-events-auto shadow-sm text-xs text-[var(--text-muted)] flex items-center gap-3">
+          <span>• Click any Pin or Top Pill to FlyTo</span>
+          <span>• Drag to Tilt</span>
+          <span>• Scroll to Zoom</span>
+        </div>
       </div>
     </div>
   );

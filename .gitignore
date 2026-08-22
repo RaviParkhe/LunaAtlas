@@ -11,7 +11,9 @@ ENV/
 
 # Node / Frontend dependencies & build
 node_modules/
+**/node_modules/
 dist/
+**/dist/
 dist-ssr/
 *.local
 .vite/

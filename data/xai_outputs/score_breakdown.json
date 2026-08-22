@@ -1,0 +1,170 @@
+{
+  "Haworth Crater": {
+    "composite_score": 76.48,
+    "rank": 1,
+    "factor_weights": {
+      "safety": 0.3966,
+      "water_ice": 0.2685,
+      "sunlight": 0.1214,
+      "resources": 0.1214,
+      "expansion": 0.0548,
+      "scientific_value": 0.0373
+    },
+    "factor_raw_scores": {
+      "safety": 99.78,
+      "water_ice": 100.0,
+      "sunlight": 0.0,
+      "resources": 50.0,
+      "expansion": 50.0,
+      "scientific_value": 33.41
+    },
+    "factor_contributions": {
+      "safety": 39.573,
+      "water_ice": 26.85,
+      "sunlight": 0.0,
+      "resources": 6.07,
+      "expansion": 2.74,
+      "scientific_value": 1.246
+    }
+  },
+  "Nobile Rim": {
+    "composite_score": 54.22,
+    "rank": 2,
+    "factor_weights": {
+      "safety": 0.3966,
+      "water_ice": 0.2685,
+      "sunlight": 0.1214,
+      "resources": 0.1214,
+      "expansion": 0.0548,
+      "scientific_value": 0.0373
+    },
+    "factor_raw_scores": {
+      "safety": 86.27,
+      "water_ice": 27.8,
+      "sunlight": 39.06,
+      "resources": 33.43,
+      "expansion": 50.0,
+      "scientific_value": 26.86
+    },
+    "factor_contributions": {
+      "safety": 34.215,
+      "water_ice": 7.464,
+      "sunlight": 4.742,
+      "resources": 4.058,
+      "expansion": 2.74,
+      "scientific_value": 1.002
+    }
+  },
+  "Malapert Massif": {
+    "composite_score": 51.42,
+    "rank": 3,
+    "factor_weights": {
+      "safety": 0.3966,
+      "water_ice": 0.2685,
+      "sunlight": 0.1214,
+      "resources": 0.1214,
+      "expansion": 0.0548,
+      "scientific_value": 0.0373
+    },
+    "factor_raw_scores": {
+      "safety": 88.34,
+      "water_ice": 12.93,
+      "sunlight": 46.69,
+      "resources": 29.81,
+      "expansion": 50.0,
+      "scientific_value": 23.76
+    },
+    "factor_contributions": {
+      "safety": 35.036,
+      "water_ice": 3.472,
+      "sunlight": 5.668,
+      "resources": 3.619,
+      "expansion": 2.74,
+      "scientific_value": 0.886
+    }
+  },
+  "de Gerlache Rim": {
+    "composite_score": 51.09,
+    "rank": 4,
+    "factor_weights": {
+      "safety": 0.3966,
+      "water_ice": 0.2685,
+      "sunlight": 0.1214,
+      "resources": 0.1214,
+      "expansion": 0.0548,
+      "scientific_value": 0.0373
+    },
+    "factor_raw_scores": {
+      "safety": 91.48,
+      "water_ice": 6.57,
+      "sunlight": 49.96,
+      "resources": 28.26,
+      "expansion": 50.0,
+      "scientific_value": 21.68
+    },
+    "factor_contributions": {
+      "safety": 36.281,
+      "water_ice": 1.764,
+      "sunlight": 6.065,
+      "resources": 3.431,
+      "expansion": 2.74,
+      "scientific_value": 0.809
+    }
+  },
+  "Shackleton Crater Rim": {
+    "composite_score": 45.6,
+    "rank": 5,
+    "factor_weights": {
+      "safety": 0.3966,
+      "water_ice": 0.2685,
+      "sunlight": 0.1214,
+      "resources": 0.1214,
+      "expansion": 0.0548,
+      "scientific_value": 0.0373
+    },
+    "factor_raw_scores": {
+      "safety": 81.33,
+      "water_ice": 0.0,
+      "sunlight": 53.33,
+      "resources": 26.67,
+      "expansion": 50.0,
+      "scientific_value": 24.0
+    },
+    "factor_contributions": {
+      "safety": 32.255,
+      "water_ice": 0.0,
+      "sunlight": 6.474,
+      "resources": 3.238,
+      "expansion": 2.74,
+      "scientific_value": 0.895
+    }
+  },
+  "Faustini Rim": {
+    "composite_score": 39.57,
+    "rank": 6,
+    "factor_weights": {
+      "safety": 0.3966,
+      "water_ice": 0.2685,
+      "sunlight": 0.1214,
+      "resources": 0.1214,
+      "expansion": 0.0548,
+      "scientific_value": 0.0373
+    },
+    "factor_raw_scores": {
+      "safety": 51.51,
+      "water_ice": 22.44,
+      "sunlight": 41.81,
+      "resources": 32.13,
+      "expansion": 50.0,
+      "scientific_value": 37.58
+    },
+    "factor_contributions": {
+      "safety": 20.429,
+      "water_ice": 6.025,
+      "sunlight": 5.076,
+      "resources": 3.901,
+      "expansion": 2.74,
+      "scientific_value": 1.402
+    }
+  }
+}

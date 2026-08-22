@@ -1,0 +1,9 @@
+{
+  "shap_importance": {
+    "elevation_m": 0.22567,
+    "slope_deg": 0.23571,
+    "sunlight_score": 0.12189
+  },
+  "n_background": 300,
+  "n_foreground": 100
+}

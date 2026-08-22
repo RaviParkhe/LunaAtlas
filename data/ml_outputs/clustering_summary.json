@@ -1,0 +1,162 @@
+{
+  "best_k": 3,
+  "gmm_agreement": 0.46614375,
+  "geographic_bias": {
+    "model_A_env_only_agreement_with_B": 0.8207
+  },
+  "k_metrics": {
+    "2": {
+      "k": 2,
+      "silhouette": 0.31265,
+      "davies_bouldin": 1.435453,
+      "calinski_harabasz": 63719.86,
+      "cluster_sizes": {
+        "0": 51303,
+        "1": 108697
+      },
+      "min_cluster_size": 51303,
+      "max_cluster_size": 108697,
+      "n_cells": 160000
+    },
+    "3": {
+      "k": 3,
+      "silhouette": 0.322338,
+      "davies_bouldin": 1.105941,
+      "calinski_harabasz": 75381.66,
+      "cluster_sizes": {
+        "0": 30845,
+        "1": 53850,
+        "2": 75305
+      },
+      "min_cluster_size": 30845,
+      "max_cluster_size": 75305,
+      "n_cells": 160000
+    },
+    "4": {
+      "k": 4,
+      "silhouette": 0.306438,
+      "davies_bouldin": 1.111445,
+      "calinski_harabasz": 71959.25,
+      "cluster_sizes": {
+        "0": 24798,
+        "1": 43261,
+        "2": 69130,
+        "3": 22811
+      },
+      "min_cluster_size": 22811,
+      "max_cluster_size": 69130,
+      "n_cells": 160000
+    },
+    "5": {
+      "k": 5,
+      "silhouette": 0.276277,
+      "davies_bouldin": 1.15844,
+      "calinski_harabasz": 68629.14,
+      "cluster_sizes": {
+        "0": 13202,
+        "1": 38886,
+        "2": 45922,
+        "3": 21490,
+        "4": 40500
+      },
+      "min_cluster_size": 13202,
+      "max_cluster_size": 45922,
+      "n_cells": 160000
+    },
+    "6": {
+      "k": 6,
+      "silhouette": 0.280739,
+      "davies_bouldin": 1.088108,
+      "calinski_harabasz": 66146.35,
+      "cluster_sizes": {
+        "0": 28953,
+        "1": 35652,
+        "2": 21168,
+        "3": 42917,
+        "4": 20147,
+        "5": 11163
+      },
+      "min_cluster_size": 11163,
+      "max_cluster_size": 42917,
+      "n_cells": 160000
+    },
+    "7": {
+      "k": 7,
+      "silhouette": 0.266648,
+      "davies_bouldin": 1.111068,
+      "calinski_harabasz": 64318.87,
+      "cluster_sizes": {
+        "0": 40261,
+        "1": 25004,
+        "2": 15806,
+        "3": 19819,
+        "4": 24377,
+        "5": 10832,
+        "6": 23901
+      },
+      "min_cluster_size": 10832,
+      "max_cluster_size": 40261,
+      "n_cells": 160000
+    },
+    "8": {
+      "k": 8,
+      "silhouette": 0.279669,
+      "davies_bouldin": 1.067587,
+      "calinski_harabasz": 64335.82,
+      "cluster_sizes": {
+        "0": 23530,
+        "1": 4642,
+        "2": 15710,
+        "3": 23862,
+        "4": 19652,
+        "5": 23884,
+        "6": 37467,
+        "7": 11253
+      },
+      "min_cluster_size": 4642,
+      "max_cluster_size": 37467,
+      "n_cells": 160000
+    },
+    "9": {
+      "k": 9,
+      "silhouette": 0.264878,
+      "davies_bouldin": 1.055089,
+      "calinski_harabasz": 62379.55,
+      "cluster_sizes": {
+        "0": 22500,
+        "1": 18975,
+        "2": 14502,
+        "3": 10660,
+        "4": 25328,
+        "5": 4480,
+        "6": 23302,
+        "7": 21346,
+        "8": 18907
+      },
+      "min_cluster_size": 4480,
+      "max_cluster_size": 25328,
+      "n_cells": 160000
+    },
+    "10": {
+      "k": 10,
+      "silhouette": 0.260679,
+      "davies_bouldin": 1.075523,
+      "calinski_harabasz": 60963.91,
+      "cluster_sizes": {
+        "0": 18624,
+        "1": 24765,
+        "2": 19525,
+        "3": 21752,
+        "4": 4224,
+        "5": 13986,
+        "6": 15939,
+        "7": 8130,
+        "8": 23430,
+        "9": 9625
+      },
+      "min_cluster_size": 4224,
+      "max_cluster_size": 24765,
+      "n_cells": 160000
+    }
+  }
+}
