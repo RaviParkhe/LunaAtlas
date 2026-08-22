@@ -484,10 +484,6 @@ Site Facts:
 
 Write a clear, scientifically accurate 2-sentence mission intelligence briefing highlighting the primary physical advantage and key operational note for this site."""
 
-            response = client.models.generate_content(
-                model=model_name,
-                contents=prompt
-            )
             if response and response.text:
                 briefing_text = response.text.strip()
                 is_live_gemini = True
@@ -505,6 +501,96 @@ Write a clear, scientifically accurate 2-sentence mission intelligence briefing 
         "metrics": matched["raw_metrics"],
         "radiation_v1": matched["radiation_v1"],
         "ice_confidence": matched["ice_confidence"]
+    }
+
+class KeyConfigRequest(BaseModel):
+    api_key: str
+    model: Optional[str] = "gemini-3.6-flash"
+
+@app.get("/api/xai/status")
+def get_xai_status():
+    api_key = os.getenv("GEMINI_API_KEY", "").strip() or os.getenv("GOOGLE_API_KEY", "").strip()
+    has_valid_key = bool(api_key and "your_gemini" not in api_key)
+    preview = f"{api_key[:6]}...{api_key[-4:]}" if has_valid_key and len(api_key) > 10 else None
+    return {
+        "has_key": has_valid_key,
+        "key_preview": preview,
+        "model": os.getenv("GEMINI_MODEL", "gemini-3.6-flash"),
+        "is_live": has_valid_key
+    }
+
+@app.post("/api/xai/key")
+def update_gemini_key(req: KeyConfigRequest):
+    clean_key = req.api_key.strip()
+    if not clean_key:
+        raise HTTPException(status_code=400, detail="API Key cannot be empty.")
+
+    # Test key against Google Gemini
+    try:
+        from google import genai
+        client = genai.Client(api_key=clean_key)
+        model_name = req.model or os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
+        resp = client.models.generate_content(
+            model=model_name,
+            contents="Connection check: respond with 1 word 'OK'."
+        )
+        if not resp or not resp.text:
+            raise ValueError("No response from Gemini.")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Gemini API verification failed: {str(e)}")
+
+    # Update in-memory environment variables
+    os.environ["GEMINI_API_KEY"] = clean_key
+    os.environ["GOOGLE_API_KEY"] = clean_key
+    if req.model:
+        os.environ["GEMINI_MODEL"] = req.model
+
+    # Reset client
+    try:
+        import backend.xai.gemini.gemini_service as gs
+        gs._client.reset()
+    except Exception:
+        pass
+
+    # Persist to .env file
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+    try:
+        lines = []
+        if os.path.exists(env_path):
+            with open(env_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+
+        new_lines = []
+        key_written = False
+        model_written = False
+        for line in lines:
+            if line.startswith("GEMINI_API_KEY=") or line.startswith("GOOGLE_API_KEY="):
+                if not key_written:
+                    new_lines.append(f"GEMINI_API_KEY={clean_key}\n")
+                    new_lines.append(f"GOOGLE_API_KEY={clean_key}\n")
+                    key_written = True
+            elif line.startswith("GEMINI_MODEL="):
+                new_lines.append(f"GEMINI_MODEL={req.model or 'gemini-3.6-flash'}\n")
+                model_written = True
+            else:
+                new_lines.append(line)
+
+        if not key_written:
+            new_lines.append(f"GEMINI_API_KEY={clean_key}\n")
+            new_lines.append(f"GOOGLE_API_KEY={clean_key}\n")
+        if not model_written:
+            new_lines.append(f"GEMINI_MODEL={req.model or 'gemini-3.6-flash'}\n")
+
+        with open(env_path, "w", encoding="utf-8") as f:
+            f.writelines(new_lines)
+    except Exception as e:
+        pass
+
+    return {
+        "status": "success",
+        "message": "Google Gemini API Key successfully connected & verified!",
+        "model": req.model or "gemini-3.6-flash",
+        "key_preview": f"{clean_key[:6]}...{clean_key[-4:]}"
     }
 
 @app.get("/api/xai/full_report/{site_name}")

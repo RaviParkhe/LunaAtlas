@@ -12,8 +12,10 @@ import {
   RefreshCw,
   CheckCircle2,
   AlertTriangle,
-  HelpCircle,
-  Scale
+  Scale,
+  Key,
+  X,
+  Loader2
 } from 'lucide-react';
 
 const API_BASE = typeof window !== 'undefined' && window.location.origin.includes('5173')
@@ -25,7 +27,30 @@ export default function ExplainableAI({ site }) {
   const [fullReport, setFullReport] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Gemini API Key Modal state
+  const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
+  const [inputKey, setInputKey] = useState('');
+  const [selectedModel, setSelectedModel] = useState('gemini-3.6-flash');
+  const [keyStatus, setKeyStatus] = useState({ has_key: false, is_live: false, key_preview: null });
+  const [isTestingKey, setIsTestingKey] = useState(false);
+  const [keyMessage, setKeyMessage] = useState(null);
+
   const siteName = site?.name;
+
+  // Check current XAI / Gemini status
+  const checkXaiStatus = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/xai/status`);
+      if (res.ok) {
+        const data = await res.json();
+        setKeyStatus(data);
+      }
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    checkXaiStatus();
+  }, []);
 
   // Fetch full 3-part structured XAI report from Gemini / Backend
   const fetchFullXaiReport = async (name) => {
@@ -50,11 +75,43 @@ export default function ExplainableAI({ site }) {
     }
   }, [siteName]);
 
+  // Handle saving & verifying API key
+  const handleSaveApiKey = async (e) => {
+    e.preventDefault();
+    if (!inputKey.trim()) return;
+
+    setIsTestingKey(true);
+    setKeyMessage(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/xai/key`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          api_key: inputKey.trim(),
+          model: selectedModel
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setKeyMessage({ type: 'success', text: data.message || 'API Key verified & connected!' });
+        await checkXaiStatus();
+        fetchFullXaiReport(siteName);
+        setTimeout(() => setIsKeyModalOpen(false), 1200);
+      } else {
+        setKeyMessage({ type: 'error', text: data.detail || 'Verification failed. Please check your key.' });
+      }
+    } catch (err) {
+      setKeyMessage({ type: 'error', text: 'Network error verifying key.' });
+    } finally {
+      setIsTestingKey(false);
+    }
+  };
+
   const raw = site?.raw_metrics || {};
   const iceConf = site?.ice_confidence || { confidence_pct: 37, label: 'Moderate Volatile Signatures' };
 
   const siteExplanation = fullReport?.site_selection_explanation || {
-    summary: site?.mission_briefing || 'Evaluating planetary telemetry...',
+    summary: site?.mission_briefing || `${siteName || 'Site'} achieves optimal ranking under multi-criteria constraints.`,
     key_reasons: [
       `Landing Safety: raw score ${(raw.landing_suitability_score ?? 86.4).toFixed(1)}/100, weight 25.0%`,
       `Solar Illumination: raw score ${(raw.sunlight_score ?? 53.3).toFixed(1)}/100, weight 30.0%`,
@@ -64,7 +121,7 @@ export default function ExplainableAI({ site }) {
       'Water Ice Access requires dedicated descent trajectories into cryogenic PSR cold traps.',
       'Electrostatic dust accumulation requires active sealing protocols.'
     ],
-    ml_context: 'Environmental Archetype: High-Illumination Polar Crater Rim.',
+    ml_context: `Environmental Archetype: Polar Rim (${site?.elevation_m ?? 578}m Elevation).`,
     _source: 'FALLBACK'
   };
 
@@ -107,37 +164,37 @@ export default function ExplainableAI({ site }) {
   const metrics = [
     {
       label: 'Landing Safety',
-      value: Math.round(raw.landing_suitability_score ?? 89),
-      status: (raw.landing_suitability_score ?? 89) >= 70 ? 'Optimal Flatness' : 'Slope Alert',
+      value: Math.round(raw.landing_suitability_score ?? 0),
+      status: (raw.landing_suitability_score ?? 0) >= 70 ? 'Optimal Flatness' : 'Slope Alert',
       icon: Layers
     },
     {
       label: 'Sunlight',
-      value: Math.round(raw.sunlight_score ?? 42),
-      status: (raw.sunlight_score ?? 42) >= 40 ? 'High Solar Power' : 'Moderate Sun',
+      value: Math.round(raw.sunlight_score ?? 0),
+      status: (raw.sunlight_score ?? 0) >= 40 ? 'High Solar Power' : 'Moderate Sun',
       icon: Sun
     },
     {
       label: 'Water Ice',
-      value: Math.round(raw.water_ice_score ?? 22),
-      status: `${iceConf.confidence_pct}% Confidence`,
+      value: Math.round(raw.water_ice_score ?? 0),
+      status: `${iceConf.confidence_pct ?? 37}% Confidence`,
       icon: Droplets
     },
     {
       label: 'Radiation Shield',
-      value: Math.round(raw.radiation_safety_score ?? 57),
-      status: (raw.radiation_safety_score ?? 57) >= 50 ? 'Shielded Rim' : 'Exposed Plain',
+      value: Math.round(raw.radiation_safety_score ?? 0),
+      status: (raw.radiation_safety_score ?? 0) >= 50 ? 'Shielded Rim' : 'Exposed Plain',
       icon: Shield
     },
     {
       label: 'Touchdown Zone',
-      value: Math.round(raw.best_nearby_landing_score ?? 90),
+      value: Math.round(raw.best_nearby_landing_score ?? raw.landing_suitability_score ?? 0),
       status: 'Optimal Pad Zone',
       icon: Anchor
     },
     {
       label: 'Low Dust Risk',
-      value: Math.round(100 - (raw.dust_risk_score ?? 48)),
+      value: Math.round(100 - (raw.dust_risk_score ?? 50)),
       status: 'Controlled',
       icon: TrendingUp
     }
@@ -146,7 +203,7 @@ export default function ExplainableAI({ site }) {
   const isGemini = siteExplanation._source === 'GEMINI' || riskMitigation._source === 'GEMINI';
 
   return (
-    <div className="p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[18px] shadow-sm space-y-4 transition-colors duration-200">
+    <div className="p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[18px] shadow-sm space-y-4 transition-colors duration-200 relative">
       {/* Header Bar */}
       <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3 flex-wrap gap-2">
         <div className="flex items-center gap-2">
@@ -157,6 +214,20 @@ export default function ExplainableAI({ site }) {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Connect / Manage Gemini API Key Button */}
+          <button
+            onClick={() => setIsKeyModalOpen(true)}
+            className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full border transition-all cursor-pointer shadow-sm active:scale-95 ${
+              keyStatus.has_key
+                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                : 'bg-[#0066cc]/10 text-[#0066cc] border-[#0066cc]/30 hover:bg-[#0066cc]/20'
+            }`}
+            title="Configure Google Gemini API Key"
+          >
+            <Key className="w-3.5 h-3.5" />
+            <span>{keyStatus.has_key ? 'Gemini Connected' : 'Connect Gemini API Key'}</span>
+          </button>
+
           {/* Source Badge */}
           <span className={`inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-0.5 rounded-full border ${
             isGemini
@@ -400,6 +471,95 @@ export default function ExplainableAI({ site }) {
           );
         })}
       </div>
+
+      {/* Google Gemini API Key Modal */}
+      {isKeyModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 transition-all">
+            <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+              <div className="flex items-center gap-2">
+                <Key className="w-5 h-5 text-[#0066cc]" />
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+                  Connect Google Gemini LLM
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsKeyModalOpen(false)}
+                className="p-1 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+              Enter your Google Gemini API key to enable real-time, LLM-generated Explainable AI mission briefings and counterfactual reasoning.
+            </p>
+
+            <form onSubmit={handleSaveApiKey} className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-[11px] font-medium text-[var(--text-secondary)]">Google Gemini API Key</label>
+                <input
+                  type="password"
+                  value={inputKey}
+                  onChange={(e) => setInputKey(e.target.value)}
+                  placeholder={keyStatus.key_preview ? `Current: ${keyStatus.key_preview}` : 'AIzaSy...'}
+                  className="w-full bg-[var(--apple-parchment)] border border-[var(--border-color)] rounded-xl p-2.5 text-xs text-[var(--text-primary)] font-mono focus:outline-none focus:border-[#0066cc]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[11px] font-medium text-[var(--text-secondary)]">Model</label>
+                <select
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  className="w-full bg-[var(--apple-parchment)] border border-[var(--border-color)] rounded-xl p-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[#0066cc]"
+                >
+                  <option value="gemini-3.6-flash">gemini-3.6-flash (Recommended)</option>
+                  <option value="gemini-3.7-flash">gemini-3.7-flash</option>
+                  <option value="gemini-3.1-pro-preview">gemini-3.1-pro-preview</option>
+                </select>
+              </div>
+
+              {keyMessage && (
+                <div className={`p-2.5 rounded-xl text-xs font-medium border ${
+                  keyMessage.type === 'success'
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                    : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20'
+                }`}>
+                  {keyMessage.text}
+                </div>
+              )}
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsKeyModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--apple-parchment)] transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isTestingKey || !inputKey.trim()}
+                  className="apple-btn-primary px-5 py-2 text-xs font-semibold flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  {isTestingKey ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Verifying...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Key className="w-3.5 h-3.5" />
+                      <span>Verify & Connect</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
