@@ -437,14 +437,16 @@ export default function App() {
           <DatasetManager />
         )}
 
-        <MissionConfiguration
-          config={missionConfig}
-          setConfig={setMissionConfig}
-          onAnalyze={() => runEvaluation(missionConfig)}
-          isAnalyzing={isAnalyzing}
-          isCollapsed={isConfigCollapsed}
-          setIsCollapsed={setIsConfigCollapsed}
-        />
+        {activeTabObj?.isAnalyzed && (
+          <MissionConfiguration
+            config={missionConfig}
+            setConfig={setMissionConfig}
+            onAnalyze={() => runEvaluation(missionConfig)}
+            isAnalyzing={isAnalyzing}
+            isCollapsed={isConfigCollapsed}
+            setIsCollapsed={setIsConfigCollapsed}
+          />
+        )}
       </div>
     </div>
   );
