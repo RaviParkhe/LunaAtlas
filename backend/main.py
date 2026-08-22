@@ -14,6 +14,9 @@ ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
+from dotenv import load_dotenv
+load_dotenv(os.path.join(ROOT_DIR, ".env"), override=True)
+
 from backend.scoring_engine import LunarScoringEngine, PRESET_PROFILES
 from backend.live_monitor import LiveSolarMonitor
 
