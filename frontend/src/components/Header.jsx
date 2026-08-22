@@ -1,7 +1,7 @@
 import React from 'react';
-import { Rocket, Play, Loader2, Sun, Moon } from 'lucide-react';
+import { Rocket, Sun, Moon } from 'lucide-react';
 
-export default function Header({ onRunAnalysis, isAnalyzing, theme = 'dark', onToggleTheme }) {
+export default function Header({ theme = 'dark', onToggleTheme }) {
   return (
     <header className="w-full border-b border-[var(--border-color)] px-6 py-2 flex items-center justify-between z-20 sticky top-0 bg-[var(--bg-card)]/90 backdrop-blur-md select-none transition-colors duration-200 h-[52px]">
       {/* Brand Logo & Subtitle */}
@@ -22,7 +22,7 @@ export default function Header({ onRunAnalysis, isAnalyzing, theme = 'dark', onT
         </div>
       </div>
 
-      {/* Top Right Controls: Theme Segmented Pill + Action Blue Primary Pill */}
+      {/* Top Right Controls: Theme Segmented Pill */}
       <div className="flex items-center gap-3">
         {/* Apple Segmented Theme Switcher [ ☀️ Light | 🌙 Dark ] */}
         <div className="flex items-center p-0.5 rounded-full bg-[var(--apple-parchment)] border border-[var(--border-color)] shadow-sm">
@@ -52,25 +52,6 @@ export default function Header({ onRunAnalysis, isAnalyzing, theme = 'dark', onT
             <span>Dark</span>
           </button>
         </div>
-
-        {/* Apple Primary Action Blue Pill CTA */}
-        <button
-          onClick={onRunAnalysis}
-          disabled={isAnalyzing}
-          className={`apple-btn-primary ${isAnalyzing ? 'opacity-70 cursor-not-allowed' : ''}`}
-        >
-          {isAnalyzing ? (
-            <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-              <span>Analyzing...</span>
-            </>
-          ) : (
-            <>
-              <Play className="w-3.5 h-3.5 fill-white text-white" />
-              <span>Run AI Analysis</span>
-            </>
-          )}
-        </button>
       </div>
     </header>
   );
