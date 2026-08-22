@@ -400,17 +400,11 @@ export default function App() {
 
                 <RiskAndRecommendation site={activeTabObj.selectedSite} />
 
-                <div className="grid grid-cols-12 gap-6">
-                  <div className="col-span-12 lg:col-span-8">
-                    <CandidatePointsTable
-                      sites={activeTabObj.sites}
-                      selectedSite={activeTabObj.selectedSite}
-                      onSelectSite={handleSelectSiteForActiveTab}
-                    />
-                  </div>
-
-                  <ChartsPanel site={activeTabObj.selectedSite} sites={activeTabObj.sites} />
-                </div>
+                <CandidatePointsTable
+                  sites={activeTabObj.sites}
+                  selectedSite={activeTabObj.selectedSite}
+                  onSelectSite={handleSelectSiteForActiveTab}
+                />
               </div>
             ) : (
               <InitialWelcomeView
