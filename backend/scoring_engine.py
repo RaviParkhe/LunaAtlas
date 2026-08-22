@@ -271,17 +271,25 @@ class LunarScoringEngine:
         w_rad = weights.get("radiation_safety", 0.15)
         w_dst = weights.get("dust_penalty", 0.05)
 
+        total_w = w_sun + w_lnd + w_ice + w_rad
+        nw_sun = w_sun / total_w if total_w > 0 else 0.25
+        nw_lnd = w_lnd / total_w if total_w > 0 else 0.25
+        nw_ice = w_ice / total_w if total_w > 0 else 0.25
+        nw_rad = w_rad / total_w if total_w > 0 else 0.25
+
         for name, site in self.named_sites.items():
             r = site["grid_row"]
             c = site["grid_col"]
-            score = float(grid_scores[r, c])
 
             # Calculate individual factor weighted contributions
-            sun_contrib = float(site["sunlight_score"] * w_sun)
-            lnd_contrib = float(site["landing_suitability_score"] * w_lnd)
-            ice_contrib = float(site["ice_score"] * w_ice)
-            rad_contrib = float(site["radiation_safety_score"] * w_rad)
+            sun_contrib = float(site["sunlight_score"] * nw_sun)
+            lnd_contrib = float(site["landing_suitability_score"] * nw_lnd)
+            ice_contrib = float(site["ice_score"] * nw_ice)
+            rad_contrib = float(site["radiation_safety_score"] * nw_rad)
             dst_penalty = float((site["dust_risk_score"] / 100.0) * (w_dst * 100.0))
+
+            score = (sun_contrib + lnd_contrib + ice_contrib + rad_contrib) - dst_penalty
+            score = float(np.clip(score, 0.0, 100.0))
 
             # Calculate XAI Factor-Level Risk Profile
             risk_profile = self.calculate_risk_profile(site, space_weather_alert)
