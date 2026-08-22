@@ -1,7 +1,9 @@
 import sys
 import json
-import os
-from blockchain.registry import DecisionRegistry
+try:
+    from backend.blockchain.registry import DecisionRegistry
+except ImportError:
+    from blockchain.registry import DecisionRegistry
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

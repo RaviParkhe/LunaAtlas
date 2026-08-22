@@ -2,8 +2,11 @@ import os
 import json
 import uuid
 import time
-from datetime import datetime
-from blockchain.hashing import hash_artifact_json, sha256_file, sha256_text_file
+from datetime import datetime, timezone
+try:
+    from backend.blockchain.hashing import hash_artifact_json, sha256_file, sha256_text_file
+except ImportError:
+    from blockchain.hashing import hash_artifact_json, sha256_file, sha256_text_file
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _REPO = os.path.dirname(_HERE)

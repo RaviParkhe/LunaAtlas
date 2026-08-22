@@ -1,7 +1,10 @@
 import sys
-import json
 import os
-from blockchain.manifest import generate_decision_manifest
+import json
+try:
+    from backend.blockchain.manifest import generate_decision_manifest
+except ImportError:
+    from blockchain.manifest import generate_decision_manifest
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

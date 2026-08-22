@@ -1,7 +1,11 @@
 import os
 import json
-from blockchain.manifest import get_artifact_paths, hash_all_artifacts
-from blockchain.registry import DecisionRegistry
+try:
+    from backend.blockchain.manifest import get_artifact_paths, hash_all_artifacts
+    from backend.blockchain.registry import DecisionRegistry
+except ImportError:
+    from blockchain.manifest import get_artifact_paths, hash_all_artifacts
+    from blockchain.registry import DecisionRegistry
 
 def verify_decision(manifest_path: str):
     print("============================================================")

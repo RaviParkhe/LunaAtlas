@@ -2,8 +2,10 @@ import os
 import json
 import logging
 from web3 import Web3
-from eth_account import Account
-from blockchain.config import get_rpc_url, get_private_key, get_contract_address, BLOCKCHAIN_CHAIN_ID
+try:
+    from backend.blockchain.config import get_rpc_url, get_private_key, get_contract_address, BLOCKCHAIN_CHAIN_ID
+except ImportError:
+    from blockchain.config import get_rpc_url, get_private_key, get_contract_address, BLOCKCHAIN_CHAIN_ID
 
 logger = logging.getLogger(__name__)
 

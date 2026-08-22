@@ -1,7 +1,9 @@
 import sys
 import json
-import os
-from blockchain.verifier import verify_decision
+try:
+    from backend.blockchain.verifier import verify_decision
+except ImportError:
+    from blockchain.verifier import verify_decision
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

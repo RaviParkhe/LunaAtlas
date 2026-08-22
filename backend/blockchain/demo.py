@@ -1,9 +1,13 @@
 import os
 import json
-import time
-from blockchain.manifest import generate_decision_manifest, get_artifact_paths
-from blockchain.registry import DecisionRegistry
-from blockchain.verifier import verify_decision
+try:
+    from backend.blockchain.manifest import generate_decision_manifest, get_artifact_paths
+    from backend.blockchain.registry import DecisionRegistry
+    from backend.blockchain.verifier import verify_decision
+except ImportError:
+    from blockchain.manifest import generate_decision_manifest, get_artifact_paths
+    from blockchain.registry import DecisionRegistry
+    from blockchain.verifier import verify_decision
 
 def run_demo():
     print("============================================================")
