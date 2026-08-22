@@ -46,30 +46,6 @@ export default function RiskAndRecommendation({ site }) {
             XAI Multi-Factor Risk & Radiation V1 Profile
           </h2>
         </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[var(--apple-parchment)] border border-[var(--border-color)] text-[#0066cc] text-[11px] font-medium">
-            <Activity className="w-3 h-3" />
-            <span>Dose: {radV1.radiation_dose_mSv_per_year?.toFixed(1)} mSv/yr</span>
-          </div>
-
-          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[var(--apple-parchment)] border border-[var(--border-color)] text-[#0066cc] text-[11px] font-medium">
-            <Droplets className="w-3 h-3" />
-            <span>Ice: {iceConf.confidence_pct}%</span>
-          </div>
-
-          <a
-            href={passportUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#0066cc] text-white text-[11px] font-medium hover:bg-[#0071e3] transition-all shadow-sm active:scale-95 cursor-pointer ml-1"
-            title="View Tamper-Proof Cryptographic Decision Passport"
-          >
-            <ShieldCheck className="w-3 h-3" />
-            <span>Passport</span>
-            <ExternalLink className="w-2.5 h-2.5" />
-          </a>
-        </div>
       </div>
 
       {/* 5-Factor Risk Profile Grid + Radiation SVF Cards */}

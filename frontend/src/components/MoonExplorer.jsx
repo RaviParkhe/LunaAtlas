@@ -459,31 +459,6 @@ export default function MoonExplorer({
             <span>{hoveredPoint.lat}°S, {hoveredPoint.lon}°E</span>
           </div>
         )}
-
-        {/* Zoom & View Controls */}
-        <div className="absolute top-3 right-3 flex flex-col gap-1.5 pointer-events-auto">
-          <button
-            onClick={() => setZoomLevel((z) => Math.min(18.0, z * 1.25))}
-            className="w-7 h-7 bg-white dark:bg-[#272729] hover:bg-slate-100 dark:hover:bg-[#323236] border border-[var(--border-color)] rounded-full flex items-center justify-center text-[var(--text-primary)] transition-all cursor-pointer shadow-sm active:scale-95"
-            title="Zoom In"
-          >
-            <Plus className="w-3.5 h-3.5" />
-          </button>
-          <button
-            onClick={() => setZoomLevel((z) => Math.max(0.6, z * 0.8))}
-            className="w-7 h-7 bg-white dark:bg-[#272729] hover:bg-slate-100 dark:hover:bg-[#323236] border border-[var(--border-color)] rounded-full flex items-center justify-center text-[var(--text-primary)] transition-all cursor-pointer shadow-sm active:scale-95"
-            title="Zoom Out"
-          >
-            <Minus className="w-3.5 h-3.5" />
-          </button>
-          <button
-            onClick={resetView}
-            className="w-7 h-7 bg-white dark:bg-[#272729] hover:bg-slate-100 dark:hover:bg-[#323236] border border-[var(--border-color)] rounded-full flex items-center justify-center text-[var(--text-primary)] transition-all cursor-pointer shadow-sm active:scale-95"
-            title="Reset View"
-          >
-            <RotateCcw className="w-3 h-3" />
-          </button>
-        </div>
       </div>
 
       {/* Continuous Gradient Colorbar Legend */}
