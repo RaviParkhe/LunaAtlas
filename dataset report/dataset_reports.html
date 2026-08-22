@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dataset Analysis Reports</title>
+<style>
+  :root{
+    --ink:#1a1d21;
+    --sub:#6b7280;
+    --label:#9aa1ac;
+    --line:#e6e8eb;
+    --card:#ffffff;
+    --bg:#f4f5f7;
+    --green-bg:#e6f6ea;
+    --green-fg:#1d7a3c;
+    --amber-bg:#fdf2e0;
+    --amber-fg:#9a6400;
+    --link:#2563eb;
+    --mono:'SF Mono','JetBrains Mono',Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    padding:40px 20px;
+    background:var(--bg);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+    color:var(--ink);
+  }
+  .page-title{
+    max-width:760px;
+    margin:0 auto 28px;
+    font-size:15px;
+    color:var(--sub);
+    letter-spacing:.01em;
+  }
+  .page-title h1{
+    font-size:22px;
+    margin:0 0 4px;
+    color:var(--ink);
+  }
+  .card{
+    max-width:760px;
+    margin:0 auto 28px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:28px 32px 30px;
+    box-shadow:0 1px 2px rgba(16,24,40,.04);
+  }
+  .card-head{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .chk{
+    width:16px;height:16px;
+    border:1.5px solid #c7cbd1;
+    border-radius:4px;
+    flex:0 0 auto;
+  }
+  .fname{
+    font-family:var(--mono);
+    font-size:16px;
+    font-weight:600;
+    flex:1 1 auto;
+  }
+  .badge{
+    font-size:12px;
+    font-weight:600;
+    padding:4px 12px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .badge.verified{background:var(--green-bg);color:var(--green-fg);}
+  .badge.partial{background:var(--amber-bg);color:var(--amber-fg);}
+  .subtitle{
+    margin:6px 0 22px 26px;
+    color:var(--sub);
+    font-size:14px;
+  }
+  .section-label{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.08em;
+    color:var(--label);
+    text-transform:uppercase;
+    margin:22px 0 12px;
+  }
+  .section-label:first-of-type{margin-top:0;}
+  .grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px 28px;
+  }
+  .field .k{
+    font-size:12px;
+    color:var(--sub);
+    margin-bottom:3px;
+  }
+  .field .v{
+    font-size:14.5px;
+    line-height:1.45;
+  }
+  .field .v.mono{font-family:var(--mono); font-size:13.5px;}
+  .field .v a{color:var(--link); text-decoration:none;}
+  .field .v a:hover{text-decoration:underline;}
+  .field .v.muted{color:#a3a9b1; font-style:italic;}
+  ol.pipeline{
+    margin:0;
+    padding-left:0;
+    list-style:none;
+    counter-reset:step;
+  }
+  ol.pipeline li{
+    counter-increment:step;
+    position:relative;
+    padding-left:30px;
+    margin-bottom:12px;
+    font-size:14.5px;
+    line-height:1.5;
+  }
+  ol.pipeline li::before{
+    content:counter(step);
+    position:absolute;
+    left:0; top:0;
+    width:19px; height:19px;
+    border-radius:50%;
+    background:#eef0f3;
+    color:var(--sub);
+    font-size:11px;
+    font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+  }
+  ul.checklist{
+    margin:0; padding:0; list-style:none;
+  }
+  ul.checklist li{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    font-size:14.5px;
+    line-height:1.5;
+    margin-bottom:10px;
+  }
+  ul.checklist li .ico{
+    flex:0 0 auto;
+    width:16px;height:16px;
+    border-radius:4px;
+    margin-top:2px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;
+    font-weight:800;
+  }
+  ul.checklist li.pass .ico{background:var(--green-bg); color:var(--green-fg);}
+  ul.checklist li.pass .ico::after{content:"✓";}
+  ul.checklist li.warn .ico{background:var(--amber-bg); color:var(--amber-fg);}
+  ul.checklist li.warn .ico::after{content:"!";}
+  ul.checklist li.na .ico{background:#eef0f3; color:#9aa1ac;}
+  ul.checklist li.na .ico::after{content:"–";}
+  ul.checklist .txt b{font-weight:600;}
+  .limits li{
+    display:flex; gap:10px; align-items:flex-start;
+    font-size:14.5px; line-height:1.5; margin-bottom:9px;
+  }
+  .limits li .warnbox{
+    flex:0 0 auto; width:16px;height:16px; margin-top:2px;
+    background:var(--amber-bg); color:var(--amber-fg);
+    border-radius:4px; display:flex;align-items:center;justify-content:center;
+    font-size:11px; font-weight:800;
+  }
+  .limits li .warnbox::after{content:"!";}
+  .limits{list-style:none; margin:0; padding:0;}
+</style>
+</head>
+<body>
+
+<div class="page-title">
+  <h1>Dataset Analysis Reports</h1>
+  Compiled from publisher and mission documentation (NASA PGDA, USGS Astrogeology, LOLA PDS archive). Source files were not directly inspected — fields requiring raw pixel/attribute access are marked accordingly rather than estimated.
+</div>
+
+<!-- CARD 1: LDEM -->
+<div class="card">
+  <div class="card-head">
+    <div class="chk"></div>
+    <div class="fname">LDEM_80S_80MPP_ADJ.tiff</div>
+    <div class="badge partial">Metadata Verified</div>
+  </div>
+  <div class="subtitle">Digital elevation model · lunar south pole · LOLA-derived terrain raster</div>
+
+  <div class="section-label">Provenance</div>
+  <div class="grid2">
+    <div class="field"><div class="k">Publisher</div><div class="v">NASA · Goddard PGDA</div></div>
+    <div class="field"><div class="k">Instrument</div><div class="v">LOLA (Lunar Orbiter Laser Altimeter)</div></div>
+    <div class="field"><div class="k">Original source link</div><div class="v"><a href="https://pgda.gsfc.nasa.gov/products/90">pgda.gsfc.nasa.gov/products/90</a></div></div>
+    <div class="field"><div class="k">Accessed on</div><div class="v">21 Aug 2026</div></div>
+    <div class="field"><div class="k">License / usage</div><div class="v">Public domain (NASA data policy); cite Barker et al. 2023</div></div>
+    <div class="field"><div class="k">File size (original)</div><div class="v">181 MB</div></div>
+  </div>
+
+  <div class="section-label">Technical Specification</div>
+  <div class="grid2">
+    <div class="field"><div class="k">Coverage</div><div class="v">80°S latitude to pole</div></div>
+    <div class="field"><div class="k">Native resolution</div><div class="v">80 m / pixel</div></div>
+    <div class="field"><div class="k">Coordinate system</div><div class="v mono">South Polar Stereographic, MOON_ME (DE421)</div></div>
+    <div class="field"><div class="k">Format</div><div class="v">Cloud-Optimized GeoTIFF</div></div>
+    <div class="field"><div class="k">Elevation range (raw)</div><div class="v muted">Not available — requires raster inspection</div></div>
+    <div class="field"><div class="k">No-data pixels</div><div class="v muted">Not available — requires raster inspection</div></div>
+  </div>
+
+  <div class="section-label">Processing Pipeline</div>
+  <ol class="pipeline">
+    <li>Ingest LOLA RDR altimetric point returns; geolocate using LRO orbit/pointing solutions.</li>
+    <li>Iteratively co-adjust tracks in 64 overlapping 80&nbsp;km tiles to remove orbital geolocation artifacts; reject noise via slope/run-length criteria.</li>
+    <li>Grid cleaned, adjusted tracks to 20&nbsp;m/pixel using natural-neighbor interpolation.</li>
+    <li>Downsample by multi-pixel averaging to 80&nbsp;m/pixel and package as a georeferenced Cloud-Optimized GeoTIFF.</li>
+  </ol>
+
+  <div class="section-label">Validation Check</div>
+  <ul class="checklist">
+    <li class="pass"><div class="ico"></div><div class="txt">CRS and resolution confirmed against official PGDA product page (south polar stereographic, 80&nbsp;m/pixel).</div></li>
+    <li class="na"><div class="ico"></div><div class="txt">Elevation value / no-data validation — <b>not checked</b>, requires the raw GeoTIFF.</div></li>
+  </ul>
+
+  <div class="section-label">Known Limitations</div>
+  <ul class="limits">
+    <li><div class="warnbox"></div><div>LOLA track density near the pole is uneven; interpolated pixels carry higher uncertainty than directly sampled ones.</div></li>
+    <li><div class="warnbox"></div><div>This 80&nbsp;m product is downsampled from the native 20&nbsp;m grid, not gridded directly from raw tracks at 80&nbsp;m.</div></li>
+  </ul>
+</div>
+
+<!-- CARD 2: Robbins crater database -->
+<div class="card">
+  <div class="card-head">
+    <div class="chk"></div>
+    <div class="fname">lunar_crater_database_robbins_2018.csv</div>
+    <div class="badge partial">Metadata Verified</div>
+  </div>
+  <div class="subtitle">Global lunar crater catalog · ~1.3M craters · vector attribute table</div>
+
+  <div class="section-label">Provenance</div>
+  <div class="grid2">
+    <div class="field"><div class="k">Publisher</div><div class="v">USGS Astrogeology Science Center</div></div>
+    <div class="field"><div class="k">Instrument</div><div class="v">LROC WAC, LOLA, SELENE Kaguya TC</div></div>
+    <div class="field"><div class="k">Original source link</div><div class="v"><a href="https://astrogeology.usgs.gov/search/map/moon_crater_database_v1_robbins">astrogeology.usgs.gov/.../moon_crater_database_v1_robbins</a></div></div>
+    <div class="field"><div class="k">Accessed on</div><div class="v">21 Aug 2026</div></div>
+    <div class="field"><div class="k">License / usage</div><div class="v">Public domain (USGS/PDS4); cite Robbins 2019, JGR Planets</div></div>
+    <div class="field"><div class="k">File size (original)</div><div class="v">93 MB (full download package)</div></div>
+  </div>
+
+  <div class="section-label">Technical Specification</div>
+  <div class="grid2">
+    <div class="field"><div class="k">Coverage</div><div class="v">Global: lat −90 to 90, lon 0–360</div></div>
+    <div class="field"><div class="k">Native resolution</div><div class="v">Complete to ~1–2 km crater diameter</div></div>
+    <div class="field"><div class="k">Coordinate system</div><div class="v mono">Simple Cylindrical, Planetocentric</div></div>
+    <div class="field"><div class="k">Format</div><div class="v">CSV (+ shapefile in package)</div></div>
+    <div class="field"><div class="k">Elevation range (raw)</div><div class="v muted">Not applicable — vector attribute data, not a raster</div></div>
+    <div class="field"><div class="k">No-data pixels</div><div class="v muted">Not applicable — vector attribute data, not a raster</div></div>
+  </div>
+
+  <div class="section-label">Processing Pipeline</div>
+  <ol class="pipeline">
+    <li>Search WAC (70–100 m/px), TC (30 m/px), and LOLA/LOLA+TC hillshade DTMs (5–60 m/px) multiple times each.</li>
+    <li>Manually trace crater rims where visible, at ~2.5 pixels per vertex point.</li>
+    <li>Fit circles/ellipses to rim points using Great Circle distances and bearings.</li>
+    <li>Compile ~1.3M fitted craters into a PDS4-archived CSV with unique identifiers.</li>
+  </ol>
+
+  <div class="section-label">Validation Check</div>
+  <ul class="checklist">
+    <li class="pass"><div class="ico"></div><div class="txt">Completeness cross-checked via crater size-frequency statistics and comparison with other published databases (per source paper).</div></li>
+    <li class="na"><div class="ico"></div><div class="txt">Field-level value validation — <b>not checked</b>, requires the raw CSV.</div></li>
+  </ul>
+
+  <div class="section-label">Known Limitations</div>
+  <ul class="limits">
+    <li><div class="warnbox"></div><div>Complete only for craters ≳1–2 km; completeness varies by terrain (better in flat maria than rugged highlands).</div></li>
+    <li><div class="warnbox"></div><div>No independent smaller-crater database exists to produce a true completeness report; individual crater accuracy is "best effort."</div></li>
+  </ul>
+</div>
+
+<!-- CARD 3: AVGVISIB LBL -->
+<div class="card">
+  <div class="card-head">
+    <div class="chk"></div>
+    <div class="fname">AVGVISIB_75S_120M_201608.LBL</div>
+    <div class="badge partial">Metadata Verified</div>
+  </div>
+  <div class="subtitle">PDS3 detached label · average solar illumination map · lunar south pole</div>
+
+  <div class="section-label">Provenance</div>
+  <div class="grid2">
+    <div class="field"><div class="k">Publisher</div><div class="v">NASA LRO LOLA Team (PDS node, MIT)</div></div>
+    <div class="field"><div class="k">Instrument</div><div class="v">LOLA-derived (modeled illumination)</div></div>
+    <div class="field"><div class="k">Original source link</div><div class="v"><a href="https://imbrium.mit.edu/BROWSE/EXTRAS/ILLUMINATION/AVGVISIB_75S_120M_201608.html">imbrium.mit.edu/.../ILLUMINATION</a></div></div>
+    <div class="field"><div class="k">Accessed on</div><div class="v">21 Aug 2026</div></div>
+    <div class="field"><div class="k">License / usage</div><div class="v">Public domain (NASA PDS); cite Mazarico et al. 2011</div></div>
+    <div class="field"><div class="k">File size (original)</div><div class="v muted">Not available (ASCII header, typically a few KB)</div></div>
+  </div>
+
+  <div class="section-label">Technical Specification</div>
+  <div class="grid2">
+    <div class="field"><div class="k">Coverage</div><div class="v">75°S latitude to pole</div></div>
+    <div class="field"><div class="k">Native resolution</div><div class="v">120 m / pixel</div></div>
+    <div class="field"><div class="k">Coordinate system</div><div class="v mono">South Polar Stereographic (inferred)</div></div>
+    <div class="field"><div class="k">Format</div><div class="v">PDS3 ASCII detached label (.LBL)</div></div>
+    <div class="field"><div class="k">Elevation range (raw)</div><div class="v muted">Not applicable — illumination fraction, not elevation</div></div>
+    <div class="field"><div class="k">No-data pixels</div><div class="v muted">Not available — requires label text parse</div></div>
+  </div>
+
+  <div class="section-label">Processing Pipeline</div>
+  <ol class="pipeline">
+    <li>Use LOLA-derived polar DEM as topographic basis for horizon computation.</li>
+    <li>Model solar position and local horizon across multiple lunar precession cycles (Mazarico et al. 2011 method).</li>
+    <li>Average per-pixel sunlit fraction over the modeled period (0–100%).</li>
+    <li>Package as PDS3 binary IMG with this detached ASCII label describing structure/projection.</li>
+  </ol>
+
+  <div class="section-label">Validation Check</div>
+  <ul class="checklist">
+    <li class="pass"><div class="ico"></div><div class="txt">Resolution and coverage confirmed against the official LOLA illumination products index.</div></li>
+    <li class="warn"><div class="ico"></div><div class="txt">Publisher errata on record: an earlier release of this exact label had incorrect LINE/SAMPLE values, later corrected.</div></li>
+  </ul>
+
+  <div class="section-label">Known Limitations</div>
+  <ul class="limits">
+    <li><div class="warnbox"></div><div>Label text could not be parsed directly in this session (server returned binary content); fields sourced from related publisher documentation.</div></li>
+    <li><div class="warnbox"></div><div>Illumination values are a multi-year model average, not an instantaneous measurement — short-term shadowing is not captured.</div></li>
+  </ul>
+</div>
+
+<!-- CARD 4: AVGVISIB IMG -->
+<div class="card">
+  <div class="card-head">
+    <div class="chk"></div>
+    <div class="fname">AVGVISIB_75S_120M_201608.IMG</div>
+    <div class="badge partial">Metadata Verified</div>
+  </div>
+  <div class="subtitle">PDS3 binary raster · average solar illumination map · lunar south pole</div>
+
+  <div class="section-label">Provenance</div>
+  <div class="grid2">
+    <div class="field"><div class="k">Publisher</div><div class="v">NASA LRO LOLA Team (PDS node, MIT)</div></div>
+    <div class="field"><div class="k">Instrument</div><div class="v">LOLA-derived (modeled illumination)</div></div>
+    <div class="field"><div class="k">Original source link</div><div class="v"><a href="https://imbrium.mit.edu/BROWSE/EXTRAS/ILLUMINATION/AVGVISIB_75S_120M_201608.html">imbrium.mit.edu/.../ILLUMINATION</a></div></div>
+    <div class="field"><div class="k">Accessed on</div><div class="v">21 Aug 2026</div></div>
+    <div class="field"><div class="k">License / usage</div><div class="v">Public domain (NASA PDS); cite Mazarico et al. 2011</div></div>
+    <div class="field"><div class="k">File size (original)</div><div class="v">111 MB</div></div>
+  </div>
+
+  <div class="section-label">Technical Specification</div>
+  <div class="grid2">
+    <div class="field"><div class="k">Coverage</div><div class="v">75°S latitude to pole</div></div>
+    <div class="field"><div class="k">Native resolution</div><div class="v">120 m / pixel</div></div>
+    <div class="field"><div class="k">Coordinate system</div><div class="v mono">South Polar Stereographic (inferred)</div></div>
+    <div class="field"><div class="k">Format</div><div class="v">PDS3 binary image (.IMG)</div></div>
+    <div class="field"><div class="k">Elevation range (raw)</div><div class="v muted">Not applicable — illumination fraction, not elevation</div></div>
+    <div class="field"><div class="k">No-data pixels</div><div class="v muted">Not available — requires raster inspection</div></div>
+  </div>
+
+  <div class="section-label">Processing Pipeline</div>
+  <ol class="pipeline">
+    <li>Use LOLA-derived polar DEM as topographic basis for horizon computation.</li>
+    <li>Model solar position and local horizon across multiple lunar precession cycles (Mazarico et al. 2011 method).</li>
+    <li>Average per-pixel sunlit fraction over the modeled period (0–100%).</li>
+    <li>Grid and package as a fixed-scale PDS3 binary raster at 120 m/pixel with a detached label; JP2 browse also produced.</li>
+  </ol>
+
+  <div class="section-label">Validation Check</div>
+  <ul class="checklist">
+    <li class="pass"><div class="ico"></div><div class="txt">File size, resolution, and coverage confirmed against the official LOLA illumination products index.</div></li>
+    <li class="na"><div class="ico"></div><div class="txt">Pixel-value / no-data validation — <b>not checked</b>, requires the raw binary raster.</div></li>
+  </ul>
+
+  <div class="section-label">Known Limitations</div>
+  <ul class="limits">
+    <li><div class="warnbox"></div><div>Companion label has a documented publisher errata (earlier LINE/SAMPLE values corrected) — confirm the paired label version in use.</div></li>
+    <li><div class="warnbox"></div><div>120 m/pixel resolution may not resolve small-scale permanent shadows (e.g., small crater cold traps).</div></li>
+  </ul>
+</div>
+
+</body>
+</html>

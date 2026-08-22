@@ -1,0 +1,21 @@
+{
+  "feature_columns": [
+    "elevation_m",
+    "slope_deg",
+    "sunlight_score"
+  ],
+  "log_transform_columns": [],
+  "scaler_mean": [
+    -1317.5341452632674,
+    8.066708311041031,
+    24.078332375258363
+  ],
+  "scaler_scale": [
+    1897.7666594517016,
+    5.965027831319318,
+    14.268432561340727
+  ],
+  "n_samples_fit": 160000,
+  "n_features": 3,
+  "note": "Add radiation feature column names to ml/config.py FEATURE_COLUMNS, then re-run pipeline.py to rebuild scaler and model."
+}

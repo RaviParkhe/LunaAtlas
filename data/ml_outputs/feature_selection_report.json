@@ -1,0 +1,74 @@
+{
+  "selected_features": [
+    "elevation_m",
+    "slope_deg",
+    "sunlight_score"
+  ],
+  "excluded_features": [
+    "roughness_m",
+    "ice_score",
+    "dust_risk_score",
+    "crater_hazard_raw",
+    "landing_suitability_raw",
+    "terrain_flatness_raw"
+  ],
+  "high_correlation_pairs": [
+    [
+      "slope_deg",
+      "roughness_m",
+      0.989
+    ],
+    [
+      "slope_deg",
+      "landing_suitability_raw",
+      -0.906
+    ],
+    [
+      "slope_deg",
+      "terrain_flatness_raw",
+      -0.906
+    ],
+    [
+      "roughness_m",
+      "landing_suitability_raw",
+      -0.889
+    ],
+    [
+      "roughness_m",
+      "terrain_flatness_raw",
+      -0.897
+    ],
+    [
+      "sunlight_score",
+      "ice_score",
+      -0.999
+    ],
+    [
+      "landing_suitability_raw",
+      "terrain_flatness_raw",
+      0.827
+    ]
+  ],
+  "variances": {
+    "terrain_flatness_raw": 0.0015,
+    "landing_suitability_raw": 0.1305,
+    "crater_hazard_raw": 0.9678,
+    "slope_deg": 35.5818,
+    "dust_risk_score": 178.8373,
+    "sunlight_score": 203.5894,
+    "ice_score": 742.1338,
+    "roughness_m": 7409.0605,
+    "elevation_m": 3601540.75
+  },
+  "skewness": {
+    "crater_hazard_raw": 43.3251,
+    "dust_risk_score": 1.7177,
+    "elevation_m": 1.1941,
+    "terrain_flatness_raw": 1.1748,
+    "roughness_m": 1.1173,
+    "slope_deg": 0.983,
+    "ice_score": 0.2075,
+    "sunlight_score": -0.2554,
+    "landing_suitability_raw": -0.4327
+  }
+}

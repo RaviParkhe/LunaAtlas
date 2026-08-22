@@ -1,0 +1,13 @@
+{
+  "shape": [
+    400,
+    400
+  ],
+  "bounds": {
+    "left": -200000,
+    "right": 200000,
+    "bottom": -200000,
+    "top": 200000
+  },
+  "projection": "PROJCS[\"POLAR_STEREOGRAPHIC MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"unknown\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]"
+}

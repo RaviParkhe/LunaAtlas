@@ -1,0 +1,149 @@
+{
+  "factors": [
+    "Safety",
+    "Water Ice",
+    "Sunlight",
+    "Resources",
+    "Expansion",
+    "Scientific Value"
+  ],
+  "narratives": [
+    {
+      "factor_a": "Safety",
+      "factor_b": "Water Ice",
+      "raw_value": 2.0,
+      "more_important": "Safety",
+      "less_important": "Water Ice",
+      "saaty_label": "slightly more important",
+      "sentence": "'Safety' is slightly more important than 'Water Ice' (Saaty value: 2.00)."
+    },
+    {
+      "factor_a": "Safety",
+      "factor_b": "Sunlight",
+      "raw_value": 4.0,
+      "more_important": "Safety",
+      "less_important": "Sunlight",
+      "saaty_label": "moderately to strongly more important",
+      "sentence": "'Safety' is moderately to strongly more important than 'Sunlight' (Saaty value: 4.00)."
+    },
+    {
+      "factor_a": "Safety",
+      "factor_b": "Resources",
+      "raw_value": 4.0,
+      "more_important": "Safety",
+      "less_important": "Resources",
+      "saaty_label": "moderately to strongly more important",
+      "sentence": "'Safety' is moderately to strongly more important than 'Resources' (Saaty value: 4.00)."
+    },
+    {
+      "factor_a": "Safety",
+      "factor_b": "Expansion",
+      "raw_value": 6.0,
+      "more_important": "Safety",
+      "less_important": "Expansion",
+      "saaty_label": "strongly to very strongly more important",
+      "sentence": "'Safety' is strongly to very strongly more important than 'Expansion' (Saaty value: 6.00)."
+    },
+    {
+      "factor_a": "Safety",
+      "factor_b": "Scientific Value",
+      "raw_value": 7.0,
+      "more_important": "Safety",
+      "less_important": "Scientific Value",
+      "saaty_label": "very strongly more important",
+      "sentence": "'Safety' is very strongly more important than 'Scientific Value' (Saaty value: 7.00)."
+    },
+    {
+      "factor_a": "Water Ice",
+      "factor_b": "Sunlight",
+      "raw_value": 3.0,
+      "more_important": "Water Ice",
+      "less_important": "Sunlight",
+      "saaty_label": "moderately more important",
+      "sentence": "'Water Ice' is moderately more important than 'Sunlight' (Saaty value: 3.00)."
+    },
+    {
+      "factor_a": "Water Ice",
+      "factor_b": "Resources",
+      "raw_value": 3.0,
+      "more_important": "Water Ice",
+      "less_important": "Resources",
+      "saaty_label": "moderately more important",
+      "sentence": "'Water Ice' is moderately more important than 'Resources' (Saaty value: 3.00)."
+    },
+    {
+      "factor_a": "Water Ice",
+      "factor_b": "Expansion",
+      "raw_value": 5.0,
+      "more_important": "Water Ice",
+      "less_important": "Expansion",
+      "saaty_label": "strongly more important",
+      "sentence": "'Water Ice' is strongly more important than 'Expansion' (Saaty value: 5.00)."
+    },
+    {
+      "factor_a": "Water Ice",
+      "factor_b": "Scientific Value",
+      "raw_value": 6.0,
+      "more_important": "Water Ice",
+      "less_important": "Scientific Value",
+      "saaty_label": "strongly to very strongly more important",
+      "sentence": "'Water Ice' is strongly to very strongly more important than 'Scientific Value' (Saaty value: 6.00)."
+    },
+    {
+      "factor_a": "Sunlight",
+      "factor_b": "Resources",
+      "raw_value": 1.0,
+      "more_important": "Sunlight",
+      "less_important": "Resources",
+      "saaty_label": "equally important",
+      "sentence": "'Sunlight' is equally important than 'Resources' (Saaty value: 1.00)."
+    },
+    {
+      "factor_a": "Sunlight",
+      "factor_b": "Expansion",
+      "raw_value": 3.0,
+      "more_important": "Sunlight",
+      "less_important": "Expansion",
+      "saaty_label": "moderately more important",
+      "sentence": "'Sunlight' is moderately more important than 'Expansion' (Saaty value: 3.00)."
+    },
+    {
+      "factor_a": "Sunlight",
+      "factor_b": "Scientific Value",
+      "raw_value": 4.0,
+      "more_important": "Sunlight",
+      "less_important": "Scientific Value",
+      "saaty_label": "moderately to strongly more important",
+      "sentence": "'Sunlight' is moderately to strongly more important than 'Scientific Value' (Saaty value: 4.00)."
+    },
+    {
+      "factor_a": "Resources",
+      "factor_b": "Expansion",
+      "raw_value": 3.0,
+      "more_important": "Resources",
+      "less_important": "Expansion",
+      "saaty_label": "moderately more important",
+      "sentence": "'Resources' is moderately more important than 'Expansion' (Saaty value: 3.00)."
+    },
+    {
+      "factor_a": "Resources",
+      "factor_b": "Scientific Value",
+      "raw_value": 4.0,
+      "more_important": "Resources",
+      "less_important": "Scientific Value",
+      "saaty_label": "moderately to strongly more important",
+      "sentence": "'Resources' is moderately to strongly more important than 'Scientific Value' (Saaty value: 4.00)."
+    },
+    {
+      "factor_a": "Expansion",
+      "factor_b": "Scientific Value",
+      "raw_value": 2.0,
+      "more_important": "Expansion",
+      "less_important": "Scientific Value",
+      "saaty_label": "slightly more important",
+      "sentence": "'Expansion' is slightly more important than 'Scientific Value' (Saaty value: 2.00)."
+    }
+  ],
+  "cr": 0.0262,
+  "cr_note": "Consistency Ratio (CR) = 0.0262 \u2014 well below the 0.10 threshold. This means the 15 pairwise judgments are internally consistent (no contradictions like 'A > B > C > A')."
+}

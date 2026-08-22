@@ -1,0 +1,182 @@
+[
+  {
+    "row": 73,
+    "col": 317,
+    "cluster_id": 0,
+    "anomaly_score": -0.08470282877568891,
+    "elevation_m": 5142.99853515625,
+    "slope_deg": 27.941734313964844,
+    "sunlight_score": 5.988921642303467
+  },
+  {
+    "row": 73,
+    "col": 316,
+    "cluster_id": 0,
+    "anomaly_score": -0.08463332970931658,
+    "elevation_m": 5119.1669921875,
+    "slope_deg": 28.524456024169922,
+    "sunlight_score": 7.869292736053467
+  },
+  {
+    "row": 71,
+    "col": 314,
+    "cluster_id": 0,
+    "anomaly_score": -0.0816259476239195,
+    "elevation_m": 5076.23388671875,
+    "slope_deg": 28.294275283813477,
+    "sunlight_score": 6.1146626472473145
+  },
+  {
+    "row": 73,
+    "col": 315,
+    "cluster_id": 0,
+    "anomaly_score": -0.07961792299029935,
+    "elevation_m": 5301.7724609375,
+    "slope_deg": 28.2875919342041,
+    "sunlight_score": 18.12725067138672
+  },
+  {
+    "row": 72,
+    "col": 314,
+    "cluster_id": 0,
+    "anomaly_score": -0.07871260788972756,
+    "elevation_m": 5292.728515625,
+    "slope_deg": 27.98855209350586,
+    "sunlight_score": 17.439123153686523
+  },
+  {
+    "row": 70,
+    "col": 314,
+    "cluster_id": 0,
+    "anomaly_score": -0.07846080185070103,
+    "elevation_m": 5064.64501953125,
+    "slope_deg": 27.195173263549805,
+    "sunlight_score": 2.9519424438476562
+  },
+  {
+    "row": 86,
+    "col": 289,
+    "cluster_id": 0,
+    "anomaly_score": -0.07795047185157722,
+    "elevation_m": 5969.8046875,
+    "slope_deg": 23.831878662109375,
+    "sunlight_score": 43.578617095947266
+  },
+  {
+    "row": 73,
+    "col": 318,
+    "cluster_id": 0,
+    "anomaly_score": -0.07642724708060955,
+    "elevation_m": 5350.39208984375,
+    "slope_deg": 27.13583755493164,
+    "sunlight_score": 11.386931419372559
+  },
+  {
+    "row": 70,
+    "col": 319,
+    "cluster_id": 0,
+    "anomaly_score": -0.07556238952845273,
+    "elevation_m": 5354.27880859375,
+    "slope_deg": 26.242507934570312,
+    "sunlight_score": 0.40252798795700073
+  },
+  {
+    "row": 71,
+    "col": 319,
+    "cluster_id": 0,
+    "anomaly_score": -0.07508757739770666,
+    "elevation_m": 5320.12841796875,
+    "slope_deg": 26.550703048706055,
+    "sunlight_score": 1.2811007499694824
+  },
+  {
+    "row": 84,
+    "col": 291,
+    "cluster_id": 0,
+    "anomaly_score": -0.07307393890145075,
+    "elevation_m": 6000.44384765625,
+    "slope_deg": 25.21800994873047,
+    "sunlight_score": 40.842193603515625
+  },
+  {
+    "row": 80,
+    "col": 267,
+    "cluster_id": 0,
+    "anomaly_score": -0.07299048834233968,
+    "elevation_m": 6154.24609375,
+    "slope_deg": 0.5353454351425171,
+    "sunlight_score": 51.124019622802734
+  },
+  {
+    "row": 93,
+    "col": 284,
+    "cluster_id": 0,
+    "anomaly_score": -0.07283123761165478,
+    "elevation_m": 5476.93017578125,
+    "slope_deg": 25.509876251220703,
+    "sunlight_score": 44.212135314941406
+  },
+  {
+    "row": 85,
+    "col": 291,
+    "cluster_id": 0,
+    "anomaly_score": -0.072016031413905,
+    "elevation_m": 5637.11865234375,
+    "slope_deg": 27.333873748779297,
+    "sunlight_score": 39.11960983276367
+  },
+  {
+    "row": 69,
+    "col": 319,
+    "cluster_id": 0,
+    "anomaly_score": -0.0719740661965158,
+    "elevation_m": 5523.869140625,
+    "slope_deg": 24.17403221130371,
+    "sunlight_score": 0.8438591957092285
+  },
+  {
+    "row": 68,
+    "col": 317,
+    "cluster_id": 0,
+    "anomaly_score": -0.07124066774999116,
+    "elevation_m": 5157.96337890625,
+    "slope_deg": 25.33323860168457,
+    "sunlight_score": 0.0
+  },
+  {
+    "row": 83,
+    "col": 293,
+    "cluster_id": 0,
+    "anomaly_score": -0.07060809298079418,
+    "elevation_m": 5841.26806640625,
+    "slope_deg": 27.092525482177734,
+    "sunlight_score": 36.928977966308594
+  },
+  {
+    "row": 83,
+    "col": 292,
+    "cluster_id": 0,
+    "anomaly_score": -0.0704267917986664,
+    "elevation_m": 6100.0654296875,
+    "slope_deg": 24.894227981567383,
+    "sunlight_score": 39.70374298095703
+  },
+  {
+    "row": 78,
+    "col": 307,
+    "cluster_id": 0,
+    "anomaly_score": -0.0699134486922044,
+    "elevation_m": 5592.0009765625,
+    "slope_deg": 27.68593406677246,
+    "sunlight_score": 30.126405715942383
+  },
+  {
+    "row": 72,
+    "col": 318,
+    "cluster_id": 0,
+    "anomaly_score": -0.06969330056302614,
+    "elevation_m": 4980.75244140625,
+    "slope_deg": 25.728906631469727,
+    "sunlight_score": 0.16200320422649384
+  }
+]

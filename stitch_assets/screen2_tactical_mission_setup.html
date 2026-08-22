@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LUNAR OPS: Mission Parameters</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-high": "#252a35",
+                        "primary-fixed-dim": "#00daf3",
+                        "tertiary-fixed": "#dae2f9",
+                        "tertiary": "#e5ecff",
+                        "on-secondary": "#2c3134",
+                        "surface": "#0e131d",
+                        "on-surface-variant": "#bac9cc",
+                        "surface-tint": "#00daf3",
+                        "on-secondary-fixed": "#171c1f",
+                        "outline": "#849396",
+                        "inverse-primary": "#006875",
+                        "outline-variant": "#3b494c",
+                        "secondary-container": "#454a4d",
+                        "primary": "#c3f5ff",
+                        "surface-dim": "#0e131d",
+                        "surface-bright": "#343945",
+                        "error": "#ffb4ab",
+                        "inverse-surface": "#dee2f1",
+                        "surface-container-lowest": "#090e18",
+                        "on-error-container": "#ffdad6",
+                        "background": "#0e131d",
+                        "tertiary-fixed-dim": "#bec7dc",
+                        "inverse-on-surface": "#2c303b",
+                        "on-primary": "#00363d",
+                        "error-container": "#93000a",
+                        "on-tertiary-container": "#50596b",
+                        "surface-variant": "#303540",
+                        "secondary-fixed": "#dfe3e7",
+                        "secondary-fixed-dim": "#c3c7cb",
+                        "surface-container-highest": "#303540",
+                        "on-primary-fixed-variant": "#004f58",
+                        "on-secondary-container": "#b4b9bd",
+                        "tertiary-container": "#c7d0e6",
+                        "primary-container": "#00e5ff",
+                        "on-tertiary-fixed": "#131c2b",
+                        "on-secondary-fixed-variant": "#43474b",
+                        "on-background": "#dee2f1",
+                        "on-error": "#690005",
+                        "on-surface": "#dee2f1",
+                        "on-primary-container": "#00626e",
+                        "on-primary-fixed": "#001f24",
+                        "secondary": "#c3c7cb",
+                        "on-tertiary": "#283141",
+                        "primary-fixed": "#9cf0ff",
+                        "on-tertiary-fixed-variant": "#3e4758",
+                        "surface-container-low": "#171c26",
+                        "surface-container": "#1b202a"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.125rem",
+                        lg: "0.25rem",
+                        xl: "0.5rem",
+                        full: "0.75rem"
+                    },
+                    spacing: {
+                        gutter: "16px",
+                        unit: "4px",
+                        "container-max": "1440px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px"
+                    },
+                    fontFamily: {
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "data-mono": ["JetBrains Mono"],
+                        "headline-sm": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-caps": ["JetBrains Mono"]
+                    },
+                    fontSize: {
+                        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "data-mono": ["14px", { lineHeight: "20px", letterSpacing: "0.02em", fontWeight: "500" }],
+                        "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+                        "headline-lg": ["32px", { lineHeight: "40px", fontWeight: "600" }],
+                        "label-caps": ["12px", { lineHeight: "16px", letterSpacing: "0.1em", fontWeight: "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom grid background for the deep space navy feel */
+        .bg-grid-pattern {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+        
+        /* Range slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 14px;
+            width: 4px;
+            border-radius: 1px;
+            background: #00daf3;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 8px rgba(0, 218, 243, 0.8);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 2px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 1px;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0e131d;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b494c;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00daf3;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md h-screen overflow-hidden flex flex-col bg-grid-pattern antialiased selection:bg-primary-container/30 selection:text-primary-fixed-dim">
+<!-- TopAppBar -->
+<header class="bg-surface/60 backdrop-blur-xl docked full-width top-0 border-b border-outline-variant/30 flex justify-between items-center px-margin-desktop w-full h-16 z-50">
+<div class="flex items-center gap-8">
+<h1 class="font-display-lg text-headline-sm tracking-tighter text-primary-fixed-dim">LUNAR OPS: SITE SELECTION</h1>
+<nav class="hidden md:flex gap-6 items-center h-full">
+<a class="font-label-caps text-label-caps text-primary-fixed-dim border-b-2 border-primary-fixed-dim pb-1 h-full flex items-center pt-1 hover:text-primary-fixed-dim transition-colors" href="#">PARAMETERS</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant h-full flex items-center hover:text-primary-fixed-dim transition-colors" href="#">ANALYSIS</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex flex-col items-end mr-2">
+<span class="text-[9px] text-primary-fixed-dim font-label-caps tracking-widest">NOAA SPACE WEATHER</span>
+<span class="text-[11px] text-[#00daf3] font-data-mono font-bold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-[#00daf3] animate-pulse"></span>
+        QUIET (R0 S0 G0)
+    </span>
+</div>
+<button class="hidden md:flex items-center gap-2 bg-primary-container/10 border border-primary-fixed-dim/50 text-primary-fixed-dim px-4 py-2 rounded font-label-caps text-label-caps hover:bg-primary-container/20 transition-all Active: opacity-80 scale-95">
+                INITIATE ANALYSIS
+                <span class="material-symbols-outlined" style="font-size: 16px;">rocket_launch</span>
+</button>
+<div class="flex gap-4 items-center">
+<button aria-label="settings" class="text-on-surface-variant hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button aria-label="notifications" class="text-on-surface-variant hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full border border-outline-variant overflow-hidden ml-2">
+<img alt="Mission Commander Profile" class="w-full h-full object-cover" data-alt="A futuristic astronaut helmet visor reflecting a lunar landscape, highly detailed, dramatic studio lighting, deep blues and cyan accents, cinematic aerospace aesthetic, high contrast." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdW266zS3eqavvlYJKGXYrDOxRH24Gi_SmXMX-g-pcN-cAicTN6P1Gszenvacy5swvQyi6DphiA-w1uT4Ij0WHIu6gtCC1k4oJlWd4mpDZDulDOr8vDIobz_RWcbtKjxMZLWEBd_-hDrETCf693ep1_V9rBas3_YXTNysEPTNqhekuQiU48NKivP2QMwUDjMf3kbSJ2YpY0JSX66sCIq8bsXN6zzOkzXvA3Q9BF1W4x48X4r6dprFC"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Secondary Info Bar -->
+<div class="bg-surface-container-lowest/90 border-b border-outline-variant/30 px-6 py-2 flex items-center w-full z-40 relative gap-4">
+<div class="flex items-center gap-6 w-full ml-64 pl-6">
+<span class="text-on-surface-variant font-label-caps text-[11px] tracking-widest">MISSION OBJECTIVE</span>
+<div class="flex gap-2 flex-1">
+<button class="px-3 py-1 bg-primary-fixed-dim text-surface rounded-full text-[11px] font-data-mono font-bold transition-colors">Balanced Artemis</button>
+<button class="px-3 py-1 bg-transparent border border-outline-variant text-on-surface-variant rounded-full text-[11px] font-data-mono hover:text-primary-fixed-dim hover:border-primary-fixed-dim transition-colors">ISRU Ice Mining</button>
+<button class="px-3 py-1 bg-transparent border border-outline-variant text-on-surface-variant rounded-full text-[11px] font-data-mono hover:text-primary-fixed-dim hover:border-primary-fixed-dim transition-colors">Solar Power First</button>
+</div>
+<span class="text-primary-fixed-dim font-label-caps text-[10px] ml-auto">NASA PRESETS</span>
+</div>
+</div>
+<div class="flex flex-1 overflow-hidden relative">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-lowest/60 backdrop-blur-xl docked left-0 h-full w-64 border-r border-outline-variant/30 flex flex-col z-40 absolute top-0">
+<!-- Header section of side nav -->
+<div class="p-6 border-b border-outline-variant/30 flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-surface-variant border border-outline-variant flex items-center justify-center text-primary-fixed-dim">
+<span class="material-symbols-outlined">radar</span>
+</div>
+<div>
+<div class="font-headline-sm text-primary-fixed-dim text-[14px] leading-tight">MISSION ALPHA</div>
+<div class="font-data-mono text-data-mono text-on-surface-variant text-[10px] mt-1">T+ 142:12:04</div>
+</div>
+</div>
+<div class="bg-[#00daf3]/10 border border-[#00daf3]/30 px-3 py-1.5 rounded text-[#00daf3] font-label-caps text-label-caps text-[10px] flex items-center justify-between">
+                    SITE STATUS: ACTIVE
+                    <span class="w-2 h-2 rounded-full bg-[#00daf3] animate-pulse"></span>
+</div>
+</div>
+<!-- Main Tabs -->
+<div class="flex-1 overflow-y-auto py-4 flex flex-col gap-1 px-3">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-surface-variant/40 transition-all duration-200 ease-in-out text-on-surface-variant font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">map</span>
+                    Mission Map
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded bg-primary-container/20 text-primary-fixed-dim border-l-4 border-primary-fixed-dim transition-all duration-200 ease-in-out font-label-caps text-label-caps ml-[-12px] pl-[15px]" href="#">
+<span class="material-symbols-outlined" data-weight="fill" style="font-size: 20px;">terrain</span>
+                    Surface Data
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-surface-variant/40 transition-all duration-200 ease-in-out text-on-surface-variant font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">layers</span>
+                    Resource Logic
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-surface-variant/40 transition-all duration-200 ease-in-out text-on-surface-variant font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">psychology</span>
+                    AI Heuristics
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-surface-variant/40 transition-all duration-200 ease-in-out text-on-surface-variant font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">inventory_2</span>
+                    Archive
+                </a>
+</div>
+<!-- Footer Tabs -->
+<div class="p-4 border-t border-outline-variant/30 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded hover:bg-surface-variant/40 transition-all duration-200 ease-in-out text-on-surface-variant font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined" style="font-size: 18px;">help</span>
+                    Support
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded hover:bg-surface-variant/40 transition-all duration-200 ease-in-out text-on-surface-variant font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined" style="font-size: 18px;">terminal</span>
+                    Logs
+                </a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 relative ml-64">
+<!-- Atmospheric glow behind content -->
+<div class="absolute top-[20%] left-[50%] -translate-x-1/2 w-[600px] h-[400px] bg-primary-fixed-dim/5 rounded-full blur-[120px] pointer-events-none"></div>
+<div class="max-w-6xl mx-auto relative z-10 space-y-8">
+<!-- Page Header -->
+<div class="flex items-end justify-between border-b border-outline-variant/30 pb-4">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Mission Parameters Setup</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 max-w-2xl">Define environmental heuristics and logistical constraints for AI-driven landing site evaluation.</p>
+</div>
+<div class="hidden lg:flex gap-3">
+<button class="px-4 py-2 border border-outline-variant rounded bg-surface/50 text-on-surface font-label-caps text-label-caps hover:bg-surface-variant transition-colors">LOAD PRESET</button>
+</div>
+</div>
+<!-- Bento Grid Layout for Forms -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Core Identity Panel (Left Col) -->
+<div class="lg:col-span-4 space-y-6">
+<div class="bg-surface-container-lowest/80 backdrop-blur-[20px] border border-outline-variant/30 rounded-lg overflow-hidden flex flex-col h-full">
+<div class="px-5 py-3 border-b border-outline-variant/30 bg-surface-container/30 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-fixed-dim" style="font-size: 18px;">fingerprint</span>
+<h3 class="font-label-caps text-label-caps text-primary-fixed-dim">CORE IDENTIFIER</h3>
+</div>
+<div class="p-5 flex-1 space-y-6">
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant block">MISSION DESIGNATION</label>
+<input class="w-full bg-surface-container-highest border-0 border-b border-outline-variant focus:border-primary-fixed-dim focus:ring-0 text-on-surface font-data-mono text-data-mono px-3 py-2 transition-colors placeholder:text-outline/50" placeholder="Enter designation..." type="text" value="ARTEMIS-V-SOUTH-POLE"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant block">DURATION (SOLS)</label>
+<div class="relative">
+<input class="w-full bg-surface-container-highest border-0 border-b border-outline-variant focus:border-primary-fixed-dim focus:ring-0 text-on-surface font-data-mono text-data-mono px-3 py-2 transition-colors pr-12" placeholder="0" type="number" value="180"/>
+<span class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant font-data-mono text-[12px]">DAYS</span>
+</div>
+</div>
+<div class="pt-4 border-t border-outline-variant/30">
+<label class="font-label-caps text-label-caps text-on-surface-variant block mb-3">CREW COMPOSITION</label>
+<div class="flex gap-2">
+<button class="flex-1 py-2 border border-primary-fixed-dim bg-primary-fixed-dim/10 text-primary-fixed-dim rounded font-label-caps text-[10px] text-center">MANNED</button>
+<button class="flex-1 py-2 border border-outline-variant bg-surface/50 text-on-surface-variant rounded font-label-caps text-[10px] text-center hover:bg-surface-variant transition-colors">AUTONOMOUS</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Evaluation Heuristics Panel (Right Col) -->
+<div class="lg:col-span-8">
+<div class="bg-surface-container-lowest/80 backdrop-blur-[20px] border border-outline-variant/30 rounded-lg overflow-hidden h-full">
+<div class="px-5 py-3 border-b border-outline-variant/30 bg-surface-container/30 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-fixed-dim" style="font-size: 18px;">tune</span>
+<h3 class="font-label-caps text-label-caps text-primary-fixed-dim">SELECTION HEURISTICS WEIGHTING</h3>
+</div>
+<span class="bg-primary-container/20 text-primary-fixed-dim px-2 py-0.5 rounded text-[10px] font-data-mono border border-primary-fixed-dim/30">AI-ASSISTED</span>
+</div>
+<div class="p-6 space-y-8">
+<!-- Slider Item -->
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-size: 16px;">ac_unit</span>
+<label class="font-label-caps text-label-caps text-on-surface">WATER ICE PROBABILITY</label>
+</div>
+<p class="text-[11px] text-on-surface-variant mt-1 font-body-md">Sub-surface H2O signatures (PSR zones)</p>
+</div>
+<div class="font-data-mono text-primary-fixed-dim text-lg">0.85 <span class="text-[10px] text-on-surface-variant">/ 1.0</span></div>
+</div>
+<input class="w-full" max="100" min="0" type="range" value="85"/>
+<div class="flex justify-between text-[10px] font-data-mono text-outline mt-1">
+<span>IGNORE</span>
+<span>CRITICAL</span>
+</div>
+</div>
+<!-- Slider Item -->
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-size: 16px;">solar_power</span>
+<label class="font-label-caps text-label-caps text-on-surface">SOLAR EXPOSURE</label>
+</div>
+<p class="text-[11px] text-on-surface-variant mt-1 font-body-md">Annual illumination duration</p>
+</div>
+<div class="font-data-mono text-primary-fixed-dim text-lg">0.92 <span class="text-[10px] text-on-surface-variant">/ 1.0</span></div>
+</div>
+<input class="w-full" max="100" min="0" type="range" value="92"/>
+<div class="flex justify-between text-[10px] font-data-mono text-outline mt-1">
+<span>MINIMAL</span>
+<span>MAXIMAL</span>
+</div>
+</div>
+<!-- Slider Item -->
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-size: 16px;">landscape</span>
+<label class="font-label-caps text-label-caps text-on-surface">TERRAIN GRADIENT TOLERANCE</label>
+</div>
+<p class="text-[11px] text-on-surface-variant mt-1 font-body-md">Maximum allowable slope for habitat deployment</p>
+</div>
+<div class="font-data-mono text-tertiary-fixed text-lg">&lt; 12° <span class="text-[10px] text-on-surface-variant">MAX</span></div>
+</div>
+<input class="w-full" max="30" min="0" style="--tw-ring-color: #dae2f9;" type="range" value="12"/>
+<div class="flex justify-between text-[10px] font-data-mono text-outline mt-1">
+<span>FLAT (0°)</span>
+<span>STEEP (30°)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

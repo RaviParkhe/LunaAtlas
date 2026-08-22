@@ -1,0 +1,17 @@
+field,dtype,classification,ml_decision,ml_reason,units,missing_count,missing_pct,unique_values,min,max,mean,std
+cell_id,int32,IDENTIFIER,EXCLUDE,Identifier -- no environmental meaning,,0,0.0,160000,0.0,159999.0,79999.5,46188.1659
+row,int16,SPATIAL_COORDINATE,EXCLUDE,Spatial coordinate -- geographic bias risk,,0,0.0,400,0.0,399.0,199.5,115.4701
+col,int16,SPATIAL_COORDINATE,EXCLUDE,Spatial coordinate -- geographic bias risk,,0,0.0,400,0.0,399.0,199.5,115.4701
+sunlight_score,float32,NORMALIZED_SCORE,USE,Best available sunlight proxy; no raw illumination grid,% of time illuminated (0–53.3% max in dataset),0,0.0,149729,0.0,53.331,24.0783,14.2685
+ice_score,float32,NORMALIZED_SCORE,USE,Best available ice proxy (permanent shadow persistence),0–100 (100 = permanent shadow = highest ice potential),0,0.0,141714,0.0,100.0,56.6488,27.2421
+dust_risk_score,float32,NORMALIZED_SCORE,EXCLUDE,Derived from sunlight -- double-counts sunlight_score,0–100 (higher = more dust risk),0,0.0,154435,0.0,100.0,14.368,13.373
+elevation_m,float32,RAW_MEASUREMENT,USE,Raw physical measurement -- unique signal,metres,0,0.0,159633,-5445.1172,6980.2158,-1317.5342,1897.7726
+slope_deg,float32,DERIVED_PHYSICAL,USE,Physically meaningful terrain descriptor,degrees,0,0.0,159651,0.0071,33.4182,8.0667,5.965
+roughness_m,float32,DERIVED_PHYSICAL,USE,"Independent terrain texture, not collinear with slope",metres (elevation variability within cell),0,0.0,159600,0.9238,536.0714,119.344,86.0759
+is_flat,float32,DERIVED_BINARY,EXCLUDE,"Binary gate: f(slope, roughness) -- redundant with both",boolean (0/1),0,0.0,2,0.0,1.0,0.6844,0.4648
+crater_hazard_raw,float32,DERIVED_PHYSICAL,EXCLUDE,"Mean=0.12, max=103.7 -- extreme outlier, mostly zeros",density-weighted hazard (unitless),0,0.0,7602,0.0,103.657,0.1197,0.9838
+is_suitable_gate,float32,DERIVED_BINARY,EXCLUDE,Identical array to is_flat -- exact duplicate,boolean (0/1),0,0.0,2,0.0,1.0,0.6844,0.4648
+landing_suitability_raw,float32,DERIVED_SCORE,EXCLUDE,Composite of slope+roughness+craters already included,0–1,0,0.0,108887,0.0,0.9993,0.4991,0.3613
+landing_suitability_score,float32,NORMALIZED_SCORE,EXCLUDE,landing_suitability_raw x 100 -- adds no information,0–99.9,0,0.0,638,0.0,99.9,49.9064,36.1252
+terrain_flatness_raw,float32,DERIVED_SCORE,EXCLUDE,"std=0.039 -- near-zero variance, useless for clustering",0.314–0.907 (unitless),0,0.0,156309,0.3143,0.9073,0.4565,0.0386
+terrain_flatness_score,float32,NORMALIZED_SCORE,EXCLUDE,"terrain_flatness_raw x 100, std=3.86 -- near-constant",31.4–90.7 (unitless),0,0.0,542,31.4,90.7,45.6533,3.8553

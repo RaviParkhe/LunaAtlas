@@ -1,0 +1,44 @@
+CLUSTER DELTA REPORT — Lunar Habitat Site Selector
+============================================================
+
+Site: de Gerlache Rim
+Archetype: Shadow-Dominated Environment  (Cluster 1)
+
+  Elevation M: -1031.3m vs cluster mean -1830.9m (z=+0.60) — moderately above cluster average.
+  Slope Deg: 3.4deg vs cluster mean 8.5deg (z=-0.93) — moderately below cluster average.
+  Sunlight Score: 0.1% vs cluster mean 7.8% (z=-1.14) — notably below cluster average.
+
+Site: Nobile Rim
+Archetype: High-Elevation / High-Slope Environment  (Cluster 0)
+
+  Elevation M: 920.0m vs cluster mean 1217.4m (z=-0.14) — slightly below cluster average.
+  Slope Deg: 6.9deg vs cluster mean 14.7deg (z=-1.30) — notably below cluster average.
+  Sunlight Score: 35.7% vs cluster mean 30.8% (z=+0.42) — slightly above cluster average.
+
+Site: Haworth Crater
+Archetype: Shadow-Dominated Environment  (Cluster 1)
+
+  Elevation M: -1620.8m vs cluster mean -1830.9m (z=+0.16) — slightly above cluster average.
+  Slope Deg: 12.2deg vs cluster mean 8.5deg (z=+0.68) — moderately above cluster average.
+  Sunlight Score: 0.0% vs cluster mean 7.8% (z=-1.15) — notably below cluster average.
+
+Site: Faustini Rim
+Archetype: Shadow-Dominated Environment  (Cluster 1)
+
+  Elevation M: -2635.8m vs cluster mean -1830.9m (z=-0.61) — moderately below cluster average.
+  Slope Deg: 21.4deg vs cluster mean 8.5deg (z=+2.36) — significantly (outlier) above cluster average. [OUTLIER > 2 standard deviations]
+  Sunlight Score: 0.0% vs cluster mean 7.8% (z=-1.15) — notably below cluster average.
+
+Site: Shackleton Crater Rim
+Archetype: Shadow-Dominated Environment  (Cluster 1)
+
+  Elevation M: -2778.9m vs cluster mean -1830.9m (z=-0.71) — moderately below cluster average.
+  Slope Deg: 3.3deg vs cluster mean 8.5deg (z=-0.95) — moderately below cluster average.
+  Sunlight Score: 0.0% vs cluster mean 7.8% (z=-1.15) — notably below cluster average.
+
+Site: Malapert Massif
+Archetype: High-Elevation / High-Slope Environment  (Cluster 0)
+
+  Elevation M: 4910.9m vs cluster mean 1217.4m (z=+1.80) — notably above cluster average.
+  Slope Deg: 6.3deg vs cluster mean 14.7deg (z=-1.39) — notably below cluster average.
+  Sunlight Score: 46.7% vs cluster mean 30.8% (z=+1.37) — notably above cluster average.

@@ -1,0 +1,14 @@
+{
+  "k": 3,
+  "silhouette": 0.322338,
+  "davies_bouldin": 1.105941,
+  "calinski_harabasz": 75381.66,
+  "cluster_sizes": {
+    "0": 30845,
+    "1": 53850,
+    "2": 75305
+  },
+  "min_cluster_size": 30845,
+  "max_cluster_size": 75305,
+  "n_cells": 160000
+}

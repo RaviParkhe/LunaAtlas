@@ -1,0 +1,56 @@
+{
+  "de Gerlache Rim": {
+    "archetype": "Shadow-Dominated Environment",
+    "cluster_id": 1,
+    "narratives": [
+      "Elevation M: -1031.3m vs cluster mean -1830.9m (z=+0.60) \u2014 moderately above cluster average.",
+      "Slope Deg: 3.4deg vs cluster mean 8.5deg (z=-0.93) \u2014 moderately below cluster average.",
+      "Sunlight Score: 0.1% vs cluster mean 7.8% (z=-1.14) \u2014 notably below cluster average."
+    ]
+  },
+  "Nobile Rim": {
+    "archetype": "High-Elevation / High-Slope Environment",
+    "cluster_id": 0,
+    "narratives": [
+      "Elevation M: 920.0m vs cluster mean 1217.4m (z=-0.14) \u2014 slightly below cluster average.",
+      "Slope Deg: 6.9deg vs cluster mean 14.7deg (z=-1.30) \u2014 notably below cluster average.",
+      "Sunlight Score: 35.7% vs cluster mean 30.8% (z=+0.42) \u2014 slightly above cluster average."
+    ]
+  },
+  "Haworth Crater": {
+    "archetype": "Shadow-Dominated Environment",
+    "cluster_id": 1,
+    "narratives": [
+      "Elevation M: -1620.8m vs cluster mean -1830.9m (z=+0.16) \u2014 slightly above cluster average.",
+      "Slope Deg: 12.2deg vs cluster mean 8.5deg (z=+0.68) \u2014 moderately above cluster average.",
+      "Sunlight Score: 0.0% vs cluster mean 7.8% (z=-1.15) \u2014 notably below cluster average."
+    ]
+  },
+  "Faustini Rim": {
+    "archetype": "Shadow-Dominated Environment",
+    "cluster_id": 1,
+    "narratives": [
+      "Elevation M: -2635.8m vs cluster mean -1830.9m (z=-0.61) \u2014 moderately below cluster average.",
+      "Slope Deg: 21.4deg vs cluster mean 8.5deg (z=+2.36) \u2014 significantly (outlier) above cluster average. [OUTLIER > 2 standard deviations]",
+      "Sunlight Score: 0.0% vs cluster mean 7.8% (z=-1.15) \u2014 notably below cluster average."
+    ]
+  },
+  "Shackleton Crater Rim": {
+    "archetype": "Shadow-Dominated Environment",
+    "cluster_id": 1,
+    "narratives": [
+      "Elevation M: -2778.9m vs cluster mean -1830.9m (z=-0.71) \u2014 moderately below cluster average.",
+      "Slope Deg: 3.3deg vs cluster mean 8.5deg (z=-0.95) \u2014 moderately below cluster average.",
+      "Sunlight Score: 0.0% vs cluster mean 7.8% (z=-1.15) \u2014 notably below cluster average."
+    ]
+  },
+  "Malapert Massif": {
+    "archetype": "High-Elevation / High-Slope Environment",
+    "cluster_id": 0,
+    "narratives": [
+      "Elevation M: 4910.9m vs cluster mean 1217.4m (z=+1.80) \u2014 notably above cluster average.",
+      "Slope Deg: 6.3deg vs cluster mean 14.7deg (z=-1.39) \u2014 notably below cluster average.",
+      "Sunlight Score: 46.7% vs cluster mean 30.8% (z=+1.37) \u2014 notably above cluster average."
+    ]
+  }
+}
