@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { Layers, Plus, Minus, RotateCcw, Eye } from 'lucide-react';
+import { Layers, Plus, Minus, RotateCcw, Eye, MapPin } from 'lucide-react';
 
 export default function MoonExplorer({
   sites = [],
@@ -18,15 +18,18 @@ export default function MoonExplorer({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [hoveredPoint, setHoveredPoint] = useState(null);
+  const [hoveredSite, setHoveredSite] = useState(null);
 
   const layersConfig = [
-    { id: 'landing_suitability_score', label: 'Landing Safety' },
-    { id: 'sunlight_score', label: 'Sunlight' },
-    { id: 'ice_score', label: 'Water Ice' },
-    { id: 'slope_deg', label: 'Slope' },
-    { id: 'elevation_m', label: 'Elevation' },
-    { id: 'radiation_safety_score', label: 'Radiation' },
+    { id: 'landing_suitability_score', label: 'Landing Suitability', unit: 'score' },
+    { id: 'sunlight_score', label: 'Sunlight', unit: '%' },
+    { id: 'ice_score', label: 'Ice Proxy', unit: '%' },
+    { id: 'slope_deg', label: 'Slope', unit: '°' },
+    { id: 'elevation_m', label: 'Elevation', unit: 'm' },
+    { id: 'radiation_safety_score', label: 'Radiation', unit: 'score' },
   ];
+
+  const activeLayerObj = layersConfig.find((l) => l.id === activeLayerId) || layersConfig[0];
 
   // Pre-load NASA LROC South Pole Satellite Mosaic Image
   const satelliteImage = useMemo(() => {
@@ -53,6 +56,8 @@ export default function MoonExplorer({
       if (t < 0.5) return [30, 120, 180];
       if (t < 0.75) return [200, 180, 40];
       return [240, 220, 200];
+    } else if (layerId === 'radiation_safety_score') {
+      return [Math.floor(15 + t * 140), Math.floor(23 + (1 - t) * 50), Math.floor(42 + t * 200)];
     } else {
       if (t < 0.3) return [15, 23, 42];
       if (t < 0.6) return [14, 116, 144];
@@ -152,6 +157,7 @@ export default function MoonExplorer({
     // 4. Candidate Site Markers
     sites && sites.forEach((site) => {
       const isSelected = selectedSite && selectedSite.name === site.name;
+      const isHovered = hoveredSite && hoveredSite.site.name === site.name;
       const isRank1 = site.rank === 1;
 
       const px = ((site.lon + 180) / 360) * width;
@@ -159,32 +165,32 @@ export default function MoonExplorer({
 
       // Outer Target Reticle
       ctx.beginPath();
-      ctx.arc(px, py, (isSelected ? 13 : 9) / zoomLevel, 0, 2 * Math.PI);
-      ctx.strokeStyle = isSelected ? '#0066cc' : isRank1 ? '#0071e3' : '#ffffff';
-      ctx.lineWidth = (isSelected ? 2.5 : 1.5) / zoomLevel;
+      ctx.arc(px, py, (isSelected ? 13 : isHovered ? 11 : 9) / zoomLevel, 0, 2 * Math.PI);
+      ctx.strokeStyle = isSelected ? '#0066cc' : isHovered ? '#00daf3' : isRank1 ? '#0071e3' : '#ffffff';
+      ctx.lineWidth = (isSelected || isHovered ? 2.5 : 1.5) / zoomLevel;
       ctx.stroke();
 
       // Crosshairs
-      const armLen = (isSelected ? 17 : 12) / zoomLevel;
+      const armLen = (isSelected ? 17 : isHovered ? 15 : 12) / zoomLevel;
       ctx.beginPath();
       ctx.moveTo(px - armLen, py);
       ctx.lineTo(px + armLen, py);
       ctx.moveTo(px, py - armLen);
       ctx.lineTo(px, py + armLen);
-      ctx.strokeStyle = isSelected ? '#0066cc' : '#ffffff';
+      ctx.strokeStyle = isSelected ? '#0066cc' : isHovered ? '#00daf3' : '#ffffff';
       ctx.lineWidth = 1.2 / zoomLevel;
       ctx.stroke();
 
       // Label Text
       ctx.font = `600 ${Math.max(9.5, 11 / Math.sqrt(zoomLevel))}px -apple-system, sans-serif`;
-      ctx.fillStyle = isSelected ? '#0066cc' : '#ffffff';
+      ctx.fillStyle = isSelected ? '#0066cc' : isHovered ? '#00daf3' : '#ffffff';
       ctx.textAlign = 'center';
       const label = `#${site.rank ?? 1} ${site.name.split(' ')[0]}`;
       ctx.fillText(label, px, py - (14 / zoomLevel));
     });
 
     ctx.restore();
-  }, [showSatelliteBase, satelliteImage, offscreenBuffer, zoomLevel, panOffset, sites, selectedSite]);
+  }, [showSatelliteBase, satelliteImage, offscreenBuffer, zoomLevel, panOffset, sites, selectedSite, hoveredSite]);
 
   const handleMouseDown = (e) => {
     setIsDragging(true);
@@ -219,6 +225,29 @@ export default function MoonExplorer({
     const row = Math.floor(normY * 400);
 
     setHoveredPoint({ lat, lon, col, row });
+
+    // Check if hovering directly over any candidate site reticle
+    let match = null;
+    if (sites && sites.length > 0) {
+      for (const site of sites) {
+        const px = ((site.lon + 180) / 360) * canvas.width;
+        const py = ((site.lat + 90) / 10) * canvas.height;
+        const dist = Math.hypot(transformedX - px, transformedY - py);
+        if (dist < 22 / zoomLevel) {
+          const gridC = Math.floor(((site.lon + 180) / 360) * 400);
+          const gridR = Math.floor(((site.lat + 90) / 10) * 400);
+          match = {
+            site,
+            clientX,
+            clientY,
+            gridCol: gridC,
+            gridRow: gridR
+          };
+          break;
+        }
+      }
+    }
+    setHoveredSite(match);
   };
 
   const handleMouseUp = () => {
@@ -245,7 +274,7 @@ export default function MoonExplorer({
       const px = ((site.lon + 180) / 360) * canvas.width;
       const py = ((site.lat + 90) / 10) * canvas.height;
       const dist = Math.hypot(transformedX - px, transformedY - py);
-      if (dist < 20 / zoomLevel) {
+      if (dist < 22 / zoomLevel) {
         onSelectSite && onSelectSite(site);
       }
     });
@@ -254,6 +283,58 @@ export default function MoonExplorer({
   const resetView = () => {
     setZoomLevel(1);
     setPanOffset({ x: 0, y: 0 });
+    setHoveredSite(null);
+  };
+
+  // Value formatting helper for active layer in hover card
+  const getActiveLayerValue = (site, layerId) => {
+    if (!site) return '0.0';
+    const raw = site.raw_metrics || {};
+    if (layerId === 'landing_suitability_score') {
+      const val = raw.landing_suitability_score ?? site.overall_score ?? site.score ?? 0;
+      return `${Number(val).toFixed(1)} score`;
+    }
+    if (layerId === 'sunlight_score') {
+      const val = raw.sunlight_score ?? site.metrics?.sunlight ?? 0;
+      return `${Number(val).toFixed(1)}%`;
+    }
+    if (layerId === 'ice_score') {
+      const val = raw.water_ice_score ?? site.ice_confidence?.confidence_pct ?? 0;
+      return `${Number(val).toFixed(1)}% confidence`;
+    }
+    if (layerId === 'slope_deg') {
+      const val = site.slope_deg ?? 1.1;
+      return `${Number(val).toFixed(1)}° slope`;
+    }
+    if (layerId === 'elevation_m') {
+      const val = site.elevation_m ?? 578;
+      return `${Number(val).toFixed(0)} m`;
+    }
+    if (layerId === 'radiation_safety_score') {
+      const val = raw.radiation_safety_score ?? site.metrics?.radiation ?? 0;
+      return `${Number(val).toFixed(1)} score`;
+    }
+    return `${Number(site.overall_score || 0).toFixed(1)} score`;
+  };
+
+  // Continuous gradient style for the legend bar
+  const getLegendGradientStyle = (layerId) => {
+    if (layerId === 'sunlight_score') {
+      return 'linear-gradient(to right, #090e18, #f59e0b, #fef08a)';
+    }
+    if (layerId === 'ice_score') {
+      return 'linear-gradient(to right, #090e18, #06b6d4, #38bdf8)';
+    }
+    if (layerId === 'slope_deg') {
+      return 'linear-gradient(to right, #10b981, #eab308, #ef4444)';
+    }
+    if (layerId === 'elevation_m') {
+      return 'linear-gradient(to right, #0f1e64, #1e78b4, #c8b428, #f0dcc8)';
+    }
+    if (layerId === 'radiation_safety_score') {
+      return 'linear-gradient(to right, #0f172a, #8b5cf6, #c084fc)';
+    }
+    return 'linear-gradient(to right, #0f172a, #0e7490, #10b981, #f59e0b)';
   };
 
   return (
@@ -305,7 +386,9 @@ export default function MoonExplorer({
       {/* Main 2D Canvas Viewport */}
       <div className="w-full h-[420px] bg-[#000000] rounded-[14px] relative overflow-hidden flex items-center justify-center border border-[var(--border-color)] shadow-inner">
         <div
-          className="w-full h-full relative cursor-grab active:cursor-grabbing flex items-center justify-center"
+          className={`w-full h-full relative flex items-center justify-center ${
+            hoveredSite ? 'cursor-pointer' : isDragging ? 'cursor-grabbing' : 'cursor-grab'
+          }`}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -320,8 +403,35 @@ export default function MoonExplorer({
             className="w-full h-full block"
           />
 
-          {/* Hover Coordinate HUD */}
-          {hoveredPoint && (
+          {/* Interactive Site Hover Tooltip Card */}
+          {hoveredSite && (
+            <div
+              className="absolute z-20 pointer-events-none p-3 rounded-[14px] bg-[var(--bg-card)]/95 backdrop-blur-md border border-[#0066cc] shadow-2xl space-y-1 min-w-[190px] transition-all"
+              style={{
+                left: `${Math.min(210, Math.max(10, hoveredSite.clientX + 14))}px`,
+                top: `${Math.min(310, Math.max(10, hoveredSite.clientY - 45))}px`
+              }}
+            >
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-[#0066cc]">
+                <MapPin className="w-3.5 h-3.5" />
+                <span>{hoveredSite.site.name}</span>
+              </div>
+              <div className="text-[11px] text-[var(--text-secondary)] font-mono">
+                Grid: [{hoveredSite.gridCol}, {hoveredSite.gridRow}]
+              </div>
+              <div className="text-xs pt-1.5 border-t border-[var(--border-color)]">
+                <span className="text-[10px] uppercase font-medium text-[var(--text-muted)] block">
+                  {activeLayerObj.label}:
+                </span>
+                <span className="font-semibold text-[var(--text-primary)]">
+                  {getActiveLayerValue(hoveredSite.site, activeLayerId)}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Hover Coordinate HUD (when not hovering on specific site) */}
+          {hoveredPoint && !hoveredSite && (
             <div className="absolute top-3 left-3 pointer-events-none bg-[var(--bg-card)]/90 backdrop-blur-md border border-[var(--border-color)] px-3 py-1 rounded-full flex items-center gap-2 shadow-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-[#0066cc] animate-pulse"></span>
               <span className="text-xs font-medium text-[var(--text-primary)]">
@@ -351,10 +461,28 @@ export default function MoonExplorer({
               className="w-7 h-7 bg-[var(--bg-card)]/90 hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] rounded-full flex items-center justify-center text-[var(--text-primary)] transition-colors cursor-pointer active:scale-95 shadow-sm mt-1"
               title="Reset View"
             >
-              <RotateCcw className="w-3 h-3" />
+              <RotateCcw className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Color Gradient Legend Bar */}
+      <div className="flex items-center justify-between gap-4 mt-3 pt-3 border-t border-[var(--border-color)] text-xs">
+        <div className="flex items-center gap-2 flex-1 max-w-xs">
+          <span className="font-mono text-[11px] text-[var(--text-muted)]">0</span>
+          <div
+            className="flex-1 h-2 rounded-full border border-[var(--border-color)]"
+            style={{ background: getLegendGradientStyle(activeLayerId) }}
+          />
+          <span className="font-mono text-[11px] text-[var(--text-muted)]">
+            {activeLayerId === 'elevation_m' ? '5000m' : activeLayerId === 'slope_deg' ? '30°' : '100'} {activeLayerObj.unit}
+          </span>
+        </div>
+
+        <span className="text-[11px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+          {activeLayerObj.label}
+        </span>
       </div>
     </div>
   );
