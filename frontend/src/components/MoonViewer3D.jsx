@@ -630,25 +630,6 @@ export default function MoonViewer3D({
           >
             {isSunAnimating ? <Square className="w-3 h-3 text-amber-500" /> : <Play className="w-3 h-3" />}
           </button>
-
-          <div className="h-4 w-px bg-[var(--border-color)] mx-1"></div>
-
-          <div className="flex items-center gap-1.5 text-xs font-medium text-[#0066cc]">
-            <Mountain className="w-3.5 h-3.5" />
-            <span>Crater Relief</span>
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="0.25"
-            step="0.01"
-            value={bumpIntensity}
-            onChange={(e) => handleBumpChange(Number(e.target.value))}
-            className="w-20 cursor-pointer"
-          />
-          <span className="text-xs font-mono text-[var(--text-secondary)] w-7 text-right">
-            {Math.round(bumpIntensity * 100)}%
-          </span>
         </div>
 
         <div className="p-2 px-3.5 rounded-full bg-[var(--bg-card)]/90 border border-[var(--border-color)] backdrop-blur-md pointer-events-auto shadow-sm text-xs text-[var(--text-muted)] flex items-center gap-3">

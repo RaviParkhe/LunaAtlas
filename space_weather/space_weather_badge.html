@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Space Weather Status — Lunar Habitat AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ===================================================
+       DESIGN TOKENS
+    =================================================== */
+    :root {
+      --clr-bg:           #0d0f14;
+      --clr-surface:      #14181f;
+      --clr-surface2:     #1c2130;
+      --clr-border:       #252c3b;
+      --clr-text-primary: #e8eaf0;
+      --clr-text-muted:   #6b7a99;
+      --clr-text-dim:     #3d4d66;
+
+      /* Status colours */
+      --clr-quiet-core:   #22c55e;
+      --clr-quiet-glow:   rgba(34, 197, 94, 0.20);
+      --clr-quiet-badge:  rgba(34, 197, 94, 0.12);
+
+      --clr-elev-core:    #f59e0b;
+      --clr-elev-glow:    rgba(245, 158, 11, 0.22);
+      --clr-elev-badge:   rgba(245, 158, 11, 0.12);
+
+      --clr-storm-core:   #ef4444;
+      --clr-storm-glow:   rgba(239, 68, 68, 0.25);
+      --clr-storm-badge:  rgba(239, 68, 68, 0.12);
+
+      --clr-stale-core:   #64748b;
+      --clr-stale-glow:   rgba(100, 116, 139, 0.15);
+      --clr-stale-badge:  rgba(100, 116, 139, 0.10);
+
+      --radius:           16px;
+      --radius-sm:         8px;
+      --font-mono:        'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--clr-bg);
+      color: var(--clr-text-primary);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    /* ===================================================
+       CARD SHELL
+    =================================================== */
+    .sw-card {
+      background: var(--clr-surface);
+      border: 1px solid var(--clr-border);
+      border-radius: var(--radius);
+      width: 360px;
+      padding: 28px 28px 22px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.45);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Subtle top-edge accent bar that changes colour with status */
+    .sw-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--accent-core, #3d4d66);
+      transition: background 0.6s ease;
+    }
+
+    /* ===================================================
+       HEADER ROW
+    =================================================== */
+    .sw-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .sw-icon {
+      width: 32px; height: 32px;
+      background: var(--clr-surface2);
+      border: 1px solid var(--clr-border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .sw-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--clr-text-muted);
+    }
+
+    /* ===================================================
+       STATUS BADGE (the main indicator)
+    =================================================== */
+    .sw-badge-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    /* Pulsing dot — pure CSS, continuous animation */
+    .sw-dot {
+      flex-shrink: 0;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--dot-color, var(--clr-stale-core));
+      box-shadow: 0 0 0 0 var(--dot-glow, transparent);
+      animation: breathe 2.8s ease-in-out infinite;
+      transition: background 0.6s ease, box-shadow 0.6s ease;
+    }
+
+    @keyframes breathe {
+      0%   { box-shadow: 0 0 0 0    var(--dot-glow, transparent); transform: scale(1.00); }
+      45%  { box-shadow: 0 0 0 8px  transparent;                  transform: scale(1.08); }
+      100% { box-shadow: 0 0 0 0    var(--dot-glow, transparent); transform: scale(1.00); }
+    }
+
+    .sw-status-text {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--status-color, var(--clr-text-muted));
+      transition: color 0.6s ease;
+    }
+
+    /* ===================================================
+       KP VALUE CHIP
+    =================================================== */
+    .sw-kp-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .sw-kp-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--clr-text-dim);
+    }
+
+    .sw-kp-value {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--clr-text-primary);
+    }
+
+    .sw-kp-scale {
+      font-size: 11px;
+      color: var(--clr-text-muted);
+      margin-left: 4px;
+    }
+
+    /* ===================================================
+       SPARKLINE
+    =================================================== */
+    .sw-sparkline-wrap {
+      margin-bottom: 18px;
+    }
+
+    .sw-sparkline-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--clr-text-dim);
+      margin-bottom: 6px;
+    }
+
+    .sw-sparkline {
+      display: block;
+      width: 100%;
+      height: 40px;
+      overflow: visible;
+    }
+
+    /* ===================================================
+       STALE / UNAVAILABLE BANNER
+    =================================================== */
+    .sw-stale-banner {
+      display: none;
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.22);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #fca5a5;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .sw-stale-banner.visible { display: block; }
+
+    /* ===================================================
+       LAST UPDATED
+    =================================================== */
+    .sw-timestamp {
+      font-size: 11px;
+      color: var(--clr-text-dim);
+      margin-bottom: 16px;
+      font-family: var(--font-mono);
+    }
+
+    .sw-timestamp span { color: var(--clr-text-muted); }
+
+    /* ===================================================
+       G-SCALE LEGEND (mini)
+    =================================================== */
+    .sw-legend {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .sw-legend-item {
+      flex: 1;
+      background: var(--clr-surface2);
+      border: 1px solid var(--clr-border);
+      border-radius: 6px;
+      padding: 5px 6px;
+      text-align: center;
+    }
+
+    .sw-legend-item .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+
+    .sw-legend-item .lbl {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--clr-text-muted);
+    }
+
+    .sw-legend-item .kp {
+      font-size: 9px;
+      color: var(--clr-text-dim);
+      font-family: var(--font-mono);
+      display: block;
+      margin-top: 2px;
+    }
+
+    /* ===================================================
+       DISCLAIMER (always visible)
+    =================================================== */
+    .sw-disclaimer {
+      border-top: 1px solid var(--clr-border);
+      padding-top: 12px;
+      font-size: 10.5px;
+      line-height: 1.55;
+      color: var(--clr-text-dim);
+    }
+
+    /* ===================================================
+       STATE COLOUR CLASSES
+    =================================================== */
+    body.s-quiet  .sw-card { --accent-core: var(--clr-quiet-core); }
+    body.s-quiet  .sw-dot  { --dot-color: var(--clr-quiet-core); --dot-glow: var(--clr-quiet-glow); }
+    body.s-quiet  .sw-status-text { --status-color: var(--clr-quiet-core); }
+
+    body.s-elevated .sw-card { --accent-core: var(--clr-elev-core); }
+    body.s-elevated .sw-dot  { --dot-color: var(--clr-elev-core); --dot-glow: var(--clr-elev-glow); }
+    body.s-elevated .sw-status-text { --status-color: var(--clr-elev-core); }
+
+    body.s-storm  .sw-card { --accent-core: var(--clr-storm-core); }
+    body.s-storm  .sw-dot  { --dot-color: var(--clr-storm-core); --dot-glow: var(--clr-storm-glow); animation-duration: 1.4s; }
+    body.s-storm  .sw-status-text { --status-color: var(--clr-storm-core); }
+
+    body.s-stale  .sw-card { --accent-core: var(--clr-stale-core); }
+    body.s-stale  .sw-dot  { --dot-color: var(--clr-stale-core); --dot-glow: var(--clr-stale-glow); animation-duration: 5s; }
+    body.s-stale  .sw-status-text { --status-color: var(--clr-stale-core); }
+
+    /* ===================================================
+       DEMO CONTROLS (for testing failure handling)
+    =================================================== */
+    .demo-controls {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 360px;
+    }
+
+    .demo-controls p {
+      font-size: 11px;
+      color: var(--clr-text-dim);
+      text-align: center;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .demo-btns { display: flex; gap: 8px; }
+
+    .demo-btn {
+      flex: 1;
+      padding: 8px 0;
+      background: var(--clr-surface2);
+      border: 1px solid var(--clr-border);
+      border-radius: 8px;
+      color: var(--clr-text-muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .demo-btn:hover { background: var(--clr-border); color: var(--clr-text-primary); }
+  </style>
+</head>
+<body class="s-stale">
+
+<div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+
+  <!-- ══ BADGE CARD ═══════════════════════════════════════════ -->
+  <div class="sw-card" id="swCard">
+
+    <!-- Header -->
+    <div class="sw-header">
+      <div class="sw-icon">🛰️</div>
+      <div class="sw-title">Near-Earth Space Weather</div>
+    </div>
+
+    <!-- Stale / unavailable banner (hidden by default) -->
+    <div class="sw-stale-banner" id="staleBanner">
+      ⚠️ Status unavailable — NOAA feed unreachable.<br/>
+      <span id="staleDetail">Last known value shown below may be outdated.</span>
+    </div>
+
+    <!-- Main status badge -->
+    <div class="sw-badge-wrap">
+      <div class="sw-dot" id="dot"></div>
+      <div class="sw-status-text" id="statusText">Loading…</div>
+    </div>
+
+    <!-- Kp value -->
+    <div class="sw-kp-row">
+      <div class="sw-kp-label">Planetary K-index</div>
+      <div class="sw-kp-value" id="kpValue">—</div>
+      <div class="sw-kp-scale" id="kpScale"></div>
+    </div>
+
+    <!-- Sparkline (48h trend) -->
+    <div class="sw-sparkline-wrap">
+      <div class="sw-sparkline-label">48-hour Kp trend</div>
+      <svg class="sw-sparkline" id="sparkline" viewBox="0 0 304 40"
+           aria-label="48-hour K-index trend sparkline"></svg>
+    </div>
+
+    <!-- Timestamp -->
+    <div class="sw-timestamp" id="timestamp">
+      Last confirmed: <span>—</span>
+    </div>
+
+    <!-- G-scale legend -->
+    <div class="sw-legend">
+      <div class="sw-legend-item">
+        <span class="dot" style="background:#22c55e"></span>
+        <span class="lbl">Quiet</span>
+        <span class="kp">Kp &lt; 5</span>
+      </div>
+      <div class="sw-legend-item">
+        <span class="dot" style="background:#f59e0b"></span>
+        <span class="lbl">Elevated</span>
+        <span class="kp">Kp 5–6 (G1–G2)</span>
+      </div>
+      <div class="sw-legend-item">
+        <span class="dot" style="background:#ef4444"></span>
+        <span class="lbl">Storm Watch</span>
+        <span class="kp">Kp ≥ 7 (G3+)</span>
+      </div>
+    </div>
+
+    <!-- PERMANENT DISCLAIMER — always visible, never in tooltip -->
+    <div class="sw-disclaimer">
+      Operational near-Earth space-weather status — not a direct
+      measurement of lunar surface radiation. This indicator does not
+      affect site radiation scores or habitat rankings.
+    </div>
+  </div>
+
+  <!-- ══ DEMO CONTROLS ════════════════════════════════════════ -->
+  <div class="demo-controls">
+    <p>Demo controls (testing)</p>
+    <div class="demo-btns">
+      <button class="demo-btn" onclick="Demo.quiet()">Quiet</button>
+      <button class="demo-btn" onclick="Demo.elevated()">Elevated</button>
+      <button class="demo-btn" onclick="Demo.storm()">Storm Watch</button>
+      <button class="demo-btn" onclick="Demo.stale()">Stale/Offline</button>
+      <button class="demo-btn" onclick="fetchLive()">Live API</button>
+    </div>
+  </div>
+
+</div><!-- /wrapper -->
+
+<script>
+// =========================================================
+// CONFIGURATION
+// =========================================================
+const API_URL = "/api/space-weather/status";
+// How often the badge re-polls the backend (ms).
+// The backend itself re-polls NOAA every 3 hours, so polling
+// every 60 seconds here is fine -- we'll just get the cached value
+// most of the time, but will notice any status change within a minute.
+const POLL_INTERVAL_MS = 60_000;
+
+// =========================================================
+// SPARKLINE RENDERER
+// =========================================================
+function renderSparkline(history) {
+  const svg = document.getElementById("sparkline");
+  svg.innerHTML = "";
+
+  if (!history || history.length < 2) {
+    svg.innerHTML = `<text x="152" y="22" text-anchor="middle"
+      fill="#3d4d66" font-size="10" font-family="Inter,sans-serif">No trend data</text>`;
+    return;
+  }
+
+  const W = 304, H = 40, PAD = 3;
+  const kpMax = 9;
+  const vals  = history.map(r => r.Kp);
+  const n     = vals.length;
+
+  // Helper: map Kp -> Y pixel (Kp 0 at bottom, Kp 9 at top)
+  const y = kp => PAD + (H - 2*PAD) * (1 - kp / kpMax);
+  const x = i  => PAD + (i / (n - 1)) * (W - 2*PAD);
+
+  // Background zone bands
+  const bands = [
+    { kpHi: 9, kpLo: 7, fill: "rgba(239,68,68,0.06)" },
+    { kpHi: 7, kpLo: 5, fill: "rgba(245,158,11,0.06)" },
+    { kpHi: 5, kpLo: 0, fill: "rgba(34,197,94,0.04)"  },
+  ];
+  bands.forEach(b => {
+    const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    r.setAttribute("x", PAD);
+    r.setAttribute("y", y(b.kpHi));
+    r.setAttribute("width", W - 2*PAD);
+    r.setAttribute("height", y(b.kpLo) - y(b.kpHi));
+    r.setAttribute("fill", b.fill);
+    svg.appendChild(r);
+  });
+
+  // Threshold lines
+  [5, 7].forEach(kp => {
+    const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+    line.setAttribute("x1", PAD); line.setAttribute("x2", W - PAD);
+    line.setAttribute("y1", y(kp)); line.setAttribute("y2", y(kp));
+    line.setAttribute("stroke", kp === 5 ? "#f59e0b" : "#ef4444");
+    line.setAttribute("stroke-width", "0.5");
+    line.setAttribute("stroke-dasharray", "3,3");
+    line.setAttribute("opacity", "0.4");
+    svg.appendChild(line);
+  });
+
+  // Filled area under curve
+  const areaD = vals.map((v, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ")
+    + ` L${x(n-1).toFixed(1)},${y(0).toFixed(1)} L${x(0).toFixed(1)},${y(0).toFixed(1)} Z`;
+  const area = document.createElementNS("http://www.w3.org/2000/svg","path");
+  area.setAttribute("d", areaD);
+  area.setAttribute("fill", "rgba(99,102,241,0.08)");
+  svg.appendChild(area);
+
+  // Stroke line
+  const lineD = vals.map((v, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+  const line = document.createElementNS("http://www.w3.org/2000/svg","path");
+  line.setAttribute("d", lineD);
+  line.setAttribute("fill", "none");
+  line.setAttribute("stroke", "#818cf8");
+  line.setAttribute("stroke-width", "1.5");
+  line.setAttribute("stroke-linecap", "round");
+  line.setAttribute("stroke-linejoin", "round");
+  svg.appendChild(line);
+
+  // Latest point dot
+  const last = vals[n-1];
+  const dotEl = document.createElementNS("http://www.w3.org/2000/svg","circle");
+  dotEl.setAttribute("cx", x(n-1).toFixed(1));
+  dotEl.setAttribute("cy", y(last).toFixed(1));
+  dotEl.setAttribute("r", "3");
+  dotEl.setAttribute("fill", "#818cf8");
+  svg.appendChild(dotEl);
+}
+
+// =========================================================
+// BADGE UPDATER
+// =========================================================
+const STATE_CLASSES = ["s-quiet", "s-elevated", "s-storm", "s-stale"];
+
+function applyState(data) {
+  const body       = document.body;
+  const statusEl   = document.getElementById("statusText");
+  const kpEl       = document.getElementById("kpValue");
+  const kpScaleEl  = document.getElementById("kpScale");
+  const tsEl       = document.getElementById("timestamp");
+  const staleBanner = document.getElementById("staleBanner");
+  const staleDetail = document.getElementById("staleDetail");
+
+  // Remove all state classes
+  STATE_CLASSES.forEach(c => body.classList.remove(c));
+
+  const isStale     = data.is_stale;
+  const cls         = data.classification; // "Quiet"|"Elevated"|"Storm Watch"|"unknown"
+  const kp          = data.kp_current;
+  const history     = data.kp_history || [];
+  const lastConfirmed = data.last_confirmed_utc;
+  const errMsg      = data.error_message;
+
+  // Stale banner
+  if (isStale) {
+    staleBanner.classList.add("visible");
+    staleDetail.textContent = errMsg || "Could not reach NOAA. Last known value shown.";
+    body.classList.add("s-stale");
+
+    if (cls === "unknown" || cls === null) {
+      statusEl.textContent = "Status unavailable";
+    } else {
+      statusEl.textContent = `Last known: ${cls}`;
+    }
+  } else {
+    staleBanner.classList.remove("visible");
+
+    if (cls === "Quiet") {
+      body.classList.add("s-quiet");
+      statusEl.textContent = "Quiet";
+    } else if (cls === "Elevated") {
+      body.classList.add("s-elevated");
+      statusEl.textContent = "Elevated";
+    } else if (cls === "Storm Watch") {
+      body.classList.add("s-storm");
+      statusEl.textContent = "Storm Watch";
+    } else {
+      body.classList.add("s-stale");
+      statusEl.textContent = "Unknown";
+    }
+  }
+
+  // Kp value
+  if (kp !== null && kp !== undefined) {
+    kpEl.textContent = kp.toFixed(2);
+    // G-scale label
+    let gLabel = "";
+    if      (kp >= 9) gLabel = "G5 Extreme";
+    else if (kp >= 8) gLabel = "G4 Severe";
+    else if (kp >= 7) gLabel = "G3 Strong";
+    else if (kp >= 6) gLabel = "G2 Moderate";
+    else if (kp >= 5) gLabel = "G1 Minor";
+    kpScaleEl.textContent = gLabel ? `(${gLabel})` : "";
+  } else {
+    kpEl.textContent = "—";
+    kpScaleEl.textContent = "";
+  }
+
+  // Timestamp
+  if (lastConfirmed) {
+    const dt = new Date(lastConfirmed);
+    const formatted = dt.toLocaleString("en-US", {
+      month: "short", day: "numeric",
+      hour: "2-digit", minute: "2-digit",
+      timeZoneName: "short"
+    });
+    tsEl.innerHTML = `Last confirmed: <span>${formatted}</span>`;
+  } else {
+    tsEl.innerHTML = `Last confirmed: <span>—</span>`;
+  }
+
+  // Sparkline
+  renderSparkline(history);
+}
+
+// =========================================================
+// LIVE API POLLING
+// =========================================================
+let _liveMode = false;
+let _pollTimer = null;
+
+async function fetchLive() {
+  _liveMode = true;
+  if (_pollTimer) clearInterval(_pollTimer);
+
+  try {
+    const resp = await fetch(API_URL);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    applyState(data);
+  } catch (err) {
+    console.warn("space_weather: API fetch failed:", err);
+    // Show stale state -- backend is unreachable
+    applyState({
+      classification: "unknown",
+      kp_current: null,
+      kp_history: [],
+      active_gx_alert: false,
+      alert_details: [],
+      last_confirmed_utc: null,
+      is_stale: true,
+      error_message: `Badge backend unreachable: ${err.message}`,
+    });
+  }
+
+  _pollTimer = setInterval(fetchLive, POLL_INTERVAL_MS);
+}
+
+// =========================================================
+// DEMO HELPERS (for testing / demo without backend)
+// =========================================================
+const now = new Date().toISOString();
+const demoHistory = Array.from({length:16}, (_,i) => ({
+  time_tag: new Date(Date.now() - (15-i)*3*3600000).toISOString(),
+  Kp: [1.0,1.3,1.7,2.0,1.3,0.7,2.3,3.0,3.7,4.0,4.7,5.3,4.0,3.3,2.7,2.0][i],
+}));
+
+const Demo = {
+  quiet() {
+    if (_pollTimer) { clearInterval(_pollTimer); _liveMode = false; }
+    applyState({
+      classification:"Quiet", kp_current:1.33, kp_history:demoHistory,
+      active_gx_alert:false, alert_details:[], last_confirmed_utc:now,
+      is_stale:false, error_message:null,
+    });
+  },
+  elevated() {
+    if (_pollTimer) { clearInterval(_pollTimer); _liveMode = false; }
+    const h = demoHistory.map((r,i) => ({...r, Kp: r.Kp + (i > 10 ? 3.5 : 0)}));
+    applyState({
+      classification:"Elevated", kp_current:5.33, kp_history:h,
+      active_gx_alert:false, alert_details:[], last_confirmed_utc:now,
+      is_stale:false, error_message:null,
+    });
+  },
+  storm() {
+    if (_pollTimer) { clearInterval(_pollTimer); _liveMode = false; }
+    const h = demoHistory.map((r,i) => ({...r, Kp: r.Kp + (i > 10 ? 5.5 : 0)}));
+    applyState({
+      classification:"Storm Watch", kp_current:7.67, kp_history:h,
+      active_gx_alert:true,
+      alert_details:["[K07A] 2026-08-22 03:00: ALERT: Geomagnetic K-index of 7. Noaa Scale: G3 - Strong"],
+      last_confirmed_utc:now, is_stale:false, error_message:null,
+    });
+  },
+  stale() {
+    if (_pollTimer) { clearInterval(_pollTimer); _liveMode = false; }
+    applyState({
+      classification:"Quiet", kp_current:1.33, kp_history:demoHistory,
+      active_gx_alert:false, alert_details:[],
+      last_confirmed_utc: new Date(Date.now()-4*3600000).toISOString(),
+      is_stale:true,
+      error_message:"NOAA endpoint unreachable (simulated failure). Serving last known value.",
+    });
+  },
+};
+
+// =========================================================
+// INIT — try live API; fall back to stale demo state
+// =========================================================
+window.addEventListener("DOMContentLoaded", () => {
+  // Show stale/loading state immediately, then attempt live fetch
+  applyState({
+    classification:"unknown", kp_current:null, kp_history:[],
+    active_gx_alert:false, alert_details:[], last_confirmed_utc:null,
+    is_stale:true,
+    error_message:"Connecting to NOAA data feed…",
+  });
+
+  // Try live; if API is not running, badge stays in graceful stale state
+  fetchLive();
+});
+</script>
+</body>
+</html>

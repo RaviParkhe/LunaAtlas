@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { Compass, ExternalLink, Plus, Minus, RotateCcw, MapPin, Info } from 'lucide-react';
+import { Compass, ExternalLink, Plus, Minus, RotateCcw, MapPin, Info, Layers } from 'lucide-react';
 
 export default function NasaMoonTrekView() {
   const canvasRef = useRef(null);
@@ -13,16 +13,19 @@ export default function NasaMoonTrekView() {
   const [hoveredLandmark, setHoveredLandmark] = useState(null);
   const [selectedLandmark, setSelectedLandmark] = useState(null);
 
-  // Pre-load NASA LROC 2048x2048 South Pole Relief Mosaic
+  // Pre-load clean NASA LROC 2048x2048 South Pole Relief Mosaic
+  const [imageLoaded, setImageLoaded] = useState(false);
   const polarImage = useMemo(() => {
     if (typeof window === 'undefined') return null;
     const img = new Image();
+    img.onload = () => setImageLoaded(true);
     img.src = '/textures/lroc_south_pole_mosaic.jpg';
+    if (img.complete) setImageLoaded(true);
     return img;
   }, []);
 
   const southPoleCraters = [
-    { name: 'Shackleton Crater Rim', lat: -89.67, lon: 129.78, type: 'Artemis Target / PSR Cold Trap', elev: '1,926 m', slope: '0.75°' },
+    { name: 'Shackleton Crater Rim', lat: -89.67, lon: 129.78, type: 'Artemis III Target / PSR Cold Trap', elev: '1,926 m', slope: '0.75°' },
     { name: 'Malapert Massif (Peak 5k)', lat: -86.04, lon: -2.71, type: 'Communications Relay / High Peak', elev: '4,910 m', slope: '6.33°' },
     { name: 'Faustini Crater Rim', lat: -87.30, lon: 77.00, type: 'Optimal Landing Zone', elev: '578 m', slope: '1.12°' },
     { name: 'Nobile Rim (VIPER)', lat: -85.25, lon: 53.50, type: 'NASA Volatiles Prospecting', elev: '458 m', slope: '4.16°' },
@@ -47,11 +50,11 @@ export default function NasaMoonTrekView() {
     ctx.scale(zoomLevel, zoomLevel);
     ctx.translate(-width / 2, -height / 2);
 
-    // 1. Draw High-Res NASA South Pole Photographic Relief Mosaic
+    // 1. Draw High-Res Clean NASA South Pole Photographic Relief Mosaic
     if (polarImage && polarImage.complete && polarImage.naturalWidth > 0) {
       ctx.drawImage(polarImage, 0, 0, width, height);
     } else {
-      ctx.fillStyle = '#151516';
+      ctx.fillStyle = '#101418';
       ctx.fillRect(0, 0, width, height);
     }
 
@@ -64,20 +67,20 @@ export default function NasaMoonTrekView() {
       const r = ((90 - lat) / 10) * maxRadius;
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(0, 102, 204, 0.35)';
+      ctx.strokeStyle = 'rgba(0, 102, 204, 0.45)';
       ctx.lineWidth = 1 / zoomLevel;
       ctx.setLineDash([4 / zoomLevel, 6 / zoomLevel]);
       ctx.stroke();
 
-      ctx.fillStyle = 'rgba(0, 102, 204, 0.9)';
-      ctx.font = `${Math.max(9, 10 / Math.sqrt(zoomLevel))}px -apple-system, sans-serif`;
-      ctx.fillText(`${lat}°S`, cx + 4, cy - r + 10);
+      ctx.fillStyle = 'rgba(0, 102, 204, 0.95)';
+      ctx.font = `600 ${Math.max(9, 11 / Math.sqrt(zoomLevel))}px -apple-system, sans-serif`;
+      ctx.fillText(`${lat}°S`, cx + 4, cy - r + 12);
     });
     ctx.setLineDash([]);
 
     // 3. Central Polar Crosshair (90°S Pole)
     ctx.strokeStyle = '#0066cc';
-    ctx.lineWidth = 1.2 / zoomLevel;
+    ctx.lineWidth = 1.5 / zoomLevel;
     ctx.beginPath();
     ctx.moveTo(cx - 15 / zoomLevel, cy);
     ctx.lineTo(cx + 15 / zoomLevel, cy);
@@ -86,9 +89,9 @@ export default function NasaMoonTrekView() {
     ctx.stroke();
 
     ctx.fillStyle = '#0066cc';
-    ctx.font = `bold ${Math.max(9, 10 / Math.sqrt(zoomLevel))}px -apple-system, sans-serif`;
+    ctx.font = `bold ${Math.max(9, 11 / Math.sqrt(zoomLevel))}px -apple-system, sans-serif`;
     ctx.textAlign = 'center';
-    ctx.fillText('SOUTH POLE (90°S)', cx, cy + 18 / zoomLevel);
+    ctx.fillText('SOUTH POLE (90°S)', cx, cy + 20 / zoomLevel);
 
     // 4. Draw Major South Pole Crater Markers
     southPoleCraters.forEach((crater) => {
@@ -103,8 +106,8 @@ export default function NasaMoonTrekView() {
 
       // Pinpoint Ring
       ctx.beginPath();
-      ctx.arc(px, py, (isSelected ? 11 : isHovered ? 9.5 : 7) / zoomLevel, 0, Math.PI * 2);
-      ctx.fillStyle = isSelected ? '#0066cc' : isHovered ? '#00daf3' : 'rgba(29, 29, 31, 0.85)';
+      ctx.arc(px, py, (isSelected ? 12 : isHovered ? 10 : 8) / zoomLevel, 0, Math.PI * 2);
+      ctx.fillStyle = isSelected ? '#0066cc' : isHovered ? '#00daf3' : 'rgba(15, 23, 42, 0.85)';
       ctx.strokeStyle = isSelected ? '#ffffff' : isHovered ? '#00daf3' : '#0066cc';
       ctx.lineWidth = (isSelected || isHovered ? 2.5 : 1.5) / zoomLevel;
       ctx.fill();
@@ -117,14 +120,38 @@ export default function NasaMoonTrekView() {
       ctx.fill();
 
       // Label Box
-      ctx.font = `600 ${Math.max(8.5, 9.5 / Math.sqrt(zoomLevel))}px -apple-system, sans-serif`;
-      ctx.fillStyle = isSelected ? '#0066cc' : isHovered ? '#00daf3' : '#ffffff';
+      const labelText = crater.name.split(' ')[0];
+      const fontSize = Math.max(9, 11 / Math.sqrt(zoomLevel));
+      ctx.font = `600 ${fontSize}px -apple-system, sans-serif`;
+
+      const textMetrics = ctx.measureText(labelText);
+      const textWidth = textMetrics.width;
+      const pillPadX = 5 / zoomLevel;
+      const pillPadY = 2.5 / zoomLevel;
+      const textY = py - (14 / zoomLevel);
+
+      ctx.fillStyle = isSelected ? 'rgba(0, 102, 204, 0.95)' : isHovered ? 'rgba(0, 180, 240, 0.92)' : 'rgba(15, 23, 42, 0.85)';
+      ctx.beginPath();
+      ctx.roundRect(
+        px - textWidth / 2 - pillPadX,
+        textY - fontSize - pillPadY / 2,
+        textWidth + pillPadX * 2,
+        fontSize + pillPadY * 2,
+        4 / zoomLevel
+      );
+      ctx.fill();
+
+      ctx.strokeStyle = isSelected ? '#ffffff' : isHovered ? '#00daf3' : 'rgba(255, 255, 255, 0.35)';
+      ctx.lineWidth = 0.8 / zoomLevel;
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'center';
-      ctx.fillText(crater.name.split(' ')[0], px, py - (14 / zoomLevel));
+      ctx.fillText(labelText, px, textY);
     });
 
     ctx.restore();
-  }, [polarImage, zoomLevel, panOffset, selectedLandmark, hoveredLandmark]);
+  }, [polarImage, imageLoaded, zoomLevel, panOffset, selectedLandmark, hoveredLandmark]);
 
   const handleMouseDown = (e) => {
     setIsDragging(true);
@@ -236,35 +263,36 @@ export default function NasaMoonTrekView() {
   return (
     <div className="flex-1 flex flex-col h-full bg-[var(--bg-dark)] text-[var(--text-primary)] overflow-hidden select-none font-sans transition-colors duration-200">
       {/* Header Bar */}
-      <div className="p-4 bg-[var(--bg-card)] border-b border-[var(--border-color)] flex items-center justify-between flex-wrap gap-3 shadow-sm">
+      <div className="p-3.5 bg-[var(--bg-card)] border-b border-[var(--border-color)] flex items-center justify-between flex-wrap gap-3 shadow-sm shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-[var(--apple-parchment)] border border-[var(--border-color)] flex items-center justify-center text-[#0066cc]">
-            <Compass className="w-5 h-5" />
+          <div className="w-8 h-8 rounded-full bg-[var(--apple-parchment)] border border-[var(--border-color)] flex items-center justify-center text-[#0066cc]">
+            <Compass className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-semibold tracking-tight text-[var(--text-primary)] uppercase">
-                Explore Lunar South Pole (80°S - 90°S)
+              <h2 className="text-xs font-semibold tracking-tight text-[var(--text-primary)] uppercase">
+                Explore Lunar South Pole (80°S – 90°S)
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[var(--apple-parchment)] text-[#0066cc] border border-[var(--border-color)]">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[var(--apple-parchment)] text-[#0066cc] border border-[var(--border-color)] font-mono">
                 NASA LROC HIGH-RES
               </span>
             </div>
-            <p className="text-xs text-[var(--text-secondary)]">
-              Interactive un-distorted polar stereographic mosaic with Artemis candidate landing zones & crater topography.
+            <p className="text-[11px] text-[var(--text-secondary)]">
+              Interactive polar stereographic mosaic with Artemis candidate landing zones &amp; elevation profiles.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <a
             href="https://trek.nasa.gov/moon/index.html?polar=sp"
             target="_blank"
             rel="noreferrer"
-            className="apple-btn-primary text-xs"
+            className="apple-btn-primary text-xs flex items-center gap-1.5 px-3 py-1.5"
+            title="Open official NASA Moon Trek in new browser tab"
           >
             <ExternalLink className="w-3.5 h-3.5" />
-            <span>Open NASA Moon Trek</span>
+            <span>Open NASA Moon Trek ↗</span>
           </a>
         </div>
       </div>
@@ -291,7 +319,7 @@ export default function NasaMoonTrekView() {
               className="max-w-full max-h-full block shadow-xl rounded-2xl"
             />
 
-            {/* Interactive Landmark Hover Tooltip Card */}
+            {/* Hover Tooltip Card */}
             {hoveredLandmark && (
               <div
                 className="absolute z-30 pointer-events-none p-3.5 rounded-[14px] bg-[var(--bg-card)]/95 backdrop-blur-md border border-[#0066cc] shadow-2xl space-y-1.5 min-w-[210px] transition-all"
@@ -354,12 +382,12 @@ export default function NasaMoonTrekView() {
           </div>
         </div>
 
-        {/* Right Side: Key South Pole Targets & Selected Landmark Telemetry */}
-        <div className="col-span-12 lg:col-span-4 xl:col-span-3 bg-[var(--bg-card)] p-5 flex flex-col justify-between overflow-y-auto space-y-4 transition-colors duration-200">
+        {/* Right Side: Key South Pole Targets */}
+        <div className="col-span-12 lg:col-span-4 xl:col-span-3 bg-[var(--bg-card)] p-4 flex flex-col justify-between overflow-y-auto space-y-4 transition-colors duration-200">
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-xs font-semibold text-[#0066cc] uppercase tracking-wider">
               <MapPin className="w-4 h-4" />
-              <span>South Pole Candidate Sites</span>
+              <span>Artemis Candidate Landing Sites</span>
             </div>
 
             <div className="space-y-2">
@@ -402,7 +430,7 @@ export default function NasaMoonTrekView() {
             <ul className="space-y-1 text-xs text-[var(--text-secondary)] pl-4 list-disc">
               <li>Scroll wheel zooms up to 18.0x into crater floors</li>
               <li>Left-click drag to pan across the pole</li>
-              <li>Click any marker to inspect elevation & slope</li>
+              <li>Click any marker to inspect elevation &amp; slope</li>
             </ul>
           </div>
         </div>

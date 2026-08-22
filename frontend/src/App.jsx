@@ -13,6 +13,7 @@ import ChartsPanel from './components/ChartsPanel';
 import DatasetManager from './components/DatasetManager';
 import AnimatedLoader from './components/AnimatedLoader';
 import InitialWelcomeView from './components/InitialWelcomeView';
+import DashboardTabs from './components/DashboardTabs';
 import { Rocket, Plus, X } from 'lucide-react';
 
 const API_BASE = typeof window !== 'undefined' && window.location.origin.includes('5173')
@@ -322,7 +323,7 @@ export default function App() {
         />
 
         {activeTab === 'dashboard' ? (
-          <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+          <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
             {/* Apple Style Clean Tab Bar */}
             <div className="bg-[var(--apple-parchment)] border-b border-[var(--border-color)] px-6 pt-2 pb-0 flex items-center gap-2 shrink-0 select-none overflow-x-auto transition-colors duration-200">
               {outputTabs.map((tab) => {
@@ -379,33 +380,15 @@ export default function App() {
 
             {/* Main Content Area: Evaluated View vs Blank Initial State */}
             {activeTabObj && activeTabObj.isAnalyzed ? (
-              <div className="p-6 space-y-6 flex-1 bg-[var(--bg-dark)]">
-                <div className="grid grid-cols-12 gap-6">
-                  <div className="col-span-12 xl:col-span-6">
-                    <MoonExplorer
-                      sites={activeTabObj.sites}
-                      selectedSite={activeTabObj.selectedSite}
-                      onSelectSite={handleSelectSiteForActiveTab}
-                      gridHeatmap={gridHeatmap}
-                      activeLayerId={activeLayerId}
-                      onSelectLayer={handleLayerChange}
-                    />
-                  </div>
-
-                  <div className="col-span-12 xl:col-span-6 flex flex-col gap-6">
-                    <AIRecommendationSummary site={activeTabObj.selectedSite} />
-                    <ExplainableAI site={activeTabObj.selectedSite} />
-                  </div>
-                </div>
-
-                <RiskAndRecommendation site={activeTabObj.selectedSite} />
-
-                <CandidatePointsTable
-                  sites={activeTabObj.sites}
-                  selectedSite={activeTabObj.selectedSite}
-                  onSelectSite={handleSelectSiteForActiveTab}
-                />
-              </div>
+              <DashboardTabs
+                activeTabObj={activeTabObj}
+                selectedSite={activeTabObj.selectedSite}
+                sites={activeTabObj.sites}
+                onSelectSite={handleSelectSiteForActiveTab}
+                gridHeatmap={gridHeatmap}
+                activeLayerId={activeLayerId}
+                onSelectLayer={handleLayerChange}
+              />
             ) : (
               <InitialWelcomeView
                 onStartAnalysis={() => runEvaluation(missionConfig)}

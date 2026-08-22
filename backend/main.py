@@ -19,6 +19,7 @@ load_dotenv(os.path.join(ROOT_DIR, ".env"), override=True)
 
 from backend.scoring_engine import LunarScoringEngine, PRESET_PROFILES
 from backend.live_monitor import LiveSolarMonitor
+from space_weather.space_weather import router as space_weather_router, _poll_once
 
 # Initialize FastAPI application
 app = FastAPI(
@@ -35,6 +36,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include Space Weather API router
+app.include_router(space_weather_router)
+
+@app.on_event("startup")
+async def _on_startup():
+    import asyncio
+    asyncio.create_task(_poll_once())
 
 # Initialize engines
 scoring_engine = LunarScoringEngine()
@@ -410,6 +419,102 @@ def get_solar_telemetry():
 # Radiation Model V1 API Routes (Terrain Shielding & GCR Dosimetry)
 # ===========================================================================
 
+@app.get("/api/radiation/v1/heatmap")
+def get_radiation_v1_heatmap(mode: str = "dose", downsample: int = 4):
+    """
+    Returns downsampled radiation heatmap grid for frontend canvas rendering.
+    mode: 'dose' -> effective dose mSv/yr  |  'score' -> radiation score 0-100
+    downsample: integer step (4 = every 4th row/col, giving 100x100 from 400x400)
+    """
+    rad_v1_path = os.path.join(ROOT_DIR, "data", "radiation", "radiation_v1_output.json")
+    if not os.path.exists(rad_v1_path):
+        rad_v1_path = os.path.join(ROOT_DIR, "backend", "radiation", "radiation_v1_output.json")
+    if not os.path.exists(rad_v1_path):
+        raise HTTPException(status_code=404, detail="Radiation V1 output not found.")
+
+    with open(rad_v1_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    field = "radiation_dose_mSv_per_year" if mode == "dose" else "radiation_score"
+    full_grid = data.get(field, [])
+    step = max(1, int(downsample))
+
+    # Downsample the 400x400 grid
+    sampled = [
+        [full_grid[r][c] for c in range(0, len(full_grid[0]), step)]
+        for r in range(0, len(full_grid), step)
+    ]
+
+    # Flatten for transfer efficiency
+    rows = len(sampled)
+    cols = len(sampled[0]) if rows > 0 else 0
+    flat = [v for row in sampled for v in row]
+
+    # Min/max from original full grid for correct colorbar
+    all_vals = [v for row in full_grid for v in row]
+    grid_min = float(min(all_vals))
+    grid_max = float(max(all_vals))
+
+    # Model diagnostics & calibration for overlay chart
+    diagnostics = data.get("model_diagnostics", {})
+    metadata = data.get("metadata", {})
+    named_sites = data.get("named_sites", {})
+
+    # Build named site annotations for map overlay
+    grid_meta = data.get("grid_meta", {})
+    bounds = grid_meta.get("bounds", {"left": -200000, "right": 200000, "bottom": -200000, "top": 200000})
+    x_range = bounds["right"] - bounds["left"]
+    y_range = bounds["top"] - bounds["bottom"]
+
+    site_annotations = []
+    for name, site in named_sites.items():
+        row = site.get("grid_row", 0)
+        col = site.get("grid_col", 0)
+        orig_rows = len(full_grid)
+        orig_cols = len(full_grid[0]) if orig_rows else 400
+
+        # Map grid row/col -> 0..1 normalized position for frontend canvas
+        nx = col / max(1, orig_cols - 1)
+        ny = row / max(1, orig_rows - 1)
+
+        # km coordinates for display (origin = south pole)
+        x_km = (bounds["left"] + nx * x_range) / 1000
+        y_km = (bounds["top"] - ny * y_range) / 1000
+
+        site_annotations.append({
+            "name": name,
+            "short_name": name.split()[0] if name != "de Gerlache Rim" else "de",
+            "nx": round(nx, 4),
+            "ny": round(ny, 4),
+            "x_km": round(x_km, 1),
+            "y_km": round(y_km, 1),
+            "svf": round(site.get("svf", 0), 4),
+            "dose": round(site.get("radiation_dose_mSv_per_year", 0), 2),
+            "score": round(site.get("radiation_score", 0), 2),
+        })
+
+    return {
+        "mode": mode,
+        "grid": {"rows": rows, "cols": cols, "flat": flat},
+        "min": round(grid_min, 3),
+        "max": round(grid_max, 3),
+        "site_annotations": site_annotations,
+        "model_diagnostics": diagnostics,
+        "metadata": {
+            "selected_model": metadata.get("selected_model", "linear"),
+            "solar_condition": metadata.get("solar_condition", "solar minimum"),
+            "calibration_n_points": metadata.get("calibration_n_points", 5),
+            "calibration_svf_range": metadata.get("calibration_svf_range", {}),
+            "normalization": metadata.get("normalization", {}),
+            "limitations": metadata.get("limitations", []),
+        },
+        "linear_params": {
+            "slope": diagnostics.get("linear", {}).get("slope", 252.5),
+            "intercept": diagnostics.get("linear", {}).get("intercept", 28.4),
+            "rmse": diagnostics.get("linear", {}).get("rmse_insample_mSv_yr", 3.2),
+        },
+    }
+
 @app.get("/api/radiation/v1/summary")
 def get_radiation_v1_summary():
     rad_v1_path = os.path.join(ROOT_DIR, "data", "radiation", "radiation_v1_output.json")
@@ -475,7 +580,7 @@ def get_xai_briefing(site_name: str):
             client = genai.Client(api_key=api_key)
             model_name = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
 
-            prompt = f"""You are the LunaAstra Chief Planetary Intelligence Officer providing a 2-sentence mission intelligence briefing for Artemis lunar base site selection.
+            prompt = f"""You are the LunaAtlas Chief Planetary Intelligence Officer providing a 2-sentence mission intelligence briefing for Artemis lunar base site selection.
 Site Facts:
 - Name: {matched['name']} ({matched['lat']}°S, {matched['lon']}°E)
 - Overall Suitability Score: {matched['overall_score']}/100 (Rank #{matched['rank']})
@@ -487,6 +592,10 @@ Site Facts:
 
 Write a clear, scientifically accurate 2-sentence mission intelligence briefing highlighting the primary physical advantage and key operational note for this site."""
 
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt
+            )
             if response and response.text:
                 briefing_text = response.text.strip()
                 is_live_gemini = True
@@ -692,10 +801,22 @@ def get_xai_full_report(site_name: str):
         )
         risk_mitigation_res = gs.explain_risk_mitigation(p_risk)
 
-        # 3. Build Counterfactual Sensitivity Payload
+        # 3. Build Counterfactual Sensitivity Payload (Live Mathematical Calculation)
         w_baseline = WeightSnapshot({"Solar Illumination": 30.0, "Landing Safety": 25.0, "Water Ice": 25.0, "Radiation": 20.0})
         w_sun_shift = WeightSnapshot({"Solar Illumination": 60.0, "Landing Safety": 15.0, "Water Ice": 15.0, "Radiation": 10.0})
         w_ice_shift = WeightSnapshot({"Solar Illumination": 15.0, "Landing Safety": 15.0, "Water Ice": 60.0, "Radiation": 10.0})
+
+        # Calculate live rankings under shifted weights
+        eval_sun = scoring_engine.evaluate_named_sites(weights={"sunlight": 0.60, "landing_safety": 0.15, "water_ice": 0.15, "radiation_safety": 0.10, "dust_penalty": 0.05})
+        eval_ice = scoring_engine.evaluate_named_sites(weights={"sunlight": 0.15, "landing_safety": 0.15, "water_ice": 0.60, "radiation_safety": 0.10, "dust_penalty": 0.05})
+
+        winner_sun = eval_sun[0]["name"]
+        runner_up_sun = eval_sun[1]["name"] if len(eval_sun) > 1 else eval_sun[0]["name"]
+        runner_up_sun_score = eval_sun[1]["overall_score"] if len(eval_sun) > 1 else eval_sun[0]["overall_score"]
+
+        winner_ice = eval_ice[0]["name"]
+        runner_up_ice = eval_ice[1]["name"] if len(eval_ice) > 1 else eval_ice[0]["name"]
+        runner_up_ice_score = eval_ice[1]["overall_score"] if len(eval_ice) > 1 else eval_ice[0]["overall_score"]
 
         scenarios = [
             CounterfactualResult(
@@ -705,12 +826,12 @@ def get_xai_full_report(site_name: str):
                 perturbed_weight_pct=60.0,
                 delta_pct=30.0,
                 baseline_winner=matched["name"],
-                scenario_winner="Malapert Massif" if "Malapert" not in matched["name"] else "Shackleton Crater Rim",
-                winner_changed="Malapert" not in matched["name"] and matched["raw_metrics"]["sunlight_score"] < 70,
+                scenario_winner=winner_sun,
+                winner_changed=(winner_sun != matched["name"]),
                 selected_site_factor_score=float(matched["raw_metrics"]["sunlight_score"]),
-                runner_up_name="Malapert Massif",
-                runner_up_score=68.5,
-                classification="SENSITIVE" if matched["raw_metrics"]["sunlight_score"] < 50 else "ROBUST",
+                runner_up_name=runner_up_sun,
+                runner_up_score=float(runner_up_sun_score),
+                classification="SENSITIVE" if (winner_sun != matched["name"]) else "ROBUST",
                 baseline_weights=w_baseline,
                 perturbed_weights=w_sun_shift
             ),
@@ -721,12 +842,12 @@ def get_xai_full_report(site_name: str):
                 perturbed_weight_pct=60.0,
                 delta_pct=35.0,
                 baseline_winner=matched["name"],
-                scenario_winner="Haworth Crater" if "Haworth" not in matched["name"] else matched["name"],
-                winner_changed="Haworth" not in matched["name"],
+                scenario_winner=winner_ice,
+                winner_changed=(winner_ice != matched["name"]),
                 selected_site_factor_score=float(matched["raw_metrics"]["water_ice_score"]),
-                runner_up_name="Haworth Crater",
-                runner_up_score=74.2,
-                classification="CAPABILITY_LIMITATION" if matched["raw_metrics"]["water_ice_score"] < 25 else "ROBUST",
+                runner_up_name=runner_up_ice,
+                runner_up_score=float(runner_up_ice_score),
+                classification="CAPABILITY_LIMITATION" if (winner_ice != matched["name"]) else "ROBUST",
                 baseline_weights=w_baseline,
                 perturbed_weights=w_ice_shift
             )

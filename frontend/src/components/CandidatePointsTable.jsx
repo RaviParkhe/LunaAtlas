@@ -22,7 +22,6 @@ export default function CandidatePointsTable({ sites = [], selectedSite, onSelec
     let vb = b[sortKey] ?? b.raw_metrics?.[sortKey] ?? 0;
     if (typeof va === 'string') va = va.toLowerCase();
     if (typeof vb === 'string') vb = vb.toLowerCase();
-
     if (va < vb) return sortAsc ? -1 : 1;
     if (va > vb) return sortAsc ? 1 : -1;
     return 0;
@@ -30,45 +29,60 @@ export default function CandidatePointsTable({ sites = [], selectedSite, onSelec
 
   const handleSort = (key) => {
     if (sortKey === key) setSortAsc(!sortAsc);
-    else {
-      setSortKey(key);
-      setSortAsc(false);
-    }
+    else { setSortKey(key); setSortAsc(false); }
   };
 
   const SortIcon = ({ k }) => {
     if (sortKey !== k) return <ArrowUpDown className="w-3 h-3 text-[var(--text-muted)] inline ml-1" />;
     return sortAsc
-      ? <ArrowUp className="w-3 h-3 text-[#0066cc] inline ml-1" />
-      : <ArrowDown className="w-3 h-3 text-[#0066cc] inline ml-1" />;
+      ? <ArrowUp className="w-3 h-3 text-[var(--apple-primary)] inline ml-1" />
+      : <ArrowDown className="w-3 h-3 text-[var(--apple-primary)] inline ml-1" />;
   };
 
-  const getRankBadge = (rank) => {
-    if (rank === 1) {
-      return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 font-bold';
-    }
-    if (rank === 2) {
-      return 'bg-slate-400/10 text-slate-600 dark:text-slate-300 border-slate-400/30 font-bold';
-    }
-    if (rank === 3) {
-      return 'bg-amber-700/10 text-amber-700 dark:text-amber-500 border-amber-700/30 font-bold';
-    }
-    return 'bg-[var(--apple-parchment)] text-[var(--text-secondary)] border-[var(--border-color)] font-medium';
+  const getRankStyle = (rank) => {
+    if (rank === 1) return {
+      className: 'border font-bold',
+      style: { background: 'rgba(245, 158, 11, 0.12)', color: '#d97706', borderColor: 'rgba(245, 158, 11, 0.4)' }
+    };
+    if (rank === 2) return {
+      className: 'border font-bold',
+      style: { background: 'rgba(100, 116, 139, 0.10)', color: 'var(--text-secondary)', borderColor: 'rgba(100, 116, 139, 0.3)' }
+    };
+    if (rank === 3) return {
+      className: 'border font-bold',
+      style: { background: 'rgba(180, 83, 9, 0.10)', color: '#b45309', borderColor: 'rgba(180, 83, 9, 0.3)' }
+    };
+    return {
+      className: 'border font-medium',
+      style: { background: 'var(--apple-parchment)', color: 'var(--text-secondary)', borderColor: 'var(--border-color)' }
+    };
   };
 
   return (
-    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[18px] p-5 flex flex-col gap-4 shadow-sm select-none transition-colors duration-200">
+    <div
+      className="rounded-[18px] p-5 flex flex-col gap-4 select-none transition-colors duration-200"
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}
+    >
       {/* Header Bar */}
-      <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3 flex-wrap gap-2">
+      <div
+        className="flex items-center justify-between pb-3 flex-wrap gap-2"
+        style={{ borderBottom: '1px solid var(--border-color)' }}
+      >
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-full bg-blue-500/10 text-[#0066cc]">
+          <div
+            className="p-1.5 rounded-full"
+            style={{ background: 'rgba(0, 102, 204, 0.10)', color: 'var(--apple-primary)' }}
+          >
             <Trophy className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-xs font-semibold tracking-tight text-[var(--text-primary)] uppercase">
-              Multi-Criteria Ranking & Exploration Decision System
+            <h2
+              className="text-xs font-semibold tracking-tight uppercase"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              Multi-Criteria Ranking &amp; Exploration Decision System
             </h2>
-            <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
+            <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
               Ranked South Pole Lunar Habitats (Dynamic Scientific AHP Evaluation)
             </p>
           </div>
@@ -76,22 +90,35 @@ export default function CandidatePointsTable({ sites = [], selectedSite, onSelec
 
         {/* Search Input Filter */}
         <div className="relative">
-          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+          <Search
+            className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2"
+            style={{ color: 'var(--text-muted)' }}
+          />
           <input
             type="text"
             placeholder="Search candidate crater..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 pr-3 py-1 bg-[var(--apple-parchment)] border border-[var(--border-color)] rounded-full text-xs text-[var(--text-primary)] focus:outline-none focus:border-[#0066cc] w-48 transition-all"
+            className="pl-8 pr-3 py-1 rounded-full text-xs focus:outline-none w-48 transition-all"
+            style={{
+              background: 'var(--apple-parchment)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-primary)',
+            }}
+            onFocus={(e) => (e.target.style.borderColor = 'var(--apple-primary)')}
+            onBlur={(e) => (e.target.style.borderColor = 'var(--border-color)')}
           />
         </div>
       </div>
 
-      {/* Modern High-Density Ranking Table */}
+      {/* Ranking Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-[var(--border-color)] text-[var(--text-muted)] font-medium text-[11px] uppercase tracking-wider">
+            <tr
+              className="text-[11px] uppercase tracking-wider font-semibold"
+              style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}
+            >
               <th className="py-2.5 px-3 cursor-pointer" onClick={() => handleSort('rank')}>
                 Rank <SortIcon k="rank" />
               </th>
@@ -118,81 +145,106 @@ export default function CandidatePointsTable({ sites = [], selectedSite, onSelec
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[var(--border-color)]">
+          <tbody>
             {sortedSites.map((s) => {
               const isSelected = selectedSite && selectedSite.name === s.name;
               const scoreVal = Number(s.overall_score ?? s.score ?? 0).toFixed(1);
               const raw = s.raw_metrics || {};
+              const rankStyle = getRankStyle(s.rank ?? 1);
 
               return (
                 <tr
                   key={s.name}
                   onClick={() => onSelectSite && onSelectSite(s)}
-                  className={`cursor-pointer transition-colors ${
-                    isSelected
-                      ? 'bg-blue-500/10 dark:bg-blue-950/40 text-[var(--text-primary)] font-medium border-l-4 border-l-[#0066cc]'
-                      : 'hover:bg-[var(--apple-parchment)] text-[var(--text-secondary)]'
-                  }`}
+                  className="cursor-pointer transition-colors"
+                  style={{
+                    borderBottom: '1px solid var(--border-color)',
+                    background: isSelected ? 'rgba(0, 102, 204, 0.08)' : 'transparent',
+                    borderLeft: isSelected ? '3px solid var(--apple-primary)' : '3px solid transparent',
+                    color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSelected) e.currentTarget.style.background = 'var(--apple-parchment)';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected) e.currentTarget.style.background = 'transparent';
+                  }}
                 >
-                  {/* Rank Column */}
+                  {/* Rank Badge */}
                   <td className="py-3 px-3">
-                    <span className={`inline-flex items-center justify-center px-2 py-0.5 text-xs rounded-full border ${getRankBadge(s.rank ?? 1)}`}>
+                    <span
+                      className={`inline-flex items-center justify-center px-2 py-0.5 text-xs rounded-full ${rankStyle.className}`}
+                      style={rankStyle.style}
+                    >
                       #{s.rank ?? 1}
                     </span>
                   </td>
 
-                  {/* Site Name & Subtitle */}
+                  {/* Site Name & Coords */}
                   <td className="py-3 px-3">
                     <div className="flex items-center gap-2">
-                      <MapPin className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-[#0066cc]' : 'text-[var(--text-muted)]'}`} />
+                      <MapPin
+                        className="w-3.5 h-3.5 shrink-0"
+                        style={{ color: isSelected ? 'var(--apple-primary)' : 'var(--text-muted)' }}
+                      />
                       <div>
-                        <span className={`font-semibold text-xs block ${isSelected ? 'text-[#0066cc]' : 'text-[var(--text-primary)]'}`}>
+                        <span
+                          className="font-semibold text-xs block"
+                          style={{ color: isSelected ? 'var(--apple-primary)' : 'var(--text-primary)' }}
+                        >
                           {s.name}
                         </span>
-                        <span className="text-[10px] text-[var(--text-muted)] font-mono">
+                        <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>
                           {Math.abs(s.lat ?? -87.3).toFixed(2)}°S, {Math.abs(s.lon ?? 77.0).toFixed(2)}°{s.lon >= 0 ? 'E' : 'W'}
                         </span>
                       </div>
                     </div>
                   </td>
 
-                  {/* Composite Score */}
+                  {/* Composite Suitability Score + Mini Bar */}
                   <td className="py-3 px-3 text-right">
                     <div className="flex flex-col items-end gap-1">
-                      <span className="font-bold text-xs text-[var(--text-primary)] font-mono">
-                        {scoreVal} <span className="text-[10px] text-[var(--text-muted)] font-normal">/ 100</span>
+                      <span className="font-bold text-xs font-mono" style={{ color: 'var(--text-primary)' }}>
+                        {scoreVal}{' '}
+                        <span className="text-[10px] font-normal" style={{ color: 'var(--text-muted)' }}>/100</span>
                       </span>
-                      <div className="w-16 h-1.5 bg-[var(--border-color)] rounded-full overflow-hidden">
+                      <div
+                        className="w-16 h-1.5 rounded-full overflow-hidden"
+                        style={{ background: 'var(--border-color)' }}
+                      >
                         <div
-                          className="h-full rounded-full bg-[#0066cc]"
-                          style={{ width: `${Math.min(100, Math.max(5, scoreVal))}%` }}
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${Math.min(100, Math.max(5, Number(scoreVal)))}%`,
+                            background: 'var(--apple-primary)',
+                          }}
                         />
                       </div>
                     </div>
                   </td>
 
-                  {/* Sunlight */}
-                  <td className="py-3 px-3 text-right font-mono font-medium text-amber-600 dark:text-amber-400">
+                  {/* Sunlight — amber */}
+                  <td className="py-3 px-3 text-right font-mono font-medium" style={{ color: '#d97706' }}>
                     {raw.sunlight_score != null ? `${Number(raw.sunlight_score).toFixed(1)}%` : '—'}
                   </td>
 
-                  {/* Water Ice */}
-                  <td className="py-3 px-3 text-right font-mono font-medium text-cyan-600 dark:text-cyan-400">
+                  {/* Ice Access — cyan */}
+                  <td className="py-3 px-3 text-right font-mono font-medium" style={{ color: '#0891b2' }}>
                     {raw.water_ice_score != null ? `${Number(raw.water_ice_score).toFixed(1)}%` : '—'}
                   </td>
 
-                  {/* Landing Safety */}
-                  <td className="py-3 px-3 text-right font-mono font-medium text-emerald-600 dark:text-emerald-400">
+                  {/* Landing Safety — emerald */}
+                  <td className="py-3 px-3 text-right font-mono font-medium" style={{ color: '#059669' }}>
                     {raw.landing_suitability_score != null ? `${Number(raw.landing_suitability_score).toFixed(1)}` : '—'}
                   </td>
 
-                  {/* Radiation Shield */}
-                  <td className="py-3 px-3 text-right font-mono font-medium text-blue-600 dark:text-blue-400">
+                  {/* Radiation Shield — blue */}
+                  <td className="py-3 px-3 text-right font-mono font-medium" style={{ color: '#2563eb' }}>
                     {raw.radiation_safety_score != null ? `${Number(raw.radiation_safety_score).toFixed(1)}` : '—'}
                   </td>
 
-                  {/* Elevation & Slope */}
-                  <td className="py-3 px-3 text-right text-[11px] font-mono text-[var(--text-muted)]">
+                  {/* Elevation & Slope — muted */}
+                  <td className="py-3 px-3 text-right text-[11px] font-mono" style={{ color: 'var(--text-muted)' }}>
                     <span>{s.elevation_m != null ? `${s.elevation_m}m` : '—'}</span>
                     <span className="mx-1">·</span>
                     <span>{s.slope_deg != null ? `${s.slope_deg}°` : '—'}</span>

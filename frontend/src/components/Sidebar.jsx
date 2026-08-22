@@ -59,7 +59,7 @@ export default function Sidebar({ activeTab, setActiveTab, isCollapsed, setIsCol
       <div className="p-3 border-t border-[var(--border-color)]">
         {!isCollapsed && (
           <div className="text-[11px] text-[var(--text-muted)] text-center font-normal">
-            LunaAstra System
+            LunaAtlas System
           </div>
         )}
       </div>

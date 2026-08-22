@@ -178,7 +178,7 @@ export default function DatasetManager() {
                       <span className="text-xs font-semibold text-[var(--text-primary)] truncate max-w-[220px]">
                         {report.filename}
                       </span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-600 text-emerald-600 border border-emerald-500/20">
                         {report.badge}
                       </span>
                     </div>
@@ -305,7 +305,7 @@ export default function DatasetManager() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Validation */}
                   <div className="space-y-2">
-                    <div className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <div className="text-[11px] font-semibold text-emerald-600 text-emerald-600 uppercase tracking-wider flex items-center gap-1.5">
                       <ShieldCheck className="w-3.5 h-3.5" />
                       <span>Validation Audit</span>
                     </div>
@@ -321,7 +321,7 @@ export default function DatasetManager() {
 
                   {/* Limitations */}
                   <div className="space-y-2">
-                    <div className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <div className="text-[11px] font-semibold text-amber-600 text-amber-600 uppercase tracking-wider flex items-center gap-1.5">
                       <AlertTriangle className="w-3.5 h-3.5" />
                       <span>Known Limitations</span>
                     </div>
@@ -384,7 +384,7 @@ export default function DatasetManager() {
                         File: {dataset.filename}
                       </span>
                     </div>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-600 text-emerald-600 border border-emerald-500/20 flex items-center gap-1">
                       <CheckCircle className="w-3 h-3" />
                       {dataset.status}
                     </span>

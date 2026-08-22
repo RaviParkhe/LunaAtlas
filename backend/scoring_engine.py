@@ -99,16 +99,27 @@ class LunarScoringEngine:
         self.named_sites = meta["named_sites"]
         self.grid_size = self.grid_meta["shape"][0]
 
-        # Load Radiation Model V1 data if available
+        # Load Radiation Model V1 data and 400x400 grids if available
         self.radiation_v1_data = {}
+        self.radiation_dose_grid = None
+        self.radiation_score_grid = None
+        self.svf_grid = None
         rad_v1_path = os.path.join(DATA_DIR, "radiation", "radiation_v1_output.json")
         if not os.path.exists(rad_v1_path):
             rad_v1_path = os.path.join(os.path.dirname(__file__), "radiation", "radiation_v1_output.json")
         if os.path.exists(rad_v1_path):
             try:
                 with open(rad_v1_path, "r", encoding="utf-8") as rf:
-                    self.radiation_v1_data = json.load(rf).get("named_sites", {})
-            except Exception:
+                    rdata = json.load(rf)
+                    self.radiation_v1_data = rdata.get("named_sites", {})
+                    if "radiation_score" in rdata:
+                        self.radiation_score_grid = np.array(rdata["radiation_score"], dtype=np.float32)
+                        self.radiation = self.radiation_score_grid
+                    if "radiation_dose_mSv_per_year" in rdata:
+                        self.radiation_dose_grid = np.array(rdata["radiation_dose_mSv_per_year"], dtype=np.float32)
+                    if "svf" in rdata:
+                        self.svf_grid = np.array(rdata["svf"], dtype=np.float32)
+            except Exception as e:
                 self.radiation_v1_data = {}
         self.half_extent_m = self.grid_meta["bounds"]["right"]
 

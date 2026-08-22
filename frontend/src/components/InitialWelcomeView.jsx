@@ -1,5 +1,5 @@
 import React from 'react';
-import { Rocket, Sliders, Search, Shield, Zap, Droplets, Users, Clock, Compass, Activity, ArrowRight } from 'lucide-react';
+import { Rocket, Sliders, Search, Shield, Zap, Droplets, Compass, Activity, ArrowRight, CheckCircle } from 'lucide-react';
 
 export default function InitialWelcomeView({
   onStartAnalysis,
@@ -14,9 +14,18 @@ export default function InitialWelcomeView({
     { id: 'Resource Extraction', label: 'ISRU & Water Mining', icon: Droplets, desc: 'Cold trap PSR volatile extraction' },
     { id: 'Scientific Research', label: 'Scientific & Geological Survey', icon: Compass, desc: 'Wide geological feature accessibility' },
     { id: 'Emergency / Temporary Base', label: 'Fast Touchdown Emergency Base', icon: Activity, desc: 'Ultra-flat zero hazard landing zones' },
+    { id: 'custom', label: 'Custom Weights', icon: Sliders, desc: 'Manually adjust priority sliders' },
   ];
 
   const handleObjectiveSelect = (objId) => {
+    if (objId === 'custom') {
+      setMissionConfig({
+        ...missionConfig,
+        objective: 'custom',
+        priorityMode: 'custom'
+      });
+      return;
+    }
     const weights = presetObjectives?.[objId] || defaultWeights;
     setMissionConfig({
       ...missionConfig,
@@ -29,6 +38,7 @@ export default function InitialWelcomeView({
   const handleWeightChange = (key, value) => {
     setMissionConfig({
       ...missionConfig,
+      objective: 'custom',
       priorityMode: 'custom',
       weights: {
         ...missionConfig.weights,
@@ -37,6 +47,8 @@ export default function InitialWelcomeView({
     });
   };
 
+  const isCustomSelected = missionConfig.objective === 'custom' || missionConfig.priorityMode === 'custom';
+
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-10 bg-[var(--bg-dark)] select-none overflow-y-auto transition-colors duration-200">
       <div className="max-w-3xl w-full space-y-6">
@@ -44,18 +56,18 @@ export default function InitialWelcomeView({
         <div className="text-center space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] shadow-sm">
             <Rocket className="w-4 h-4 text-[#0066cc]" />
-            <span className="text-xs font-semibold text-[var(--text-primary)]">LunaAstra Decision System</span>
+            <span className="text-xs font-semibold text-[var(--text-primary)]">LunaAtlas Decision System</span>
             <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[var(--apple-parchment)] text-[#0066cc]">v2.5 AI</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-[var(--text-primary)]">
-            Mission Input & Site Selection Setup
+            Mission Input &amp; Site Selection Setup
           </h1>
           <p className="text-xs text-[var(--text-secondary)] max-w-lg mx-auto">
             Specify your Artemis mission objectives and parameters below. Our multi-criteria AI engine will evaluate 160,000 polar grid points in real time.
           </p>
         </div>
 
-        {/* Objective Selection Cards */}
+        {/* 1. Objective Selection Cards (Including Custom Weights) */}
         <div className="space-y-2">
           <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
             1. Select Primary Mission Objective
@@ -63,7 +75,7 @@ export default function InitialWelcomeView({
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
             {objectives.map((obj) => {
               const Icon = obj.icon;
-              const isSelected = missionConfig.objective === obj.id;
+              const isSelected = (obj.id === 'custom' && isCustomSelected) || (missionConfig.objective === obj.id && !isCustomSelected);
               return (
                 <button
                   key={obj.id}
@@ -90,7 +102,7 @@ export default function InitialWelcomeView({
           </div>
         </div>
 
-        {/* Mission Parameters & Weights Configurator Grid */}
+        {/* 2 & 3. Mission Parameters & Heuristic Weights Configurator Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Mission Specifications */}
           <div className="p-4 rounded-[16px] bg-[var(--bg-card)] border border-[var(--border-color)] space-y-3 shadow-sm">
@@ -144,7 +156,7 @@ export default function InitialWelcomeView({
             </div>
           </div>
 
-          {/* Multi-Criteria Objective Weights */}
+          {/* 3. Multi-Criteria Objective Weights */}
           <div className="p-4 rounded-[16px] bg-[var(--bg-card)] border border-[var(--border-color)] space-y-2.5 shadow-sm">
             <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-2">
               <div className="flex items-center gap-2">
@@ -153,16 +165,22 @@ export default function InitialWelcomeView({
                   3. Heuristic Priority Weights
                 </h3>
               </div>
-              <span className="text-[10px] font-mono text-[var(--text-muted)]">
-                {missionConfig.priorityMode === 'custom' ? 'Custom' : 'Preset'}
+              <span
+                className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
+                  isCustomSelected
+                    ? 'bg-[#0066cc]/10 text-[#0066cc] border-[#0066cc]/25 font-bold'
+                    : 'text-[var(--text-muted)] border-[var(--border-color)]'
+                }`}
+              >
+                {isCustomSelected ? 'Custom Mode' : 'Preset'}
               </span>
             </div>
 
-            <div className="space-y-2 text-xs">
+            <div className="space-y-2.5 text-xs">
               <div>
                 <div className="flex justify-between text-[11px] font-medium mb-1">
-                  <span className="text-[var(--text-secondary)]">Landing Flatness & Safety</span>
-                  <span className="font-mono text-[var(--text-primary)]">{missionConfig.weights.flatness}%</span>
+                  <span className="text-[var(--text-secondary)]">Terrain Flatness</span>
+                  <span className="font-mono font-semibold text-[var(--text-primary)]">{missionConfig.weights.flatness}%</span>
                 </div>
                 <input
                   type="range"
@@ -176,8 +194,8 @@ export default function InitialWelcomeView({
 
               <div>
                 <div className="flex justify-between text-[11px] font-medium mb-1">
-                  <span className="text-[var(--text-secondary)]">Solar Illumination</span>
-                  <span className="font-mono text-[var(--text-primary)]">{missionConfig.weights.sunlight}%</span>
+                  <span className="text-[var(--text-secondary)]">Sunlight Illumination</span>
+                  <span className="font-mono font-semibold text-[var(--text-primary)]">{missionConfig.weights.sunlight}%</span>
                 </div>
                 <input
                   type="range"
@@ -191,8 +209,8 @@ export default function InitialWelcomeView({
 
               <div>
                 <div className="flex justify-between text-[11px] font-medium mb-1">
-                  <span className="text-[var(--text-secondary)]">Water Ice Potential</span>
-                  <span className="font-mono text-[var(--text-primary)]">{missionConfig.weights.waterIce}%</span>
+                  <span className="text-[var(--text-secondary)]">Water Ice Confidence</span>
+                  <span className="font-mono font-semibold text-[var(--text-primary)]">{missionConfig.weights.waterIce}%</span>
                 </div>
                 <input
                   type="range"
@@ -206,8 +224,8 @@ export default function InitialWelcomeView({
 
               <div>
                 <div className="flex justify-between text-[11px] font-medium mb-1">
-                  <span className="text-[var(--text-secondary)]">Radiation Horizon Shielding</span>
-                  <span className="font-mono text-[var(--text-primary)]">{missionConfig.weights.radiation}%</span>
+                  <span className="text-[var(--text-secondary)]">Radiation Shielding</span>
+                  <span className="font-mono font-semibold text-[var(--text-primary)]">{missionConfig.weights.radiation}%</span>
                 </div>
                 <input
                   type="range"
@@ -226,10 +244,10 @@ export default function InitialWelcomeView({
         <div className="pt-2 flex justify-center">
           <button
             onClick={onStartAnalysis}
-            className="apple-btn-primary px-8 py-3.5 text-sm font-semibold shadow-md flex items-center gap-2.5 active:scale-95"
+            className="apple-btn-primary px-8 py-3.5 text-sm font-semibold shadow-md flex items-center gap-2.5 active:scale-95 cursor-pointer"
           >
             <Search className="w-4 h-4" />
-            <span>Analyze & Open Tactical Dashboard</span>
+            <span>Analyze &amp; Open Tactical Dashboard</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

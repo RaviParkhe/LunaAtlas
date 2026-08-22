@@ -11,7 +11,7 @@ export default function Header({ theme = 'dark', onToggleTheme }) {
         </div>
         <div className="flex items-center gap-2.5">
           <h1 className="text-base font-semibold tracking-tight text-[var(--text-primary)]">
-            LunaAstra
+            LunaAtlas
           </h1>
           <span className="px-2 py-0.5 text-[11px] font-medium rounded-full bg-[var(--apple-parchment)] text-[var(--text-secondary)] border border-[var(--border-color)]">
             v2.5 AI

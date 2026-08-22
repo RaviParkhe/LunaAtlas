@@ -50,7 +50,7 @@ export default function AnimatedLoader() {
       <div className="text-center space-y-2 z-10">
         <div className="flex items-center justify-center gap-2.5">
           <h1 className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">
-            LunaAstra
+            LunaAtlas
           </h1>
           <span className="px-2.5 py-0.5 text-xs font-medium rounded-full bg-[var(--apple-parchment)] text-[#0066cc] border border-[var(--border-color)]">
             v2.5 AI
