@@ -1,0 +1,202 @@
+@import "tailwindcss";
+
+:root {
+  --bg-dark: #080c14;
+  --bg-card: #0d1322;
+  --bg-card-hover: #121a2d;
+  --bg-input: #090e18;
+  --border-color: #1e293b;
+  --border-active: #3b82f6;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-blue: #2563eb;
+  --accent-cyan: #0284c7;
+  --accent-green: #16a34a;
+}
+
+/* Single uniform font everywhere */
+*, *::before, *::after,
+body, button, input, select, textarea, table, h1, h2, h3, h4, h5, h6,
+.font-orbitron, .font-mono {
+  font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif !important;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.45;
+  font-size: 13px;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #080c14;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Professional solid aerospace panel */
+.glass-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: none;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.glass-panel-hover:hover {
+  border-color: var(--border-active);
+}
+
+/* Select & Inputs styling - Solid & Clean */
+.custom-select, .custom-input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.15s ease;
+  appearance: none;
+  cursor: pointer;
+}
+
+.custom-select:hover, .custom-select:focus,
+.custom-input:hover, .custom-input:focus {
+  border-color: var(--accent-blue);
+  box-shadow: none;
+}
+
+/* Radio option - Professional solid style */
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.radio-option.selected {
+  border-color: var(--accent-blue);
+  background: #111c35;
+  color: var(--text-primary);
+}
+
+.radio-dot {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.radio-option.selected .radio-dot {
+  border-color: var(--accent-blue);
+}
+
+.radio-dot-inner {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+}
+
+/* Solid Professional Button - No Gradients or Glow */
+.btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  border: 1px solid #3b82f6;
+  border-radius: 6px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background-color 0.15s ease;
+  font-size: 0.75rem;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+.btn-primary:active {
+  background: #1e40af;
+}
+
+/* Clean Badges */
+.badge-excellent {
+  background: #052e16;
+  color: #4ade80;
+  border: 1px solid #14532d;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.badge-very-good {
+  background: #0f172a;
+  color: #60a5fa;
+  border: 1px solid #1e3a8a;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* Solid Range Sliders */
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  background: transparent;
+}
+input[type=range]:focus {
+  outline: none;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 4px;
+  cursor: pointer;
+  background: #1e293b;
+  border-radius: 2px;
+}
+input[type=range]::-webkit-slider-thumb {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -4px;
+  box-shadow: none;
+}

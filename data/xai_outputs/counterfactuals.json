@@ -1,0 +1,220 @@
+{
+  "de Gerlache Rim": {
+    "original_cluster": 1,
+    "original_archetype": "Shadow-Dominated Environment",
+    "counterfactuals": {
+      "elevation_m": {
+        "feature": "elevation_m",
+        "direction": "increased",
+        "change_pct": 50.0,
+        "original_value": -1031.25,
+        "new_value": 5181.419921875,
+        "unit": "m",
+        "from_cluster": 1,
+        "to_cluster": 0,
+        "from_archetype": "Shadow-Dominated Environment",
+        "to_archetype": "High-Elevation / High-Slope Environment",
+        "sentence": "If elevation m were increased by 50% (-1031.3m -> 5181.4m), de Gerlache Rim would move from 'Shadow-Dominated Environment' to 'High-Elevation / High-Slope Environment'."
+      },
+      "slope_deg": {
+        "feature": "slope_deg",
+        "direction": "increased",
+        "change_pct": 100.0,
+        "original_value": 3.38,
+        "new_value": 33.41999816894531,
+        "unit": "deg",
+        "from_cluster": 1,
+        "to_cluster": 0,
+        "from_archetype": "Shadow-Dominated Environment",
+        "to_archetype": "High-Elevation / High-Slope Environment",
+        "sentence": "If slope deg were increased by 100% (3.4deg -> 33.4deg), de Gerlache Rim would move from 'Shadow-Dominated Environment' to 'High-Elevation / High-Slope Environment'."
+      },
+      "sunlight_score": {
+        "feature": "sunlight_score",
+        "direction": "increased",
+        "change_pct": 50.0,
+        "original_value": 0.08,
+        "new_value": 26.739999771118164,
+        "unit": "%",
+        "from_cluster": 1,
+        "to_cluster": 2,
+        "from_archetype": "Shadow-Dominated Environment",
+        "to_archetype": "Solar-Exposed Environment",
+        "sentence": "If sunlight score were increased by 50% (0.1% -> 26.7%), de Gerlache Rim would move from 'Shadow-Dominated Environment' to 'Solar-Exposed Environment'."
+      }
+    }
+  },
+  "Nobile Rim": {
+    "original_cluster": 0,
+    "original_archetype": "High-Elevation / High-Slope Environment",
+    "counterfactuals": {
+      "elevation_m": {
+        "feature": "elevation_m",
+        "direction": "decreased",
+        "change_pct": 5.0,
+        "original_value": 919.98,
+        "new_value": 298.7200012207031,
+        "unit": "m",
+        "from_cluster": 0,
+        "to_cluster": 2,
+        "from_archetype": "High-Elevation / High-Slope Environment",
+        "to_archetype": "Solar-Exposed Environment",
+        "sentence": "If elevation m were decreased by 5% (920.0m -> 298.7m), Nobile Rim would move from 'High-Elevation / High-Slope Environment' to 'Solar-Exposed Environment'."
+      },
+      "slope_deg": {
+        "feature": "slope_deg",
+        "direction": "decreased",
+        "change_pct": 5.0,
+        "original_value": 6.88,
+        "new_value": 5.210000038146973,
+        "unit": "deg",
+        "from_cluster": 0,
+        "to_cluster": 2,
+        "from_archetype": "High-Elevation / High-Slope Environment",
+        "to_archetype": "Solar-Exposed Environment",
+        "sentence": "If slope deg were decreased by 5% (6.9deg -> 5.2deg), Nobile Rim would move from 'High-Elevation / High-Slope Environment' to 'Solar-Exposed Environment'."
+      },
+      "sunlight_score": {
+        "feature": "sunlight_score",
+        "direction": "decreased",
+        "change_pct": 50.0,
+        "original_value": 35.71,
+        "new_value": 9.050000190734863,
+        "unit": "%",
+        "from_cluster": 0,
+        "to_cluster": 1,
+        "from_archetype": "High-Elevation / High-Slope Environment",
+        "to_archetype": "Shadow-Dominated Environment",
+        "sentence": "If sunlight score were decreased by 50% (35.7% -> 9.0%), Nobile Rim would move from 'High-Elevation / High-Slope Environment' to 'Shadow-Dominated Environment'."
+      }
+    }
+  },
+  "Haworth Crater": {
+    "original_cluster": 1,
+    "original_archetype": "Shadow-Dominated Environment",
+    "counterfactuals": {
+      "elevation_m": {
+        "feature": "elevation_m",
+        "direction": "increased",
+        "change_pct": 50.0,
+        "original_value": -1620.81,
+        "new_value": 4591.85009765625,
+        "unit": "m",
+        "from_cluster": 1,
+        "to_cluster": 0,
+        "from_archetype": "Shadow-Dominated Environment",
+        "to_archetype": "High-Elevation / High-Slope Environment",
+        "sentence": "If elevation m were increased by 50% (-1620.8m -> 4591.9m), Haworth Crater would move from 'Shadow-Dominated Environment' to 'High-Elevation / High-Slope Environment'."
+      },
+      "slope_deg": {
+        "feature": "slope_deg",
+        "direction": "increased",
+        "change_pct": 100.0,
+        "original_value": 12.2,
+        "new_value": 33.41999816894531,
+        "unit": "deg",
+        "from_cluster": 1,
+        "to_cluster": 0,
+        "from_archetype": "Shadow-Dominated Environment",
+        "to_archetype": "High-Elevation / High-Slope Environment",
+        "sentence": "If slope deg were increased by 100% (12.2deg -> 33.4deg), Haworth Crater would move from 'Shadow-Dominated Environment' to 'High-Elevation / High-Slope Environment'."
+      },
+      "sunlight_score": {
+        "feature": "sunlight_score",
+        "direction": "increased",
+        "change_pct": 50.0,
+        "original_value": 0.0,
+        "new_value": 26.670000076293945,
+        "unit": "%",
+        "from_cluster": 1,
+        "to_cluster": 2,
+        "from_archetype": "Shadow-Dominated Environment",
+        "to_archetype": "Solar-Exposed Environment",
+        "sentence": "If sunlight score were increased by 50% (0.0% -> 26.7%), Haworth Crater would move from 'Shadow-Dominated Environment' to 'Solar-Exposed Environment'."
+      }
+    }
+  },
+  "Faustini Rim": {
+    "original_cluster": 1,
+    "original_archetype": "Shadow-Dominated Environment",
+    "counterfactuals": {
+      "elevation_m": {
+        "feature": "elevation_m",
+        "direction": "increased",
+        "change_pct": 50.0,
+        "original_value": -2635.84,
+        "new_value": 3576.820068359375,
+        "unit": "m",
+        "from_cluster": 1,
+        "to_cluster": 0,
+        "from_archetype": "Shadow-Dominated Environment",
+        "to_archetype": "High-Elevation / High-Slope Environment",
+        "sentence": "If elevation m were increased by 50% (-2635.8m -> 3576.8m), Faustini Rim would move from 'Shadow-Dominated Environment' to 'High-Elevation / High-Slope Environment'."
+      },
+      "sunlight_score": {
+        "feature": "sunlight_score",
+        "direction": "increased",
+        "change_pct": 50.0,
+        "original_value": 0.0,
+        "new_value": 26.670000076293945,
+        "unit": "%",
+        "from_cluster": 1,
+        "to_cluster": 0,
+        "from_archetype": "Shadow-Dominated Environment",
+        "to_archetype": "High-Elevation / High-Slope Environment",
+        "sentence": "If sunlight score were increased by 50% (0.0% -> 26.7%), Faustini Rim would move from 'Shadow-Dominated Environment' to 'High-Elevation / High-Slope Environment'."
+      }
+    }
+  },
+  "Shackleton Crater Rim": {
+    "original_cluster": 1,
+    "original_archetype": "Shadow-Dominated Environment",
+    "counterfactuals": {
+      "elevation_m": {
+        "feature": "elevation_m",
+        "direction": "increased",
+        "change_pct": 100.0,
+        "original_value": -2778.92,
+        "new_value": 6980.22021484375,
+        "unit": "m",
+        "from_cluster": 1,
+        "to_cluster": 0,
+        "from_archetype": "Shadow-Dominated Environment",
+        "to_archetype": "High-Elevation / High-Slope Environment",
+        "sentence": "If elevation m were increased by 100% (-2778.9m -> 6980.2m), Shackleton Crater Rim would move from 'Shadow-Dominated Environment' to 'High-Elevation / High-Slope Environment'."
+      },
+      "sunlight_score": {
+        "feature": "sunlight_score",
+        "direction": "increased",
+        "change_pct": 50.0,
+        "original_value": 0.0,
+        "new_value": 26.670000076293945,
+        "unit": "%",
+        "from_cluster": 1,
+        "to_cluster": 2,
+        "from_archetype": "Shadow-Dominated Environment",
+        "to_archetype": "Solar-Exposed Environment",
+        "sentence": "If sunlight score were increased by 50% (0.0% -> 26.7%), Shackleton Crater Rim would move from 'Shadow-Dominated Environment' to 'Solar-Exposed Environment'."
+      }
+    }
+  },
+  "Malapert Massif": {
+    "original_cluster": 0,
+    "original_archetype": "High-Elevation / High-Slope Environment",
+    "counterfactuals": {
+      "elevation_m": {
+        "feature": "elevation_m",
+        "direction": "decreased",
+        "change_pct": 50.0,
+        "original_value": 4910.85,
+        "new_value": -1301.81005859375,
+        "unit": "m",
+        "from_cluster": 0,
+        "to_cluster": 2,
+        "from_archetype": "High-Elevation / High-Slope Environment",
+        "to_archetype": "Solar-Exposed Environment",
+        "sentence": "If elevation m were decreased by 50% (4910.9m -> -1301.8m), Malapert Massif would move from 'High-Elevation / High-Slope Environment' to 'Solar-Exposed Environment'."
+      }
+    }
+  }
+}

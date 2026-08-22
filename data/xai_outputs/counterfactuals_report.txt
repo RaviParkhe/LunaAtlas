@@ -1,0 +1,28 @@
+COUNTERFACTUAL EXPLANATIONS
+============================================================
+
+Site: de Gerlache Rim  [Shadow-Dominated Environment]
+  * If elevation m were increased by 50% (-1031.3m -> 5181.4m), de Gerlache Rim would move from 'Shadow-Dominated Environment' to 'High-Elevation / High-Slope Environment'.
+  * If slope deg were increased by 100% (3.4deg -> 33.4deg), de Gerlache Rim would move from 'Shadow-Dominated Environment' to 'High-Elevation / High-Slope Environment'.
+  * If sunlight score were increased by 50% (0.1% -> 26.7%), de Gerlache Rim would move from 'Shadow-Dominated Environment' to 'Solar-Exposed Environment'.
+
+Site: Nobile Rim  [High-Elevation / High-Slope Environment]
+  * If elevation m were decreased by 5% (920.0m -> 298.7m), Nobile Rim would move from 'High-Elevation / High-Slope Environment' to 'Solar-Exposed Environment'.
+  * If slope deg were decreased by 5% (6.9deg -> 5.2deg), Nobile Rim would move from 'High-Elevation / High-Slope Environment' to 'Solar-Exposed Environment'.
+  * If sunlight score were decreased by 50% (35.7% -> 9.0%), Nobile Rim would move from 'High-Elevation / High-Slope Environment' to 'Shadow-Dominated Environment'.
+
+Site: Haworth Crater  [Shadow-Dominated Environment]
+  * If elevation m were increased by 50% (-1620.8m -> 4591.9m), Haworth Crater would move from 'Shadow-Dominated Environment' to 'High-Elevation / High-Slope Environment'.
+  * If slope deg were increased by 100% (12.2deg -> 33.4deg), Haworth Crater would move from 'Shadow-Dominated Environment' to 'High-Elevation / High-Slope Environment'.
+  * If sunlight score were increased by 50% (0.0% -> 26.7%), Haworth Crater would move from 'Shadow-Dominated Environment' to 'Solar-Exposed Environment'.
+
+Site: Faustini Rim  [Shadow-Dominated Environment]
+  * If elevation m were increased by 50% (-2635.8m -> 3576.8m), Faustini Rim would move from 'Shadow-Dominated Environment' to 'High-Elevation / High-Slope Environment'.
+  * If sunlight score were increased by 50% (0.0% -> 26.7%), Faustini Rim would move from 'Shadow-Dominated Environment' to 'High-Elevation / High-Slope Environment'.
+
+Site: Shackleton Crater Rim  [Shadow-Dominated Environment]
+  * If elevation m were increased by 100% (-2778.9m -> 6980.2m), Shackleton Crater Rim would move from 'Shadow-Dominated Environment' to 'High-Elevation / High-Slope Environment'.
+  * If sunlight score were increased by 50% (0.0% -> 26.7%), Shackleton Crater Rim would move from 'Shadow-Dominated Environment' to 'Solar-Exposed Environment'.
+
+Site: Malapert Massif  [High-Elevation / High-Slope Environment]
+  * If elevation m were decreased by 50% (4910.9m -> -1301.8m), Malapert Massif would move from 'High-Elevation / High-Slope Environment' to 'Solar-Exposed Environment'.

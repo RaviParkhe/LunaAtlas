@@ -1,0 +1,49 @@
+AHP PAIRWISE JUDGMENT NARRATIVES
+============================================================
+
+Scale: Saaty 1-9 (1=equal, 3=moderate, 5=strong, 7=very strong, 9=extreme)
+
+  Safety vs Water Ice:
+    'Safety' is slightly more important than 'Water Ice' (Saaty value: 2.00).
+
+  Safety vs Sunlight:
+    'Safety' is moderately to strongly more important than 'Sunlight' (Saaty value: 4.00).
+
+  Safety vs Resources:
+    'Safety' is moderately to strongly more important than 'Resources' (Saaty value: 4.00).
+
+  Safety vs Expansion:
+    'Safety' is strongly to very strongly more important than 'Expansion' (Saaty value: 6.00).
+
+  Safety vs Scientific Value:
+    'Safety' is very strongly more important than 'Scientific Value' (Saaty value: 7.00).
+
+  Water Ice vs Sunlight:
+    'Water Ice' is moderately more important than 'Sunlight' (Saaty value: 3.00).
+
+  Water Ice vs Resources:
+    'Water Ice' is moderately more important than 'Resources' (Saaty value: 3.00).
+
+  Water Ice vs Expansion:
+    'Water Ice' is strongly more important than 'Expansion' (Saaty value: 5.00).
+
+  Water Ice vs Scientific Value:
+    'Water Ice' is strongly to very strongly more important than 'Scientific Value' (Saaty value: 6.00).
+
+  Sunlight vs Resources:
+    'Sunlight' is equally important than 'Resources' (Saaty value: 1.00).
+
+  Sunlight vs Expansion:
+    'Sunlight' is moderately more important than 'Expansion' (Saaty value: 3.00).
+
+  Sunlight vs Scientific Value:
+    'Sunlight' is moderately to strongly more important than 'Scientific Value' (Saaty value: 4.00).
+
+  Resources vs Expansion:
+    'Resources' is moderately more important than 'Expansion' (Saaty value: 3.00).
+
+  Resources vs Scientific Value:
+    'Resources' is moderately to strongly more important than 'Scientific Value' (Saaty value: 4.00).
+
+  Expansion vs Scientific Value:
+    'Expansion' is slightly more important than 'Scientific Value' (Saaty value: 2.00).

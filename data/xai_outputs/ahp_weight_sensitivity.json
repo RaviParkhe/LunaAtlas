@@ -1,0 +1,688 @@
+{
+  "base_weights": {
+    "Safety": 0.3966,
+    "Water Ice": 0.2685,
+    "Sunlight": 0.1214,
+    "Resources": 0.1214,
+    "Expansion": 0.0548,
+    "Scientific Value": 0.0373
+  },
+  "sensitivity": [
+    {
+      "judgment": "Sunlight vs Resources",
+      "factor_a": "Sunlight",
+      "factor_b": "Resources",
+      "base_value": 1.0,
+      "sensitivity": {
+        "up": {
+          "weights": [
+            0.39386013325295655,
+            0.2664059680397834,
+            0.13646314124136297,
+            0.11154071455111575,
+            0.05455638326977117,
+            0.03717365964501014
+          ],
+          "delta": {
+            "Safety": -0.0027,
+            "Water Ice": -0.0021,
+            "Sunlight": 0.0151,
+            "Resources": -0.0099,
+            "Expansion": -0.0002,
+            "Scientific Value": -0.0002
+          }
+        },
+        "down": {
+          "weights": [
+            0.37206541820130856,
+            0.2500599317510474,
+            0.09822691243422177,
+            0.19109590902104748,
+            0.052740338638092604,
+            0.03581148995428214
+          ],
+          "delta": {
+            "Safety": -0.0245,
+            "Water Ice": -0.0184,
+            "Sunlight": -0.0232,
+            "Resources": 0.0697,
+            "Expansion": -0.002,
+            "Scientific Value": -0.0015
+          }
+        }
+      },
+      "max_weight_delta": 0.0697
+    },
+    {
+      "judgment": "Safety vs Water Ice",
+      "factor_a": "Safety",
+      "factor_b": "Water Ice",
+      "base_value": 2.0,
+      "sensitivity": {
+        "up": {
+          "weights": [
+            0.41890950254001685,
+            0.25009770696842853,
+            0.1200677845253083,
+            0.1200677845253083,
+            0.05407863668865102,
+            0.03677858475228697
+          ],
+          "delta": {
+            "Safety": 0.0223,
+            "Water Ice": -0.0184,
+            "Sunlight": -0.0013,
+            "Resources": -0.0013,
+            "Expansion": -0.0007,
+            "Scientific Value": -0.0006
+          }
+        },
+        "down": {
+          "weights": [
+            0.35606216783371475,
+            0.30532598470120154,
+            0.12273102884527597,
+            0.12273102884527597,
+            0.05536882833093732,
+            0.03778096144359443
+          ],
+          "delta": {
+            "Safety": -0.0405,
+            "Water Ice": 0.0369,
+            "Sunlight": 0.0013,
+            "Resources": 0.0013,
+            "Expansion": 0.0006,
+            "Scientific Value": 0.0004
+          }
+        }
+      },
+      "max_weight_delta": 0.0405
+    },
+    {
+      "judgment": "Water Ice vs Sunlight",
+      "factor_a": "Water Ice",
+      "factor_b": "Sunlight",
+      "base_value": 3.0,
+      "sensitivity": {
+        "up": {
+          "weights": [
+            0.39177370239538045,
+            0.2801535073589861,
+            0.11653341590560758,
+            0.12004818383809703,
+            0.05441159385144703,
+            0.03707959665048171
+          ],
+          "delta": {
+            "Safety": -0.0048,
+            "Water Ice": 0.0117,
+            "Sunlight": -0.0049,
+            "Resources": -0.0014,
+            "Expansion": -0.0004,
+            "Scientific Value": -0.0003
+          }
+        },
+        "down": {
+          "weights": [
+            0.40142847626566147,
+            0.25348473210148975,
+            0.12949563257992888,
+            0.12288055321484952,
+            0.0551323175868203,
+            0.0375782882512501
+          ],
+          "delta": {
+            "Safety": 0.0048,
+            "Water Ice": -0.015,
+            "Sunlight": 0.0081,
+            "Resources": 0.0015,
+            "Expansion": 0.0003,
+            "Scientific Value": 0.0002
+          }
+        }
+      },
+      "max_weight_delta": 0.015
+    },
+    {
+      "judgment": "Water Ice vs Resources",
+      "factor_a": "Water Ice",
+      "factor_b": "Resources",
+      "base_value": 3.0,
+      "sensitivity": {
+        "up": {
+          "weights": [
+            0.3917737023953805,
+            0.2801535073589861,
+            0.12004818383809703,
+            0.1165334159056076,
+            0.05441159385144703,
+            0.03707959665048171
+          ],
+          "delta": {
+            "Safety": -0.0048,
+            "Water Ice": 0.0117,
+            "Sunlight": -0.0014,
+            "Resources": -0.0049,
+            "Expansion": -0.0004,
+            "Scientific Value": -0.0003
+          }
+        },
+        "down": {
+          "weights": [
+            0.40142847626566147,
+            0.25348473210148975,
+            0.12288055321484952,
+            0.12949563257992888,
+            0.0551323175868203,
+            0.0375782882512501
+          ],
+          "delta": {
+            "Safety": 0.0048,
+            "Water Ice": -0.015,
+            "Sunlight": 0.0015,
+            "Resources": 0.0081,
+            "Expansion": 0.0003,
+            "Scientific Value": 0.0002
+          }
+        }
+      },
+      "max_weight_delta": 0.015
+    },
+    {
+      "judgment": "Safety vs Sunlight",
+      "factor_a": "Safety",
+      "factor_b": "Sunlight",
+      "base_value": 4.0,
+      "sensitivity": {
+        "up": {
+          "weights": [
+            0.40737570856281535,
+            0.26433238879822585,
+            0.11646896532644636,
+            0.12015693369842961,
+            0.05450349289233563,
+            0.037162510721747234
+          ],
+          "delta": {
+            "Safety": 0.0108,
+            "Water Ice": -0.0041,
+            "Sunlight": -0.0049,
+            "Resources": -0.0012,
+            "Expansion": -0.0003,
+            "Scientific Value": -0.0002
+          }
+        },
+        "down": {
+          "weights": [
+            0.3827781126471797,
+            0.2732858769964303,
+            0.12860306974406877,
+            0.12279894277763055,
+            0.055041416288072686,
+            0.03749258154661801
+          ],
+          "delta": {
+            "Safety": -0.0138,
+            "Water Ice": 0.0048,
+            "Sunlight": 0.0072,
+            "Resources": 0.0014,
+            "Expansion": 0.0003,
+            "Scientific Value": 0.0001
+          }
+        }
+      },
+      "max_weight_delta": 0.0138
+    },
+    {
+      "judgment": "Safety vs Resources",
+      "factor_a": "Safety",
+      "factor_b": "Resources",
+      "base_value": 4.0,
+      "sensitivity": {
+        "up": {
+          "weights": [
+            0.4073757085628153,
+            0.26433238879822585,
+            0.12015693369842963,
+            0.11646896532644636,
+            0.05450349289233563,
+            0.03716251072174724
+          ],
+          "delta": {
+            "Safety": 0.0108,
+            "Water Ice": -0.0041,
+            "Sunlight": -0.0012,
+            "Resources": -0.0049,
+            "Expansion": -0.0003,
+            "Scientific Value": -0.0002
+          }
+        },
+        "down": {
+          "weights": [
+            0.3827781126471797,
+            0.2732858769964302,
+            0.12279894277763054,
+            0.1286030697440688,
+            0.055041416288072686,
+            0.03749258154661801
+          ],
+          "delta": {
+            "Safety": -0.0138,
+            "Water Ice": 0.0048,
+            "Sunlight": 0.0014,
+            "Resources": 0.0072,
+            "Expansion": 0.0003,
+            "Scientific Value": 0.0001
+          }
+        }
+      },
+      "max_weight_delta": 0.0138
+    },
+    {
+      "judgment": "Sunlight vs Expansion",
+      "factor_a": "Sunlight",
+      "factor_b": "Expansion",
+      "base_value": 3.0,
+      "sensitivity": {
+        "up": {
+          "weights": [
+            0.39444193929886057,
+            0.2666113223432112,
+            0.1287145195105284,
+            0.12016751096351985,
+            0.05291243541875087,
+            0.03715227246512908
+          ],
+          "delta": {
+            "Safety": -0.0022,
+            "Water Ice": -0.0019,
+            "Sunlight": 0.0073,
+            "Resources": -0.0012,
+            "Expansion": -0.0019,
+            "Scientific Value": -0.0002
+          }
+        },
+        "down": {
+          "weights": [
+            0.39850337493924365,
+            0.27014579956189894,
+            0.11312426181500755,
+            0.12264807133881707,
+            0.058050280030279684,
+            0.037528212314753145
+          ],
+          "delta": {
+            "Safety": 0.0019,
+            "Water Ice": 0.0017,
+            "Sunlight": -0.0083,
+            "Resources": 0.0012,
+            "Expansion": 0.0033,
+            "Scientific Value": 0.0002
+          }
+        }
+      },
+      "max_weight_delta": 0.0083
+    },
+    {
+      "judgment": "Resources vs Expansion",
+      "factor_a": "Resources",
+      "factor_b": "Expansion",
+      "base_value": 3.0,
+      "sensitivity": {
+        "up": {
+          "weights": [
+            0.39444193929886057,
+            0.26661132234321117,
+            0.12016751096351985,
+            0.1287145195105284,
+            0.05291243541875087,
+            0.03715227246512908
+          ],
+          "delta": {
+            "Safety": -0.0022,
+            "Water Ice": -0.0019,
+            "Sunlight": -0.0012,
+            "Resources": 0.0073,
+            "Expansion": -0.0019,
+            "Scientific Value": -0.0002
+          }
+        },
+        "down": {
+          "weights": [
+            0.39850337493924365,
+            0.27014579956189894,
+            0.12264807133881707,
+            0.11312426181500755,
+            0.058050280030279684,
+            0.037528212314753145
+          ],
+          "delta": {
+            "Safety": 0.0019,
+            "Water Ice": 0.0017,
+            "Sunlight": 0.0012,
+            "Resources": -0.0083,
+            "Expansion": 0.0033,
+            "Scientific Value": 0.0002
+          }
+        }
+      },
+      "max_weight_delta": 0.0083
+    },
+    {
+      "judgment": "Safety vs Expansion",
+      "factor_a": "Safety",
+      "factor_b": "Expansion",
+      "base_value": 6.0,
+      "sensitivity": {
+        "up": {
+          "weights": [
+            0.4031317002794846,
+            0.26653020375042596,
+            0.12020319907192371,
+            0.12020319907192371,
+            0.052709983707584125,
+            0.03722171411865782
+          ],
+          "delta": {
+            "Safety": 0.0065,
+            "Water Ice": -0.0019,
+            "Sunlight": -0.0012,
+            "Resources": -0.0012,
+            "Expansion": -0.0021,
+            "Scientific Value": -0.0001
+          }
+        },
+        "down": {
+          "weights": [
+            0.38914329866184444,
+            0.27052501393061695,
+            0.12268900465041967,
+            0.12268900465041967,
+            0.057497695345991,
+            0.03745598276070828
+          ],
+          "delta": {
+            "Safety": -0.0075,
+            "Water Ice": 0.0021,
+            "Sunlight": 0.0013,
+            "Resources": 0.0013,
+            "Expansion": 0.0027,
+            "Scientific Value": 0.0001
+          }
+        }
+      },
+      "max_weight_delta": 0.0075
+    },
+    {
+      "judgment": "Water Ice vs Expansion",
+      "factor_a": "Water Ice",
+      "factor_b": "Expansion",
+      "base_value": 5.0,
+      "sensitivity": {
+        "up": {
+          "weights": [
+            0.39452067672578006,
+            0.2750452047940865,
+            0.12012979078619769,
+            0.12012979078619769,
+            0.05300298361095517,
+            0.037171553296782865
+          ],
+          "delta": {
+            "Safety": -0.0021,
+            "Water Ice": 0.0066,
+            "Sunlight": -0.0013,
+            "Resources": -0.0013,
+            "Expansion": -0.0018,
+            "Scientific Value": -0.0002
+          }
+        },
+        "down": {
+          "weights": [
+            0.39868077425869003,
+            0.26100803744332546,
+            0.1227767706737568,
+            0.1227767706737568,
+            0.057239447204417704,
+            0.03751819974605324
+          ],
+          "delta": {
+            "Safety": 0.0021,
+            "Water Ice": -0.0075,
+            "Sunlight": 0.0014,
+            "Resources": 0.0014,
+            "Expansion": 0.0025,
+            "Scientific Value": 0.0002
+          }
+        }
+      },
+      "max_weight_delta": 0.0075
+    },
+    {
+      "judgment": "Expansion vs Scientific Value",
+      "factor_a": "Expansion",
+      "factor_b": "Scientific Value",
+      "base_value": 2.0,
+      "sensitivity": {
+        "up": {
+          "weights": [
+            0.39515091887944775,
+            0.26720667396726844,
+            0.12053560667451745,
+            0.12053560667451745,
+            0.06097802406249713,
+            0.035593169741751834
+          ],
+          "delta": {
+            "Safety": -0.0015,
+            "Water Ice": -0.0013,
+            "Sunlight": -0.0009,
+            "Resources": -0.0009,
+            "Expansion": 0.0062,
+            "Scientific Value": -0.0018
+          }
+        },
+        "down": {
+          "weights": [
+            0.3972950142958544,
+            0.2690900385050952,
+            0.12189750945518453,
+            0.12189750945518453,
+            0.04790542160774364,
+            0.04191450668093774
+          ],
+          "delta": {
+            "Safety": 0.0007,
+            "Water Ice": 0.0006,
+            "Sunlight": 0.0005,
+            "Resources": 0.0005,
+            "Expansion": -0.0069,
+            "Scientific Value": 0.0046
+          }
+        }
+      },
+      "max_weight_delta": 0.0069
+    },
+    {
+      "judgment": "Sunlight vs Scientific Value",
+      "factor_a": "Sunlight",
+      "factor_b": "Scientific Value",
+      "base_value": 4.0,
+      "sensitivity": {
+        "up": {
+          "weights": [
+            0.39502437347158664,
+            0.26707081487042256,
+            0.12704778686636872,
+            0.12038112019970205,
+            0.0542598588637663,
+            0.03621604572815378
+          ],
+          "delta": {
+            "Safety": -0.0016,
+            "Water Ice": -0.0014,
+            "Sunlight": 0.0056,
+            "Resources": -0.001,
+            "Expansion": -0.0005,
+            "Scientific Value": -0.0011
+          }
+        },
+        "down": {
+          "weights": [
+            0.39811778509874823,
+            0.2698256561994895,
+            0.1152124441209852,
+            0.12245882093257941,
+            0.05533890724267201,
+            0.03904638640552569
+          ],
+          "delta": {
+            "Safety": 0.0015,
+            "Water Ice": 0.0014,
+            "Sunlight": -0.0062,
+            "Resources": 0.0011,
+            "Expansion": 0.0006,
+            "Scientific Value": 0.0017
+          }
+        }
+      },
+      "max_weight_delta": 0.0062
+    },
+    {
+      "judgment": "Resources vs Scientific Value",
+      "factor_a": "Resources",
+      "factor_b": "Scientific Value",
+      "base_value": 4.0,
+      "sensitivity": {
+        "up": {
+          "weights": [
+            0.39502437347158664,
+            0.26707081487042256,
+            0.12038112019970205,
+            0.12704778686636872,
+            0.0542598588637663,
+            0.03621604572815378
+          ],
+          "delta": {
+            "Safety": -0.0016,
+            "Water Ice": -0.0014,
+            "Sunlight": -0.001,
+            "Resources": 0.0056,
+            "Expansion": -0.0005,
+            "Scientific Value": -0.0011
+          }
+        },
+        "down": {
+          "weights": [
+            0.39811778509874823,
+            0.26982565619948945,
+            0.12245882093257941,
+            0.1152124441209852,
+            0.05533890724267201,
+            0.03904638640552569
+          ],
+          "delta": {
+            "Safety": 0.0015,
+            "Water Ice": 0.0014,
+            "Sunlight": 0.0011,
+            "Resources": -0.0062,
+            "Expansion": 0.0006,
+            "Scientific Value": 0.0017
+          }
+        }
+      },
+      "max_weight_delta": 0.0062
+    },
+    {
+      "judgment": "Safety vs Scientific Value",
+      "factor_a": "Safety",
+      "factor_b": "Scientific Value",
+      "base_value": 7.0,
+      "sensitivity": {
+        "up": {
+          "weights": [
+            0.4018898321133198,
+            0.267078997087071,
+            0.1204308181934687,
+            0.1204308181934687,
+            0.054323417278599996,
+            0.03584611713407169
+          ],
+          "delta": {
+            "Safety": 0.0053,
+            "Water Ice": -0.0014,
+            "Sunlight": -0.001,
+            "Resources": -0.001,
+            "Expansion": -0.0005,
+            "Scientific Value": -0.0015
+          }
+        },
+        "down": {
+          "weights": [
+            0.3907360957931172,
+            0.269907926028419,
+            0.12242499280907021,
+            0.12242499280907021,
+            0.05526635030358743,
+            0.039239642256735964
+          ],
+          "delta": {
+            "Safety": -0.0059,
+            "Water Ice": 0.0014,
+            "Sunlight": 0.001,
+            "Resources": 0.001,
+            "Expansion": 0.0005,
+            "Scientific Value": 0.0019
+          }
+        }
+      },
+      "max_weight_delta": 0.0059
+    },
+    {
+      "judgment": "Water Ice vs Scientific Value",
+      "factor_a": "Water Ice",
+      "factor_b": "Scientific Value",
+      "base_value": 6.0,
+      "sensitivity": {
+        "up": {
+          "weights": [
+            0.3951509815154261,
+            0.2737095717881241,
+            0.12037180875899489,
+            0.12037180875899489,
+            0.05427860362666826,
+            0.0361172255517918
+          ],
+          "delta": {
+            "Safety": -0.0015,
+            "Water Ice": 0.0052,
+            "Sunlight": -0.001,
+            "Resources": -0.001,
+            "Expansion": -0.0005,
+            "Scientific Value": -0.0012
+          }
+        },
+        "down": {
+          "weights": [
+            0.39804073514585414,
+            0.26269068048739613,
+            0.12249596591165064,
+            0.12249596591165064,
+            0.05532120217811687,
+            0.038955450365331525
+          ],
+          "delta": {
+            "Safety": 0.0014,
+            "Water Ice": -0.0058,
+            "Sunlight": 0.0011,
+            "Resources": 0.0011,
+            "Expansion": 0.0005,
+            "Scientific Value": 0.0016
+          }
+        }
+      },
+      "max_weight_delta": 0.0058
+    }
+  ],
+  "cr": 0.0262
+}
