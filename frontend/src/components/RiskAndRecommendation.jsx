@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldAlert, Home, Zap, Users, Maximize, Clock, Droplets } from 'lucide-react';
+import { ShieldAlert, Home, Zap, Users, Maximize, Clock, Droplets, ExternalLink, ShieldCheck, Activity } from 'lucide-react';
 
 export default function RiskAndRecommendation({ site }) {
   const riskProfile = site?.risk_profile || {
@@ -14,6 +14,15 @@ export default function RiskAndRecommendation({ site }) {
     confidence_pct: 36.7,
     label: 'Moderate Volatile Signatures'
   };
+
+  const radV1 = site?.radiation_v1 || {
+    svf: 0.944,
+    radiation_dose_mSv_per_year: 266.8,
+    radiation_score: 32.3
+  };
+
+  const siteName = site?.name || 'Faustini Rim';
+  const passportUrl = `/api/blockchain/passport/${encodeURIComponent(siteName)}`;
 
   const getRiskBadge = (level) => {
     switch (level) {
@@ -32,20 +41,20 @@ export default function RiskAndRecommendation({ site }) {
     <div className="grid grid-cols-12 gap-4">
       {/* Risk Assessment & Ice Confidence Box */}
       <div className="col-span-12 xl:col-span-5 p-5 flex flex-col justify-between bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[18px] shadow-sm transition-colors duration-200">
-        <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3 mb-3.5">
+        <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3 mb-3.5 flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 text-[#0066cc]" />
             <h2 className="text-xs font-semibold tracking-tight text-[var(--text-secondary)] uppercase">
-              XAI Risk & Ice Confidence
+              XAI Risk & Radiation V1
             </h2>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[var(--apple-parchment)] border border-[var(--border-color)] text-[#0066cc] text-[11px] font-medium">
-            <Droplets className="w-3 h-3" />
-            <span>Ice: {iceConf.confidence_pct}%</span>
+            <Activity className="w-3 h-3" />
+            <span>{radV1.radiation_dose_mSv_per_year?.toFixed(1)} mSv/yr</span>
           </div>
         </div>
 
-        {/* 5-Factor Risk Profile Grid */}
+        {/* 5-Factor Risk Profile Grid + Radiation V1 Banner */}
         <div className="space-y-2 text-xs flex-1">
           {Object.entries(riskProfile).map(([key, item]) => (
             <div
@@ -64,16 +73,43 @@ export default function RiskAndRecommendation({ site }) {
               </div>
             </div>
           ))}
+
+          {/* Radiation V1 Terrain Shielding Pill */}
+          <div className="bg-[var(--apple-parchment)] rounded-[12px] p-2.5 border border-[var(--border-color)] flex items-center justify-between">
+            <div className="space-y-0.5">
+              <span className="text-[var(--text-primary)] font-medium block">Sky View Factor (SVF)</span>
+              <span className="text-[10px] text-[var(--text-muted)] block">PHITS Calibrated Terrain Shielding</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono text-[var(--text-secondary)]">{radV1.svf?.toFixed(3)} SVF</span>
+              <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-blue-500/10 text-[#0066cc] border border-blue-500/20">
+                GCR Shielded
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Habitat Recommendation Box */}
+      {/* Habitat Recommendation Box & Blockchain Passport */}
       <div className="col-span-12 xl:col-span-7 p-5 flex flex-col justify-between bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[18px] shadow-sm transition-colors duration-200">
-        <div className="flex items-center gap-2 border-b border-[var(--border-color)] pb-3 mb-3.5">
-          <Home className="w-4 h-4 text-[#0066cc]" />
-          <h2 className="text-xs font-semibold tracking-tight text-[var(--text-secondary)] uppercase">
-            Habitat Recommendation & Architecture
-          </h2>
+        <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3 mb-3.5 flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <Home className="w-4 h-4 text-[#0066cc]" />
+            <h2 className="text-xs font-semibold tracking-tight text-[var(--text-secondary)] uppercase">
+              Habitat Architecture & Blockchain Registry
+            </h2>
+          </div>
+          <a
+            href={passportUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0066cc] text-white text-[11px] font-semibold hover:bg-[#0071e3] transition-all shadow-sm active:scale-95 cursor-pointer"
+            title="View Tamper-Proof Cryptographic Decision Passport"
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Blockchain Passport</span>
+            <ExternalLink className="w-2.5 h-2.5" />
+          </a>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs flex-1">

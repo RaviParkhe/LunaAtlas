@@ -1,0 +1,42 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_19-06c34514c206e6d592bcbf9e4fd0d7f9c64465c3",
+  "solcVersion": "0.8.19",
+  "solcLongVersion": "0.8.19+commit.7dd6d404",
+  "compilerType": "solc",
+  "userSourceNameMap": {
+    "contracts/LunarDecisionRegistry.sol": "project/contracts/LunarDecisionRegistry.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "paris",
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode.linkReferences",
+            "evm.bytecode.object",
+            "evm.bytecode.opcodes",
+            "evm.bytecode.sourceMap",
+            "evm.deployedBytecode.immutableReferences",
+            "evm.deployedBytecode.linkReferences",
+            "evm.deployedBytecode.object",
+            "evm.deployedBytecode.opcodes",
+            "evm.deployedBytecode.sourceMap",
+            "evm.methodIdentifiers"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/LunarDecisionRegistry.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.19;\n\ncontract LunarDecisionRegistry {\n    \n    struct DecisionRecord {\n        bytes32 datasetHash;\n        bytes32 featureConfigHash;\n        bytes32 preprocessingHash;\n        bytes32 modelHash;\n        bytes32 clusterHash;\n        bytes32 ahpConfigHash;\n        bytes32 ahpResultHash;\n        bytes32 mlXaiHash;\n        bytes32 ahpXaiHash;\n        bytes32 geminiHash;\n        bytes32 counterfactualHash;\n        bytes32 reportHash;\n        uint256 timestamp;\n        string siteId;\n        string pipelineVersion;\n    }\n\n    mapping(bytes32 => DecisionRecord) private registry;\n    mapping(bytes32 => bool) private exists;\n\n    event DecisionRegistered(\n        bytes32 indexed decisionId,\n        string siteId,\n        uint256 timestamp\n    );\n\n    function registerDecision(\n        bytes32 _decisionId,\n        DecisionRecord memory _record\n    ) public {\n        require(!exists[_decisionId], \"Decision already registered\");\n        registry[_decisionId] = _record;\n        exists[_decisionId] = true;\n\n        emit DecisionRegistered(_decisionId, _record.siteId, _record.timestamp);\n    }\n\n    function getDecision(bytes32 _decisionId) public view returns (DecisionRecord memory) {\n        require(exists[_decisionId], \"Decision not found\");\n        return registry[_decisionId];\n    }\n\n    function decisionExists(bytes32 _decisionId) public view returns (bool) {\n        return exists[_decisionId];\n    }\n}\n"
+      }
+    }
+  }
+}

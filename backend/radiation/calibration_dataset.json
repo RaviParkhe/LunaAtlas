@@ -1,0 +1,111 @@
+{
+  "_schema_version": "2.0",
+  "_description": "Radiation calibration dataset for Lunar Habitat AI Radiation Model V1",
+  "_provenance_note": "Dose values and incident GCR flux reductions are directly reported by Burahmah & Heilbronn (2023) PHITS simulations. Dose conversions from uSv/day to mSv/year are calculated. No SVF value is claimed to be measured by the source paper. The model uses a terrain-shielding proxy derived from the regional SVF: shielding_proxy = 1 - SVF.",
+  "calibration_points": [
+    {
+      "study_id": "BH2023_solmin_open_surface",
+      "source": "Burahmah & Heilbronn (2023), Aerospace 10(11), 970. DOI: 10.3390/aerospace10110970",
+      "geometry_description": "Open lunar surface",
+      "original_reported_value": 762.1,
+      "original_unit": "uSv/day",
+      "dose_value_mSv_per_year": 278.2665,
+      "physical_quantity": "effective dose equivalent",
+      "solar_condition": "solar minimum",
+      "incident_gcr_flux_reduction_fraction": 0.0,
+      "published_dose_reduction_fraction": 0.0,
+      "terrain_shielding_proxy": 0.0,
+      "notes": "Published open-surface reference. Shielding proxy is zero by definition."
+    },
+    {
+      "study_id": "BH2023_solmin_shallow_center_5m",
+      "source": "Burahmah & Heilbronn (2023), Aerospace 10(11), 970. DOI: 10.3390/aerospace10110970",
+      "geometry_description": "Shallow crater center, 5 m depth",
+      "original_reported_value": 710.7,
+      "original_unit": "uSv/day",
+      "dose_value_mSv_per_year": 259.4055,
+      "physical_quantity": "effective dose equivalent",
+      "solar_condition": "solar minimum",
+      "incident_gcr_flux_reduction_fraction": 0.005,
+      "published_dose_reduction_fraction": 0.067,
+      "terrain_shielding_proxy": 0.005,
+      "notes": "Incident GCR flux reduction and dose reduction are directly reported in Table 3. Dose conversion is calculated."
+    },
+    {
+      "study_id": "BH2023_solmin_shallow_edge_5m",
+      "source": "Burahmah & Heilbronn (2023), Aerospace 10(11), 970. DOI: 10.3390/aerospace10110970",
+      "geometry_description": "Shallow crater edge, 5 m depth",
+      "original_reported_value": 680.8,
+      "original_unit": "uSv/day",
+      "dose_value_mSv_per_year": 248.492,
+      "physical_quantity": "effective dose equivalent",
+      "solar_condition": "solar minimum",
+      "incident_gcr_flux_reduction_fraction": 0.073,
+      "published_dose_reduction_fraction": 0.107,
+      "terrain_shielding_proxy": 0.073,
+      "notes": "Incident GCR flux reduction and dose reduction are directly reported in Table 3. Dose conversion is calculated."
+    },
+    {
+      "study_id": "BH2023_solmin_deep_center_15m",
+      "source": "Burahmah & Heilbronn (2023), Aerospace 10(11), 970. DOI: 10.3390/aerospace10110970",
+      "geometry_description": "Deep crater center, 15 m depth",
+      "original_reported_value": 619.2,
+      "original_unit": "uSv/day",
+      "dose_value_mSv_per_year": 226.008,
+      "physical_quantity": "effective dose equivalent",
+      "solar_condition": "solar minimum",
+      "incident_gcr_flux_reduction_fraction": 0.042,
+      "published_dose_reduction_fraction": 0.188,
+      "terrain_shielding_proxy": 0.042,
+      "notes": "Incident GCR flux reduction and dose reduction are directly reported in Table 3. Dose conversion is calculated."
+    },
+    {
+      "study_id": "BH2023_solmin_deep_edge_15m",
+      "source": "Burahmah & Heilbronn (2023), Aerospace 10(11), 970. DOI: 10.3390/aerospace10110970",
+      "geometry_description": "Deep crater edge, 15 m depth",
+      "original_reported_value": 419.8,
+      "original_unit": "uSv/day",
+      "dose_value_mSv_per_year": 153.227,
+      "physical_quantity": "effective dose equivalent",
+      "solar_condition": "solar minimum",
+      "incident_gcr_flux_reduction_fraction": 0.258,
+      "published_dose_reduction_fraction": 0.449,
+      "notes": "Incident GCR flux reduction and dose reduction are directly reported in Table 3. Dose conversion is calculated."
+    }
+  ],
+  "excluded_values": {
+    "solar_maximum_scenarios": {
+      "reason": "V1 defaults to solar minimum (GCR maximum, worst-case for long-duration exposure). Solar maximum scenarios from the same paper (open surface 260.8 uSv/day, deep wall 142.4 uSv/day) are excluded to avoid mixing solar conditions.",
+      "values_noted_for_reference_only": {
+        "solar_max_open_surface_uSv_per_day": 260.8,
+        "solar_max_deep_crater_wall_uSv_per_day": 142.4,
+        "solar_max_deep_crater_center_uSv_per_day": 224.4
+      }
+    },
+    "naito_2023_neutron_gamma": {
+      "reason": "Naito, Kusano & Kodaira (2023) DOI 10.1038/s41598-023-40405-0 reports neutron and gamma-ray AMBIENT DOSE EQUIVALENT (H*(10)), not effective dose equivalent. These are physically incompatible quantities and cannot be mixed with the Burahmah & Heilbronn effective dose values without conversion factors that depend on geometry and particle field. Used as background literature only.",
+      "naito_effective_dose_note": "Naito et al. also report 420 mSv/year as a worst-case effective dose for the lunar surface (solar minimum). This is consistent with BH2023 (762.1 uSv/day = 278 mSv/year is lower — the ~420 mSv/year may include different GCR model or shielding assumptions). Due to inability to verify exact physical quantity compatibility, Naito effective dose is noted as supporting context but not used as a calibration anchor.",
+      "naito_neutron_mSv_yr_range": [
+        58.7,
+        71.5
+      ],
+      "naito_gamma_mSv_yr_range": [
+        3.33,
+        3.76
+      ]
+    }
+  },
+  "metadata": {
+    "primary_source": "Burahmah & Heilbronn (2023), Comparison of Doses in Lunar Habitats Located at the Surface and in Crater, Aerospace 10(11), 970",
+    "simulation_code": "PHITS",
+    "radiation_type_modelled": "Galactic Cosmic Rays",
+    "physical_quantity": "Effective dose equivalent",
+    "solar_condition": "Solar minimum",
+    "calibration_feature": "terrain_shielding_proxy",
+    "grid_feature_formula": "terrain_shielding_proxy = 1 - SVF",
+    "important_limitation": "The published paper does not report SVF. Its incident GCR flux reduction values are used as calibration evidence for the terrain-shielding proxy. The mapping from regional SVF to incident GCR shielding is therefore a first-order approximation.",
+    "n_calibration_points": 5,
+    "n_studies_with_compatible_dose": 1,
+    "independent_validation": "Not available because all five calibration points come from the same PHITS study."
+  }
+}

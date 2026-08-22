@@ -98,6 +98,18 @@ class LunarScoringEngine:
         self.grid_meta = meta["grid_meta"]
         self.named_sites = meta["named_sites"]
         self.grid_size = self.grid_meta["shape"][0]
+
+        # Load Radiation Model V1 data if available
+        self.radiation_v1_data = {}
+        rad_v1_path = os.path.join(DATA_DIR, "radiation", "radiation_v1_output.json")
+        if not os.path.exists(rad_v1_path):
+            rad_v1_path = os.path.join(os.path.dirname(__file__), "radiation", "radiation_v1_output.json")
+        if os.path.exists(rad_v1_path):
+            try:
+                with open(rad_v1_path, "r", encoding="utf-8") as rf:
+                    self.radiation_v1_data = json.load(rf).get("named_sites", {})
+            except Exception:
+                self.radiation_v1_data = {}
         self.half_extent_m = self.grid_meta["bounds"]["right"]
 
     def compute_grid_scores(
@@ -230,6 +242,12 @@ class LunarScoringEngine:
                 },
                 "risk_profile": risk_profile,
                 "ice_confidence": ice_confidence,
+                "radiation_v1": self.radiation_v1_data.get(name, {
+                    "svf": 0.95,
+                    "radiation_dose_mSv_per_year": 270.0,
+                    "radiation_score": round(site["radiation_safety_score"], 1),
+                    "extrapolation_flag": False
+                }),
                 "mission_briefing": briefing,
                 "explanation": briefing
             })
