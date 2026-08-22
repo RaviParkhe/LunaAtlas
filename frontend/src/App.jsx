@@ -413,7 +413,13 @@ export default function App() {
                 </div>
               </div>
             ) : (
-              <InitialWelcomeView onStartAnalysis={() => runEvaluation(missionConfig)} />
+              <InitialWelcomeView
+                onStartAnalysis={() => runEvaluation(missionConfig)}
+                missionConfig={missionConfig}
+                setMissionConfig={setMissionConfig}
+                presetObjectives={PRESET_OBJECTIVE_WEIGHTS}
+                defaultWeights={DEFAULT_WEIGHTS}
+              />
             )}
           </main>
         ) : activeTab === 'globe' ? (

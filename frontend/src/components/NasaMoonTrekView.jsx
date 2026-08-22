@@ -10,6 +10,7 @@ export default function NasaMoonTrekView() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [hoveredPoint, setHoveredPoint] = useState(null);
+  const [hoveredLandmark, setHoveredLandmark] = useState(null);
   const [selectedLandmark, setSelectedLandmark] = useState(null);
 
   // Pre-load NASA LROC 2048x2048 South Pole Relief Mosaic
@@ -92,6 +93,7 @@ export default function NasaMoonTrekView() {
     // 4. Draw Major South Pole Crater Markers
     southPoleCraters.forEach((crater) => {
       const isSelected = selectedLandmark && selectedLandmark.name === crater.name;
+      const isHovered = hoveredLandmark && hoveredLandmark.crater.name === crater.name;
       const latOffset = 90 - Math.abs(crater.lat);
       const rDist = (latOffset / 10) * maxRadius;
       const lonRad = (crater.lon * Math.PI) / 180;
@@ -101,10 +103,10 @@ export default function NasaMoonTrekView() {
 
       // Pinpoint Ring
       ctx.beginPath();
-      ctx.arc(px, py, (isSelected ? 11 : 7) / zoomLevel, 0, Math.PI * 2);
-      ctx.fillStyle = isSelected ? '#0066cc' : 'rgba(29, 29, 31, 0.85)';
-      ctx.strokeStyle = isSelected ? '#ffffff' : '#0066cc';
-      ctx.lineWidth = (isSelected ? 2.5 : 1.5) / zoomLevel;
+      ctx.arc(px, py, (isSelected ? 11 : isHovered ? 9.5 : 7) / zoomLevel, 0, Math.PI * 2);
+      ctx.fillStyle = isSelected ? '#0066cc' : isHovered ? '#00daf3' : 'rgba(29, 29, 31, 0.85)';
+      ctx.strokeStyle = isSelected ? '#ffffff' : isHovered ? '#00daf3' : '#0066cc';
+      ctx.lineWidth = (isSelected || isHovered ? 2.5 : 1.5) / zoomLevel;
       ctx.fill();
       ctx.stroke();
 
@@ -116,13 +118,13 @@ export default function NasaMoonTrekView() {
 
       // Label Box
       ctx.font = `600 ${Math.max(8.5, 9.5 / Math.sqrt(zoomLevel))}px -apple-system, sans-serif`;
-      ctx.fillStyle = isSelected ? '#0066cc' : '#ffffff';
+      ctx.fillStyle = isSelected ? '#0066cc' : isHovered ? '#00daf3' : '#ffffff';
       ctx.textAlign = 'center';
       ctx.fillText(crater.name.split(' ')[0], px, py - (14 / zoomLevel));
     });
 
     ctx.restore();
-  }, [polarImage, zoomLevel, panOffset, selectedLandmark]);
+  }, [polarImage, zoomLevel, panOffset, selectedLandmark, hoveredLandmark]);
 
   const handleMouseDown = (e) => {
     setIsDragging(true);
@@ -160,6 +162,30 @@ export default function NasaMoonTrekView() {
     } else {
       setHoveredPoint(null);
     }
+
+    // Check if hovering over landmark
+    let matchedLandmark = null;
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+
+    for (const crater of southPoleCraters) {
+      const latOffset = 90 - Math.abs(crater.lat);
+      const rDist = (latOffset / 10) * maxRadius;
+      const lonRad = (crater.lon * Math.PI) / 180;
+      const px = cx + rDist * Math.sin(lonRad);
+      const py = cy - rDist * Math.cos(lonRad);
+
+      const clickDist = Math.hypot(transformedX - px, transformedY - py);
+      if (clickDist < 26 / zoomLevel) {
+        matchedLandmark = {
+          crater,
+          clientX,
+          clientY
+        };
+        break;
+      }
+    }
+    setHoveredLandmark(matchedLandmark);
   };
 
   const handleMouseUp = () => {
@@ -194,7 +220,7 @@ export default function NasaMoonTrekView() {
       const py = cy - rDist * Math.cos(lonRad);
 
       const clickDist = Math.hypot(transformedX - px, transformedY - py);
-      if (clickDist < 25 / zoomLevel) {
+      if (clickDist < 26 / zoomLevel) {
         setSelectedLandmark(crater);
       }
     });
@@ -204,6 +230,7 @@ export default function NasaMoonTrekView() {
     setZoomLevel(1);
     setPanOffset({ x: 0, y: 0 });
     setSelectedLandmark(null);
+    setHoveredLandmark(null);
   };
 
   return (
@@ -247,7 +274,9 @@ export default function NasaMoonTrekView() {
         {/* Left Side: High-Res Interactive Canvas */}
         <div className="col-span-12 lg:col-span-8 xl:col-span-9 h-full relative bg-[var(--bg-dark)] flex items-center justify-center border-r border-[var(--border-color)]">
           <div
-            className="w-full h-full relative cursor-grab active:cursor-grabbing flex items-center justify-center"
+            className={`w-full h-full relative flex items-center justify-center ${
+              hoveredLandmark ? 'cursor-pointer' : isDragging ? 'cursor-grabbing' : 'cursor-grab'
+            }`}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -262,8 +291,34 @@ export default function NasaMoonTrekView() {
               className="max-w-full max-h-full block shadow-xl rounded-2xl"
             />
 
+            {/* Interactive Landmark Hover Tooltip Card */}
+            {hoveredLandmark && (
+              <div
+                className="absolute z-30 pointer-events-none p-3.5 rounded-[14px] bg-[var(--bg-card)]/95 backdrop-blur-md border border-[#0066cc] shadow-2xl space-y-1.5 min-w-[210px] transition-all"
+                style={{
+                  left: `${Math.min(500, Math.max(12, hoveredLandmark.clientX + 14))}px`,
+                  top: `${Math.min(550, Math.max(12, hoveredLandmark.clientY - 50))}px`
+                }}
+              >
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-[#0066cc]">
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>{hoveredLandmark.crater.name}</span>
+                </div>
+                <div className="text-[11px] text-[var(--text-secondary)] font-mono">
+                  Coordinates: {Math.abs(hoveredLandmark.crater.lat).toFixed(2)}°S, {hoveredLandmark.crater.lon.toFixed(2)}°E
+                </div>
+                <div className="text-xs pt-1.5 border-t border-[var(--border-color)] space-y-0.5">
+                  <div className="text-[11px] text-[var(--text-muted)]">{hoveredLandmark.crater.type}</div>
+                  <div className="flex items-center justify-between text-xs font-semibold text-[var(--text-primary)] pt-1">
+                    <span>Elev: {hoveredLandmark.crater.elev}</span>
+                    <span>Slope: {hoveredLandmark.crater.slope}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Hover Coordinate HUD */}
-            {hoveredPoint && (
+            {hoveredPoint && !hoveredLandmark && (
               <div className="absolute top-4 left-4 pointer-events-none bg-[var(--bg-card)]/90 backdrop-blur-md border border-[var(--border-color)] px-3.5 py-1.5 rounded-full flex items-center gap-2 shadow-sm">
                 <span className="w-2 h-2 rounded-full bg-[#0066cc] animate-pulse"></span>
                 <span className="text-xs font-medium text-[var(--text-primary)]">
