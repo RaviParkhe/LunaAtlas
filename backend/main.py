@@ -388,6 +388,16 @@ def get_heatmap_layer(req: HeatmapRequest):
         "grid": matrix_list
     }
 
+@app.get("/api/grid/heatmap/{layer}")
+@app.get("/api/heatmap/{layer}")
+@app.get("/api/heatmap")
+def get_heatmap_layer_get(layer: str = "overall_score", downsample_factor: int = 2):
+    return get_heatmap_layer(HeatmapRequest(layer=layer, downsample_factor=downsample_factor))
+
+@app.get("/api/datasets/info")
+def get_datasets_info():
+    return get_dataset_reports()
+
 @app.get("/api/monitor/solar")
 def get_solar_telemetry():
     telemetry = solar_monitor.get_solar_status_sync()
