@@ -29,17 +29,19 @@ export default function AIRecommendationSummary({ site }) {
   const isHighSlope = slopeVal != null && slopeVal > 5.0;
 
   const [isPassportOpen, setIsPassportOpen] = React.useState(false);
-  const [liveBriefing, setLiveBriefing] = React.useState(null);
+  const [briefingCache, setBriefingCache] = React.useState({});
   const [isLlmLoading, setIsLlmLoading] = React.useState(false);
 
+  const currentBriefing = briefingCache[site?.name] || null;
+
   React.useEffect(() => {
-    if (site?.name) {
+    if (site?.name && !briefingCache[site.name]) {
       setIsLlmLoading(true);
       fetch(`/api/xai/briefing/${encodeURIComponent(site.name)}`)
         .then((res) => res.json())
         .then((data) => {
           if (data && data.briefing) {
-            setLiveBriefing(data);
+            setBriefingCache((prev) => ({ ...prev, [site.name]: data }));
           }
           setIsLlmLoading(false);
         })
@@ -48,7 +50,7 @@ export default function AIRecommendationSummary({ site }) {
           setIsLlmLoading(false);
         });
     }
-  }, [site?.name]);
+  }, [site?.name, briefingCache]);
 
   const missionArchetype = site.archetype || site.ml_archetype || (
     (site.elevation_m || 0) > 1500 ? "Peak of Light Outpost" :
@@ -316,24 +318,32 @@ export default function AIRecommendationSummary({ site }) {
 
       {/* Bottom Briefing Summary Bar */}
       <div
-        className="rounded-[14px] p-3 shrink-0 flex items-start gap-2.5"
+        className="rounded-[14px] p-3.5 shrink-0 flex items-start gap-2.5 shadow-xs"
         style={{ background: 'var(--apple-parchment)', border: '1px solid var(--border-color)' }}
       >
-        <Info className="w-4 h-4 text-[#0066cc] shrink-0 mt-0.5" />
+        <div className="p-1 rounded-full bg-[#0066cc]/10 text-[#0066cc] shrink-0 mt-0.5">
+          <Sparkles className="w-3.5 h-3.5" />
+        </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#0066cc]">
-              {liveBriefing?.is_llm_generated ? '🤖 Live Gemini Mission Briefing' : 'Physics Rule-Engine Briefing'}
+          <div className="flex items-center justify-between gap-2 mb-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#0066cc] flex items-center gap-1">
+              <span>🤖 Live Google Gemini 3.6 Flash Intelligence</span>
             </span>
-            {isLlmLoading && (
-              <span className="text-[10px] text-amber-500 animate-pulse font-mono">
-                Streaming live intelligence...
-              </span>
-            )}
+            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/25">
+              {isLlmLoading ? 'STREAMING...' : 'REAL-TIME LLM'}
+            </span>
           </div>
-          <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            {displayBriefing}
-          </p>
+
+          {isLlmLoading && !currentBriefing ? (
+            <div className="flex items-center gap-2 py-1 text-xs text-amber-600 font-mono">
+              <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+              <span>Querying Google Gemini 3.6 Flash for {site.name} telemetry synthesis...</span>
+            </div>
+          ) : (
+            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              {currentBriefing?.briefing || displayBriefing}
+            </p>
+          )}
         </div>
       </div>
     </div>
