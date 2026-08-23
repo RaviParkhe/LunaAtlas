@@ -5,6 +5,7 @@ import time
 import webbrowser
 import urllib.request
 import json
+import subprocess
 import uvicorn
 
 ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -26,7 +27,7 @@ def start_server():
     from backend.main import app
     uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="warning")
 
-def wait_for_server(timeout=10.0):
+def wait_for_server(timeout=12.0):
     start = time.time()
     while time.time() - start < timeout:
         if is_server_running():
@@ -47,32 +48,41 @@ def launch_desktop():
     else:
         print(f"[+] Existing compute engine detected on {URL}.")
 
-    print("[*] Verifying backend engine health...")
-    if not wait_for_server(timeout=10.0):
-        print("[!] Warning: Server startup took longer than expected. Proceeding...")
+    print("[*] Waiting for backend compute engine readiness...")
+    if not wait_for_server(timeout=12.0):
+        print("[!] Server startup taking longer than expected. Continuing...")
+
+    print(f"[+] Workstation engine ready! Launching UI at {URL} ...")
+
+    # Try launching in native App Mode via Chromium/Edge or default browser
+    launched = False
+    try:
+        # Launch in native app window mode using Microsoft Edge (standard on Windows 10/11)
+        subprocess.Popen(["cmd.exe", "/c", "start", "msedge", f"--app={URL}", "--window-size=1480,920"], shell=True)
+        launched = True
+    except Exception:
+        pass
+
+    if not launched:
+        try:
+            # Fallback to Chrome app mode
+            subprocess.Popen(["cmd.exe", "/c", "start", "chrome", f"--app={URL}", "--window-size=1480,920"], shell=True)
+            launched = True
+        except Exception:
+            pass
+
+    if not launched:
+        # Fallback to default web browser
+        webbrowser.open(URL)
+
+    print(f"\n[✓] LunaAtlas Workstation is active at: {URL}")
+    print("[*] Press Ctrl+C in this terminal to stop the server.")
 
     try:
-        import webview
-        print("[*] Launching native aerospace desktop workstation window via PyWebview...")
-        window = webview.create_window(
-            title="LunaAtlas — Lunar Habitat Decision Support Workstation",
-            url=URL,
-            width=1480,
-            height=920,
-            min_size=(1100, 720),
-            background_color="#0e131d"
-        )
-        webview.start()
-    except Exception as e:
-        print(f"[*] PyWebview fallback ({e}). Launching in default browser...")
-        webbrowser.open(URL)
-        print(f"[+] Workstation is live at: {URL}")
-        print("[*] Press Ctrl+C to stop.")
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            print("\nShutting down LunaAtlas workstation.")
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\n[*] Shutting down LunaAtlas workstation.")
 
 if __name__ == "__main__":
     launch_desktop()
