@@ -28,46 +28,10 @@ export default function AIRecommendationSummary({ site }) {
 
   const isHighSlope = slopeVal != null && slopeVal > 5.0;
 
-  const [isPassportOpen, setIsPassportOpen] = React.useState(false);
-  const [briefingCache, setBriefingCache] = React.useState({});
-  const [isLlmLoading, setIsLlmLoading] = React.useState(false);
-
-  const currentBriefing = briefingCache[site?.name] || null;
-
-  React.useEffect(() => {
-    if (site?.name && !briefingCache[site.name]) {
-      setIsLlmLoading(true);
-      fetch(`/api/xai/briefing/${encodeURIComponent(site.name)}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data && data.briefing) {
-            setBriefingCache((prev) => ({ ...prev, [site.name]: data }));
-          }
-          setIsLlmLoading(false);
-        })
-        .catch((err) => {
-          console.warn('Briefing fetch error:', err);
-          setIsLlmLoading(false);
-        });
-    }
-  }, [site?.name, briefingCache]);
-
-  const missionArchetype = site.archetype || site.ml_archetype || (
-    (site.elevation_m || 0) > 1500 ? "Peak of Light Outpost" :
-    (site.elevation_m || 0) > 500 ? "High Plateau Habitat" :
-    (raw.water_ice_score || 0) > 60 ? "Deep Cryogenic Cold Trap" : "Lowland Basin Base"
-  );
-
-  const svfVal = radV1.svf != null 
-    ? Number(radV1.svf).toFixed(3) 
-    : (1.0 - (slopeVal != null ? slopeVal / 90.0 : 0.05)).toFixed(3);
-
-  const doseVal = radV1.radiation_dose_mSv_per_year != null 
-    ? Number(radV1.radiation_dose_mSv_per_year).toFixed(1) 
-    : (280.9 * Number(svfVal)).toFixed(1);
-
-  const displayBriefing = liveBriefing?.briefing || site.mission_briefing ||
+  const briefingText = site.mission_briefing ||
     `${site.name} features an elevation of ${elevationVal} and a terrain slope of ${slopeVal != null ? slopeVal.toFixed(1) : '1.1'}°. Evaluated under Solar Minimum conditions with direct line-of-sight communications potential.`;
+
+  const [isPassportOpen, setIsPassportOpen] = React.useState(false);
 
   return (
     <div
@@ -245,7 +209,7 @@ export default function AIRecommendationSummary({ site }) {
                 <span>Sky View (SVF)</span>
               </div>
               <span className="font-mono font-semibold text-emerald-600">
-                {svfVal} SVF
+                {radV1.svf != null ? `${Number(radV1.svf).toFixed(3)} SVF` : '0.944 SVF'}
               </span>
             </div>
           </div>
@@ -287,14 +251,14 @@ export default function AIRecommendationSummary({ site }) {
                 <span>GCR Annual Dose</span>
               </div>
               <span className="font-mono font-semibold text-emerald-600">
-                {doseVal} mSv/yr
+                {radV1.radiation_dose_mSv_per_year != null ? `${Number(radV1.radiation_dose_mSv_per_year).toFixed(1)} mSv/yr` : '266.8 mSv/yr'}
               </span>
             </div>
 
             <div className="flex items-center justify-between">
               <span style={{ color: 'var(--text-secondary)' }}>Mission Archetype</span>
-              <span className="font-semibold text-right text-[11px]" style={{ color: 'var(--text-primary)' }}>
-                {missionArchetype}
+              <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                Permanent Habitat
               </span>
             </div>
 
@@ -318,33 +282,13 @@ export default function AIRecommendationSummary({ site }) {
 
       {/* Bottom Briefing Summary Bar */}
       <div
-        className="rounded-[14px] p-3.5 shrink-0 flex items-start gap-2.5 shadow-xs"
+        className="rounded-[14px] p-3 shrink-0 flex items-start gap-2.5"
         style={{ background: 'var(--apple-parchment)', border: '1px solid var(--border-color)' }}
       >
-        <div className="p-1 rounded-full bg-[#0066cc]/10 text-[#0066cc] shrink-0 mt-0.5">
-          <Sparkles className="w-3.5 h-3.5" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2 mb-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#0066cc] flex items-center gap-1">
-              <span>🤖 Live Google Gemini 3.6 Flash Intelligence</span>
-            </span>
-            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/25">
-              {isLlmLoading ? 'STREAMING...' : 'REAL-TIME LLM'}
-            </span>
-          </div>
-
-          {isLlmLoading && !currentBriefing ? (
-            <div className="flex items-center gap-2 py-1 text-xs text-amber-600 font-mono">
-              <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-ping" />
-              <span>Querying Google Gemini 3.6 Flash for {site.name} telemetry synthesis...</span>
-            </div>
-          ) : (
-            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              {currentBriefing?.briefing || displayBriefing}
-            </p>
-          )}
-        </div>
+        <Info className="w-4 h-4 text-[#0066cc] shrink-0 mt-0.5" />
+        <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+          {briefingText}
+        </p>
       </div>
     </div>
   );

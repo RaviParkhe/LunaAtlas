@@ -21,6 +21,7 @@ export default function DashboardTabs({
   onSelectLayer,
 }) {
   const [activePanel, setActivePanel] = useState('map');
+  const currentSite = selectedSite || (sites && sites.length > 0 ? sites[0] : null);
 
   return (
     <div
@@ -65,7 +66,7 @@ export default function DashboardTabs({
             <div className="col-span-12 xl:col-span-7 h-full min-h-0 flex flex-col">
               <MoonExplorer
                 sites={sites}
-                selectedSite={selectedSite}
+                selectedSite={currentSite}
                 onSelectSite={onSelectSite}
                 gridHeatmap={gridHeatmap}
                 activeLayerId={activeLayerId}
@@ -75,7 +76,7 @@ export default function DashboardTabs({
 
             {/* RIGHT: AI Recommendation Summary */}
             <div className="col-span-12 xl:col-span-5 h-full min-h-0 flex flex-col overflow-hidden">
-              <AIRecommendationSummary site={selectedSite} />
+              <AIRecommendationSummary site={currentSite} />
             </div>
           </div>
         )}
@@ -83,7 +84,7 @@ export default function DashboardTabs({
         {/* ── TAB 2: Explainable AI ── */}
         {activePanel === 'xai' && (
           <div className="h-full p-4 overflow-hidden flex flex-col">
-            <ExplainableAI site={selectedSite} />
+            <ExplainableAI site={currentSite} />
           </div>
         )}
 
@@ -92,7 +93,7 @@ export default function DashboardTabs({
           <div className="h-full p-4 overflow-hidden flex flex-col">
             <CandidatePointsTable
               sites={sites}
-              selectedSite={selectedSite}
+              selectedSite={currentSite}
               onSelectSite={onSelectSite}
             />
           </div>

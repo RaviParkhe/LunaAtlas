@@ -1,10 +1,10 @@
 @echo off
-title LunaAtlas Desktop Workstation
+title LunaAstra Desktop Workstation
 echo ======================================================================
-echo    LUNAATLAS — LUNAR HABITAT AI DECISION SUPPORT WORKSTATION
-echo    Aerospace Decision Support System
+echo    LUNA-ASTRA — LUNAR HABITAT AI DECISION SUPPORT WORKSTATION
+echo    NSIC Software Track (SW02)
 echo ======================================================================
 echo.
-echo [*] Starting LunaAtlas Native Desktop Application...
+echo [*] Starting LunaAstra Native Desktop Application...
 python desktop_app.py
 pause
