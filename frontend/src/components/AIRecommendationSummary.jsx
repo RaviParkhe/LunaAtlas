@@ -28,10 +28,44 @@ export default function AIRecommendationSummary({ site }) {
 
   const isHighSlope = slopeVal != null && slopeVal > 5.0;
 
-  const briefingText = site.mission_briefing ||
-    `${site.name} features an elevation of ${elevationVal} and a terrain slope of ${slopeVal != null ? slopeVal.toFixed(1) : '1.1'}°. Evaluated under Solar Minimum conditions with direct line-of-sight communications potential.`;
-
   const [isPassportOpen, setIsPassportOpen] = React.useState(false);
+  const [liveBriefing, setLiveBriefing] = React.useState(null);
+  const [isLlmLoading, setIsLlmLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    if (site?.name) {
+      setIsLlmLoading(true);
+      fetch(`/api/xai/briefing/${encodeURIComponent(site.name)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.briefing) {
+            setLiveBriefing(data);
+          }
+          setIsLlmLoading(false);
+        })
+        .catch((err) => {
+          console.warn('Briefing fetch error:', err);
+          setIsLlmLoading(false);
+        });
+    }
+  }, [site?.name]);
+
+  const missionArchetype = site.archetype || site.ml_archetype || (
+    (site.elevation_m || 0) > 1500 ? "Peak of Light Outpost" :
+    (site.elevation_m || 0) > 500 ? "High Plateau Habitat" :
+    (raw.water_ice_score || 0) > 60 ? "Deep Cryogenic Cold Trap" : "Lowland Basin Base"
+  );
+
+  const svfVal = radV1.svf != null 
+    ? Number(radV1.svf).toFixed(3) 
+    : (1.0 - (slopeVal != null ? slopeVal / 90.0 : 0.05)).toFixed(3);
+
+  const doseVal = radV1.radiation_dose_mSv_per_year != null 
+    ? Number(radV1.radiation_dose_mSv_per_year).toFixed(1) 
+    : (280.9 * Number(svfVal)).toFixed(1);
+
+  const displayBriefing = liveBriefing?.briefing || site.mission_briefing ||
+    `${site.name} features an elevation of ${elevationVal} and a terrain slope of ${slopeVal != null ? slopeVal.toFixed(1) : '1.1'}°. Evaluated under Solar Minimum conditions with direct line-of-sight communications potential.`;
 
   return (
     <div
@@ -209,7 +243,7 @@ export default function AIRecommendationSummary({ site }) {
                 <span>Sky View (SVF)</span>
               </div>
               <span className="font-mono font-semibold text-emerald-600">
-                {radV1.svf != null ? `${Number(radV1.svf).toFixed(3)} SVF` : '0.944 SVF'}
+                {svfVal} SVF
               </span>
             </div>
           </div>
@@ -251,14 +285,14 @@ export default function AIRecommendationSummary({ site }) {
                 <span>GCR Annual Dose</span>
               </div>
               <span className="font-mono font-semibold text-emerald-600">
-                {radV1.radiation_dose_mSv_per_year != null ? `${Number(radV1.radiation_dose_mSv_per_year).toFixed(1)} mSv/yr` : '266.8 mSv/yr'}
+                {doseVal} mSv/yr
               </span>
             </div>
 
             <div className="flex items-center justify-between">
               <span style={{ color: 'var(--text-secondary)' }}>Mission Archetype</span>
-              <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-                Permanent Habitat
+              <span className="font-semibold text-right text-[11px]" style={{ color: 'var(--text-primary)' }}>
+                {missionArchetype}
               </span>
             </div>
 
@@ -286,9 +320,21 @@ export default function AIRecommendationSummary({ site }) {
         style={{ background: 'var(--apple-parchment)', border: '1px solid var(--border-color)' }}
       >
         <Info className="w-4 h-4 text-[#0066cc] shrink-0 mt-0.5" />
-        <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-          {briefingText}
-        </p>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#0066cc]">
+              {liveBriefing?.is_llm_generated ? '🤖 Live Gemini Mission Briefing' : 'Physics Rule-Engine Briefing'}
+            </span>
+            {isLlmLoading && (
+              <span className="text-[10px] text-amber-500 animate-pulse font-mono">
+                Streaming live intelligence...
+              </span>
+            )}
+          </div>
+          <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+            {displayBriefing}
+          </p>
+        </div>
       </div>
     </div>
   );
